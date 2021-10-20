@@ -50,6 +50,11 @@ import {
   UEBA_PATH,
   CASES_FEATURE_ID,
   HOST_ISOLATION_EXCEPTIONS_PATH,
+  CLOUD_POSTURE,
+  CLOUD_POSTURE_RULES,
+  CLOUD_POSTURE_FINDINGS,
+  CLOUD_POSTURE_DASHBOARD,
+  CLOUD_POSTURE_ALERTS,
 } from '../../../common/constants';
 import { ExperimentalFeatures } from '../../../common/experimental_features';
 
@@ -337,6 +342,38 @@ export const securitySolutionsDeepLinks: AppDeepLink[] = [
         id: SecurityPageName.hostIsolationExceptions,
         title: HOST_ISOLATION_EXCEPTIONS,
         path: HOST_ISOLATION_EXCEPTIONS_PATH,
+      },
+    ],
+  },
+  {
+    id: SecurityPageName.cloud_posture,
+    title: 'Cloud Posture',
+    path: CLOUD_POSTURE,
+    // navLinkStatus: AppNavLinkStatus.hidden,
+    deepLinks: [
+      {
+        id: SecurityPageName.cloud_posture_dashboard,
+        title: 'Dashboard',
+        // eslint-disable-next-line prettier/prettier
+        path: '/cloud_posture_dashboard',
+      },
+      {
+        id: SecurityPageName.cloud_posture_rules,
+        title: 'Rules',
+        // eslint-disable-next-line prettier/prettier
+        path: '/cloud_posture_rules',
+      },
+      {
+        id: SecurityPageName.cloud_posture_alerts,
+        title: 'Alerts',
+        // eslint-disable-next-line prettier/prettier
+        path: '/cloud_posture_alerts',
+      },
+      {
+        id: SecurityPageName.cloud_posture_findings,
+        title: 'Findings',
+        // eslint-disable-next-line prettier/prettier
+        path: '/cloud_posture_findings',
       },
     ],
   },

@@ -48,6 +48,7 @@ export const renderApp = ({
             ...subPlugins.timelines.routes,
             ...subPlugins.cases.routes,
             ...subPlugins.management.routes,
+            ...subPlugins.cloud_posture.routes,
           ].map((route, index) => (
             <Route key={`route-${index}`} {...route} />
           ))}

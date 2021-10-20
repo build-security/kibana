@@ -28,6 +28,7 @@ export enum SecurityNavGroupKey {
   explore = 'explore',
   investigate = 'investigate',
   manage = 'manage',
+  cloud_posture = 'cloud_posture',
 }
 
 export type SecurityNavGroup = Record<SecurityNavGroupKey, NavGroupTab>;
@@ -54,7 +55,11 @@ export type SecurityNavKey =
   | SecurityPageName.rules
   | SecurityPageName.timelines
   | SecurityPageName.trustedApps
-  | SecurityPageName.ueba;
+  | SecurityPageName.ueba
+  | SecurityPageName.cloud_posture_dashboard
+  | SecurityPageName.cloud_posture_rules
+  | SecurityPageName.cloud_posture_alerts
+  | SecurityPageName.cloud_posture_findings;
 
 export type SecurityNav = Record<SecurityNavKey, NavTab>;
 

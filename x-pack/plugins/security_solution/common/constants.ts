@@ -101,6 +101,11 @@ export enum SecurityPageName {
   trustedApps = 'trusted_apps',
   ueba = 'ueba',
   uncommonProcesses = 'uncommon_processes',
+  cloud_posture = 'cloud_posture',
+  cloud_posture_dashboard = 'cloud_posture_dashboard',
+  cloud_posture_rules = 'cloud_posture_rules',
+  cloud_posture_alerts = 'cloud_posture_alerts',
+  cloud_posture_findings = 'cloud_posture_findings',
 }
 
 export const TIMELINES_PATH = '/timelines';
@@ -135,6 +140,12 @@ export const APP_ENDPOINTS_PATH = `${APP_PATH}${ENDPOINTS_PATH}`;
 export const APP_TRUSTED_APPS_PATH = `${APP_PATH}${TRUSTED_APPS_PATH}`;
 export const APP_EVENT_FILTERS_PATH = `${APP_PATH}${EVENT_FILTERS_PATH}`;
 export const APP_HOST_ISOLATION_EXCEPTIONS_PATH = `${APP_PATH}${HOST_ISOLATION_EXCEPTIONS_PATH}`;
+
+export const CLOUD_POSTURE = '/cloud_posture';
+export const CLOUD_POSTURE_RULES = `${APP_PATH}${CLOUD_POSTURE}_rules` as const;
+export const CLOUD_POSTURE_ALERTS = `${APP_PATH}${CLOUD_POSTURE}_alerts` as const;
+export const CLOUD_POSTURE_FINDINGS = `${APP_PATH}${CLOUD_POSTURE}_findings` as const;
+export const CLOUD_POSTURE_DASHBOARD = `${APP_PATH}${CLOUD_POSTURE}_dashboard` as const;
 
 /** The comma-delimited list of Elasticsearch indices from which the SIEM app collects events */
 export const DEFAULT_INDEX_PATTERN = [

@@ -34,7 +34,6 @@ export const usePrimaryNavigationItems = ({
       };
 
       const appHref = getAppUrl({ deepLinkId: id, path: urlSearch });
-
       return {
         'data-href': appHref,
         'data-test-subj': `navigation-${id}`,
@@ -64,6 +63,7 @@ export const usePrimaryNavigationItems = ({
 function usePrimaryNavigationItemsToDisplay(navTabs: Record<string, NavTab>) {
   const hasCasesReadPermissions = useGetUserCasesPermissions()?.read;
   const canSeeHostIsolationExceptions = useCanSeeHostIsolationExceptionsMenu();
+
   return useMemo(() => {
     return [
       {
@@ -90,6 +90,15 @@ function usePrimaryNavigationItemsToDisplay(navTabs: Record<string, NavTab>) {
           navTabs.trusted_apps,
           navTabs.event_filters,
           ...(canSeeHostIsolationExceptions ? [navTabs.host_isolation_exceptions] : []),
+        ],
+      },
+      {
+        ...securityNavGroup.cloud_posture,
+        items: [
+          navTabs.cloud_posture_dashboard,
+          navTabs.cloud_posture_rules,
+          navTabs.cloud_posture_alerts,
+          navTabs.cloud_posture_findings,
         ],
       },
     ];

@@ -27,6 +27,10 @@ import {
   APP_UEBA_PATH,
   SecurityPageName,
   APP_HOST_ISOLATION_EXCEPTIONS_PATH,
+  CLOUD_POSTURE_DASHBOARD,
+  CLOUD_POSTURE_RULES,
+  CLOUD_POSTURE_ALERTS,
+  CLOUD_POSTURE_FINDINGS,
 } from '../../../common/constants';
 
 export const navTabs: SecurityNav = {
@@ -128,6 +132,34 @@ export const navTabs: SecurityNav = {
     disabled: false,
     urlKey: 'administration',
   },
+  [SecurityPageName.cloud_posture_dashboard]: {
+    id: SecurityPageName.cloud_posture_dashboard,
+    name: i18n.CLOUD_POSTURE_DASHBOARD,
+    href: CLOUD_POSTURE_DASHBOARD,
+    disabled: false,
+    urlKey: 'administration',
+  },
+  [SecurityPageName.cloud_posture_rules]: {
+    id: SecurityPageName.cloud_posture_rules,
+    name: i18n.RULES,
+    href: CLOUD_POSTURE_RULES,
+    disabled: false,
+    urlKey: 'administration',
+  },
+  [SecurityPageName.cloud_posture_alerts]: {
+    id: SecurityPageName.cloud_posture_alerts,
+    name: i18n.ALERTS,
+    href: CLOUD_POSTURE_ALERTS,
+    disabled: false,
+    urlKey: 'administration',
+  },
+  [SecurityPageName.cloud_posture_findings]: {
+    id: SecurityPageName.cloud_posture_findings,
+    name: i18n.FINDINGS,
+    href: CLOUD_POSTURE_FINDINGS,
+    disabled: false,
+    urlKey: 'administration',
+  },
 };
 
 export const securityNavGroup: SecurityNavGroup = {
@@ -146,5 +178,9 @@ export const securityNavGroup: SecurityNavGroup = {
   [SecurityNavGroupKey.manage]: {
     id: SecurityNavGroupKey.manage,
     name: i18n.MANAGE,
+  },
+  [SecurityNavGroupKey.cloud_posture]: {
+    id: SecurityNavGroupKey.cloud_posture,
+    name: i18n.CLOUD_POSTURE,
   },
 };

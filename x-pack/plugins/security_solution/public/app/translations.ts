@@ -80,3 +80,13 @@ export const INVESTIGATE = i18n.translate('xpack.securitySolution.navigation.inv
 export const MANAGE = i18n.translate('xpack.securitySolution.navigation.manage', {
   defaultMessage: 'Manage',
 });
+export const CLOUD_POSTURE = i18n.translate('xpack.securitySolution.navigation.cloud_posture', {
+  defaultMessage: 'Cloud Posture',
+});
+export const FINDINGS = i18n.translate('xpack.securitySolution.navigation.findings', {
+  defaultMessage: 'Findings',
+});
+export const CLOUD_POSTURE_DASHBOARD = i18n.translate(
+  'xpack.securitySolution.navigation.dashboard',
+  { defaultMessage: 'Dashboard' }
+);
