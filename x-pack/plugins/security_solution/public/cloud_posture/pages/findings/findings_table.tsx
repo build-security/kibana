@@ -6,8 +6,25 @@
  */
 
 import React, { useState } from 'react';
-import { Criteria, EuiBasicTableColumn, EuiBadge, EuiBasicTable } from '@elastic/eui';
+import {
+  Criteria,
+  EuiBasicTableColumn,
+  EuiTableFieldDataColumnType,
+  EuiBadge,
+  EuiBasicTable,
+} from '@elastic/eui';
 
+interface CSPFinding {
+  agent: string;
+  evaluation: 'pass' | 'fail';
+  resource: string;
+  rule: string;
+  rule_id: string;
+  run_id: string;
+  severity: number;
+  tags: string[];
+  '@timestamp': string;
+}
 // TODO:
 // 1. types
 // 2. i18n
@@ -15,9 +32,9 @@ import { Criteria, EuiBasicTableColumn, EuiBadge, EuiBasicTable } from '@elastic
 const getEvaluationBadge = (v: string) => {
   switch (v) {
     case 'pass':
-      return <EuiBadge color="success">Pass</EuiBadge>;
-    case 'Fail':
-      return <EuiBadge color="danger">Fail</EuiBadge>;
+      return <EuiBadge color="success">PASS</EuiBadge>;
+    case 'fail':
+      return <EuiBadge color="danger">FAIL</EuiBadge>;
     default:
       return <EuiBadge color="default">N/A</EuiBadge>;
   }
@@ -31,9 +48,9 @@ const getTagsBadges = (v: string[]) => (
   </>
 );
 
-const columns: Array<EuiBasicTableColumn<unknown>> = [
+const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
   {
-    field: 'Resource',
+    field: 'resource',
     name: 'Resource',
     width: '20%',
     truncateText: true,
@@ -45,16 +62,27 @@ const columns: Array<EuiBasicTableColumn<unknown>> = [
     truncateText: true,
   },
   {
-    field: 'Evaluation',
+    field: 'evaluation',
     name: 'Evaluation',
     width: '80px',
     render: getEvaluationBadge,
   },
   {
-    field: 'Tags',
+    field: 'severity',
+    name: 'severity',
+    width: '80px',
+    // render: getEvaluationBadge,
+  },
+  {
+    field: 'tags',
     name: 'Tags',
     truncateText: true,
     render: getTagsBadges,
+  },
+  {
+    field: 'run_id',
+    name: 'Run Id',
+    truncateText: true,
   },
 ];
 
@@ -65,14 +93,14 @@ interface FindingsTableProps {
 const sortComparator = (sortField: any, sortDir: string) => (a: any, b: any) => {
   // TODO: account for other types than string
   return sortDir === 'asc'
-    ? b[sortField].localeCompare(a[sortField])
-    : a[sortField].localeCompare(b[sortField]);
+    ? b[sortField]?.localeCompare(a[sortField])
+    : a[sortField]?.localeCompare(b[sortField]);
 };
 
 export const FindingsTable = ({ data }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
-  const [sortField, setSortField] = useState('Resource');
+  const [pageSize, setPageSize] = useState(25);
+  const [sortField, setSortField] = useState<typeof columns[number]['field']>('resource');
   const [sortDirection, setSortDirection] = useState('asc');
 
   const onTableChange = ({ page, sort }: Criteria<any>) => {
@@ -90,7 +118,7 @@ export const FindingsTable = ({ data }: FindingsTableProps) => {
     pageIndex,
     pageSize,
     totalItemCount: data.length,
-    pageSizeOptions: [3, 5, 8],
+    pageSizeOptions: [5, 10, 25],
     hidePerPageOptions: false,
   };
 

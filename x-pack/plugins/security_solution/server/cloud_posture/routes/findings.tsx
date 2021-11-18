@@ -55,8 +55,8 @@ export const createFindingsRoute = (router: SecuritySolutionPluginRouter, logger
     try {
       const esClient = context.core.elasticsearch.client.asCurrentUser;
       const agentLogs = await esClient.search(getAgentLogsEsQuery());
-      const aggregations = agentLogs.body.aggregations;
 
+      const aggregations = agentLogs.body.aggregations;
       if (!aggregations) {
         logger.error(`Missing 'aggregations' in agent logs query response`);
         return response.notFound();
@@ -70,11 +70,10 @@ export const createFindingsRoute = (router: SecuritySolutionPluginRouter, logger
       }
 
       const findings = await esClient.search(getFindingsEsQuery({ runIds: buckets.map(getRunId) }));
-      const hits = findings.body.hits.hits;
 
+      const hits = findings.body.hits.hits;
       return response.ok({ body: hits });
     } catch (err) {
-      logger.error(err); // TODO: handle err types
       return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
     }
   });
