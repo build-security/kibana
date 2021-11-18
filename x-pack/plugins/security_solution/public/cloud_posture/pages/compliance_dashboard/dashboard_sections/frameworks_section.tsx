@@ -12,7 +12,7 @@ import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score
 import { MiniCPSGoalChart } from '../compliance_charts/mini_cps_goal_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 
-export const ListSection = () => (
+export const FrameworksSection = () => (
   <>
     <EuiPanel hasBorder={true} hasShadow={false}>
       <EuiFlexGrid columns={4}>

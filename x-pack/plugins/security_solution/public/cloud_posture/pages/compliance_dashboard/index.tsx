@@ -67,11 +67,9 @@ export const dateValueToTuple = ({ date, value }: DateValue) => [date, value];
 
 export const ComplianceDashboard = () => {
 
-  console.log('test');
-
   return (
       <SecuritySolutionPageWrapper noPadding={false} >
-        <HeaderPage hideSourcerer border title={'Compliance'} />
+        <HeaderPage hideSourcerer border title='Compliance' />
           <EuiTitle>
             <h3>Summary</h3>
           </EuiTitle>
