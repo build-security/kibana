@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { EuiErrorBoundary } from '@elastic/eui';
 import { Dashboard } from './pages/dashboard';
 import { Findings } from './pages/findings';
+import { ComplianceDashboard } from './pages/compliance_dashboard';
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,7 @@ const Providers: React.FC = ({ children }) => {
 };
 
 const innerRoutes: RouteProps[] = [
-  { path: '/csp/dashboard', render: Dashboard },
+  { path: '/csp/dashboard', render: ComplianceDashboard },
   { path: '/csp/findings', render: Findings },
 ];
 

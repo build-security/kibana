@@ -29,16 +29,14 @@ import { CloudPostureScoreChart } from './cloud_posture_score_chart';
 import { SpyRoute } from '../../../common/utils/route/spy_routes';
 import { CloudPosturePage } from '../../../app/types';
 import { useCloudPostureFindingsApi } from '../../common/api';
+import { ComplianceDashboard } from '../compliance_dashboard/compliance_dashboard';
 
 export const Dashboard = () => {
   return (
     <SecuritySolutionPageWrapper noPadding={false} data-test-subj="csp_rules">
       <HeaderPage hideSourcerer border title={'Dashboard'} />
       <DashboardWrapper>
-        <TopContent>
-          <ScoreCard />
-          <ResourcesCard />
-        </TopContent>
+        <ComplianceDashboard />
       </DashboardWrapper>
       <EuiSpacer />
       <SpyRoute pageName={CloudPosturePage.dashboard} />
