@@ -6,37 +6,88 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable  */
 
-import { Logger } from 'src/core/server';
-import {
-  AggregationsFiltersAggregate,
-  SearchRequest,
-  CountRequest,
-} from '@elastic/elasticsearch/lib/api/types';
+import { ElasticsearchClient, Logger } from 'src/core/server';
+import { AggregationsFiltersAggregate, SearchRequest, CountRequest } from '@elastic/elasticsearch/lib/api/types';
 import type { SecuritySolutionPluginRouter } from '../../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
-const getFindingsEsQuery = (): CountRequest => ({
+
+const getFindingsEsQueryByBenchmark = (benchmark:string): CountRequest => ({
   index: FINDINGS_INDEX,
   query: {
     bool: {
-      filter: [{ term: { 'rule.benchmark': 'CIS Kubernetes' } }],
+      filter: [{ term: { 'rule.benchmark': benchmark } }
+      ],
     },
-  },
+  }
 });
 
-const getPassFindingsEsQuery = (): CountRequest => ({
+const getAllFindingsEsQuery = (): CountRequest => ({
+  index: FINDINGS_INDEX,
+});
+
+const makeScore = (value: number) => Math.round(value * 100)
+
+const getAllPassFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
   query: {
     bool: {
-      filter: [
-        { term: { 'result.evaluation': 'passed' } },
-        { term: { 'rule.benchmark': 'CIS Kubernetes' } },
+      filter: [{ term: { 'result.evaluation': 'passed' } }
       ],
     },
   },
 });
+
+const getPassFindingsEsQueryByBenchmark = (benchmark='*'): CountRequest => ({
+  index: FINDINGS_INDEX,
+  query: {
+    bool: {
+      filter: [
+                  { term: { 'result.evaluation': 'passed' } },
+                  { term: { 'rule.benchmark': benchmark } },
+                ],
+
+    },
+  },
+});
+
+const getBenchmarksQuery = (): SearchRequest => ({
+  index: FINDINGS_INDEX,
+  size: 0,
+  aggs: {
+    benchmarks: {
+      terms: { field: "rule.benchmark" }
+    }
+  }
+});
+
+const getScorePerBenchmark = async (esClient: ElasticsearchClient) => {
+  // const benachmarksQueryResult = await esClient.search(getBenchmarksQuery());
+  // const getRunId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];/
+  // @ts-ignore
+  // console.log(benachmarksQueryResult.body.aggregations?);
+  // const benchmarks = benachmarksQueryResult.body.aggregations?.benachmarks?.buckets?.map((e) => e.key);
+  // console.log(benchmarks);
+  // @ts-ignore
+  const benchmarks = ["CIS Kubernetes"];
+  const benchmarkScores = Promise.all(benchmarks.map(async (benchmark) => {
+    const benchmarkFindings = await esClient.count(getFindingsEsQueryByBenchmark(benchmark));
+    const benchmarkPassFindings = await esClient.count(getPassFindingsEsQueryByBenchmark(benchmark));
+    return({
+        name: benchmark,
+        total: benchmarkFindings.body.count,
+        postureScore: makeScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
+        totalPassed: benchmarkPassFindings.body.count,
+        totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
+      }
+    )
+  } ))
+  return benchmarkScores;
+
+  };
 
 export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
   router.get(
@@ -44,24 +95,26 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       path: '/api/csp/score',
       validate: false,
     },
+
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
-        const findings = await esClient.count(getFindingsEsQuery());
-        const passFindings = await esClient.count(getPassFindingsEsQuery());
-        console.log(findings);
+        const findings = await esClient.count(getAllFindingsEsQuery());
+        const passFindings = await esClient.count(getAllPassFindingsEsQuery());
         return response.ok({
           body: {
             total: findings.body.count,
-            score: passFindings.body.count / findings.body.count,
-            pass: passFindings.body.count,
-            fail: findings.body.count - passFindings.body.count,
+            postureScore: makeScore(passFindings.body.count / findings.body.count),
+            totalPassed: passFindings.body.count,
+            totalFailed: findings.body.count - passFindings.body.count,
+            benchmarks: await getScorePerBenchmark(esClient)
           },
         });
       } catch (err) {
         return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
       }
     }
+
   );
 
 // const getRunId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
@@ -103,7 +156,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
 //     _source: false,
 //   });
 
-// export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
+  // export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
 //   router.get(
 //     {
 //       path: '/api/csp/score',

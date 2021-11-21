@@ -59,8 +59,8 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
 export const ComplianceStats = () => {
   const getScore = useCloudPostureScoreApi();
   console.log(getScore);
-  const postureScore = 87;
-  // const postureScore = getScore.isSuccess && getScore.data.score;
+  // const postureScore = 87;
+  const postureScore = getScore.isSuccess && getScore.data.postureScore;
 
   const scoreTrend = [
     [0, 0],

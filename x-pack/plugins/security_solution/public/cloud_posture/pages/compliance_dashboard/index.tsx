@@ -20,7 +20,7 @@ import {
 } from '@elastic/eui/lib/services';
 import { SummarySection } from './dashboard_sections/summary_section';
 import { AccumulatedSection } from './dashboard_sections/accumulated_section';
-import { FrameworksSection } from './dashboard_sections/frameworks_section';
+import { BenchmarksSection } from './dashboard_sections/benchmarks_section';
 import { DateValue } from './compliance_charts/charts_data_types';
 import { SecuritySolutionPageWrapper } from '../../../common/components/page_wrapper';
 import { HeaderPage } from '../../../common/components/header_page';
@@ -62,7 +62,7 @@ const CompliancePage = () => {
         <h3>{'Frameworks'}</h3>
       </EuiTitle>
       <EuiSpacer />
-      <FrameworksSection />
+      <BenchmarksSection />
       <EuiSpacer />
     </>
   );
