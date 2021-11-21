@@ -10,17 +10,12 @@
 /* eslint-disable no-console */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { EuiSpacer, EuiFlyout, EuiFlyoutHeader, EuiTitle, EuiFlyoutBody } from '@elastic/eui';
+import { EuiSpacer } from '@elastic/eui';
 import { Filter, Query } from '@kbn/es-query';
 import { decode, encode } from 'rison-node';
-import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { SearchResponse, SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
-import {
-  DataView,
-  TimeRange,
-  SearchSourceFields,
-  IKibanaSearchResponse,
-} from '../../../../../../../src/plugins/data/common';
+import { DataView, IKibanaSearchResponse } from '../../../../../../../src/plugins/data/common';
 import { SecuritySolutionPageWrapper } from '../../../common/components/page_wrapper';
 import { HeaderPage } from '../../../common/components/header_page';
 import { FindingsTable } from './findings_table';
@@ -28,9 +23,11 @@ import { SpyRoute } from '../../../common/utils/route/spy_routes';
 import { CloudPosturePage } from '../../../app/types';
 import { useKibana } from '../../../common/lib/kibana';
 import { CSPFinding } from './types';
-import { makeMapStateToProps } from '../../../common/components/url_state/helpers';
-import { useDeepEqualSelector } from '../../../common/hooks/use_selector';
-// import { SearchBar } from '../../../../../../../src/plugins/data/public';
+// import { makeMapStateToProps } from '../../../common/components/url_state/helpers';
+// import { useDeepEqualSelector } from '../../../common/hooks/use_selector';
+// TODO: use urlState
+// const urlMapState = makeMapStateToProps();
+// const { urlState } = useDeepEqualSelector(urlMapState);
 
 const KUBEBEAT_INDEX = 'kubebeat';
 
@@ -77,35 +74,43 @@ const DEFAULT_QUERY = {
   dateRange: undefined,
 };
 
-const FindingsTableContainer = () => {
-  const urlMapState = makeMapStateToProps();
-  const { urlState } = useDeepEqualSelector(urlMapState);
-  console.log({ urlState });
-  const { data: dataService } = useKibana().services;
-  const [filters, setFilters] = useState<Filter[]>([]);
+const createEntry = (v: SearchHit<CSPFinding>): CSPFinding => ({
+  ...v,
+  ...v._source!,
+});
+
+// TODO: get it some other way
+const useKubebeatDataView = () => {
   const [kubebeatDataView, setKubebeatDataView] = useState<DataView>();
-  const [findings, setFindings] = useState<CSPFinding[]>();
-  const [isLoading, setLoading] = useState<boolean>();
-  const [isError, setError] = useState<any>();
-
-  const searchState = useSearchState();
-  const history = useHistory();
   const {
-    ui: { SearchBar },
-    dataViews,
-    query,
-    search,
-  } = dataService;
-
+    data: { dataViews },
+  } = useKibana().services;
   useEffect(() => {
     if (!dataViews) return;
     (async () => setKubebeatDataView((await dataViews.find(KUBEBEAT_INDEX))?.[0]))();
   }, [dataViews]);
+  return { kubebeatDataView };
+};
+
+const FindingsTableContainer = () => {
+  const { data: dataService } = useKibana().services;
+  const [filters, setFilters] = useState<Filter[]>([]);
+  const [findings, setFindings] = useState<CSPFinding[]>();
+  const [isLoading, setLoading] = useState<boolean>();
+  const [isError, setError] = useState<string | null>(null);
+  const { kubebeatDataView } = useKubebeatDataView();
+  const searchState = useSearchState();
+  const history = useHistory();
+  const {
+    ui: { SearchBar },
+    query,
+    search,
+  } = dataService;
 
   const runSearch = useCallback(async () => {
     if (!kubebeatDataView) return;
 
-    setError(false);
+    setError(null);
     setLoading(true);
 
     query.queryString.setQuery(searchState.query || DEFAULT_QUERY.query);
@@ -122,7 +127,7 @@ const FindingsTableContainer = () => {
     query.filterManager.setFilters(nextFilters);
 
     try {
-      const findingsSearch = await search.searchSource.create({
+      const findingsSearchSource = await search.searchSource.create({
         filter: query.filterManager.getFilters(),
         query: query.queryString.getQuery(),
         index: kubebeatDataView,
@@ -130,20 +135,13 @@ const FindingsTableContainer = () => {
       });
 
       const findingsResponse: IKibanaSearchResponse<SearchResponse<CSPFinding>> =
-        await findingsSearch.fetch$().toPromise();
+        await findingsSearchSource.fetch$().toPromise();
 
-      const findingsResult = findingsResponse.rawResponse.hits.hits.map((v) => ({
-        ...v,
-        ...v._source!,
-      }));
-
-      console.log({ findingsResult, h: findingsResponse.rawResponse.hits.hits });
-      setFindings(findingsResult);
+      setFindings(findingsResponse.rawResponse.hits.hits.map(createEntry));
     } catch (e) {
       if (!!e && e instanceof Error) setError(e.message);
       console.log('[CSP] failed to get data');
     }
-
     setLoading(false);
   }, [
     filters,
@@ -156,6 +154,28 @@ const FindingsTableContainer = () => {
     searchState.query,
   ]);
 
+  const handleQuerySubmit = useCallback(
+    (v: { dateRange: any; query?: Query | undefined }) => {
+      const next = {
+        search: new URLSearchParams(
+          [
+            ['query', encode(v.query)],
+            ['dateRange', encode(v.dateRange)],
+          ].filter((p) => !!p[1])
+        ).toString(),
+      };
+
+      if (next.search === history.location.search.slice(1)) {
+        console.log('refresh');
+        runSearch();
+      } else {
+        console.log('PUSH NEXT STATE', { query: v, encoded: next });
+        history.push(next);
+      }
+    },
+    [history, runSearch]
+  );
+
   useEffect(() => {
     console.log('RUN NEXT STATE', searchState.query);
     runSearch();
@@ -167,30 +187,20 @@ const FindingsTableContainer = () => {
 
   if (!kubebeatDataView || !findings) return null;
 
-  console.log({ searchState });
+  console.log({ searchState, findings });
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <SearchBar
         isLoading={isLoading}
         appName="foo"
+        onRefresh={runSearch}
         // dateRangeFrom={searchState?.timerange?.timeline?.timerange?.fromStr}
         // dateRangeTo={searchState?.timerange?.timeline?.timerange?.toStr}
         indexPatterns={[kubebeatDataView]}
         // @ts-ignore prod should prob use SiemSearchBar
         onFiltersUpdated={setFilters}
         query={searchState.query}
-        onQuerySubmit={(v) => {
-          const next = {
-            search: new URLSearchParams(
-              [
-                ['query', encode(v.query)],
-                ['dateRange', encode(v.dateRange)],
-              ].filter((p) => !!p[1])
-            ).toString(),
-          };
-          console.log('PUSH NEXT STATE', { query: v, encoded: next });
-          history.push(next);
-        }}
+        onQuerySubmit={handleQuerySubmit}
         showFilterBar={false}
         showDatePicker={true}
         showQueryBar={true}
@@ -198,7 +208,7 @@ const FindingsTableContainer = () => {
         showSaveQuery={true}
       />
       <EuiSpacer />
-      <FindingsTable data={findings} isLoading={!!isLoading} />
+      <FindingsTable data={findings} isLoading={!!isLoading} error={isError} />
     </div>
   );
 };
