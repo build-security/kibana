@@ -9,22 +9,15 @@ import React, { useState } from 'react';
 import {
   Criteria,
   EuiLink,
-  EuiSpacer,
-  EuiButton,
-  EuiFlyout,
-  EuiFlyoutHeader,
-  EuiTitle,
-  EuiFlyoutBody,
   EuiTableFieldDataColumnType,
   EuiBadge,
   EuiBasicTable,
 } from '@elastic/eui';
-import { sortBy, orderBy } from 'lodash';
-import moment from 'moment';
+import { orderBy } from 'lodash';
 import { CSPFinding } from './types';
+import { FindingsRuleFlyOut } from './rule_flyout';
 
-// TODO:
-// - fix sorting, broken for some primitive types
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const getEvaluationBadge = (v: string) => (
   <EuiBadge color={v === 'passed' ? 'success' : v === 'failed' ? 'danger' : 'default'}>
@@ -61,49 +54,28 @@ const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
     width: '80px',
     render: getEvaluationBadge,
   },
-  // {
-  //   field: 'severity',
-  //   name: 'Severity',
-  // },
   {
     field: 'rule.tags',
     name: 'Tags',
     truncateText: true,
     render: getTagsBadges,
   },
-  // {
-  //   field: '@timestamp',
-  //   name: 'timestamp',
-  //   render: (v) => moment(v).format('MMMM Do, YYYY h:mm:ss A'),
-  // },
 ];
 
 interface FindingsTableProps {
   data: CSPFinding[];
   isLoading: boolean;
+  error: string | null;
 }
 
-const RuleInfo = ({ onClose, findings }: { onClose(): void; findings: CSPFinding }) => {
-  return (
-    <EuiFlyout onClose={onClose}>
-      <EuiFlyoutHeader hasBorder aria-labelledby={'foo'}>
-        <EuiTitle>
-          <h2>{findings.rule.name}</h2>
-        </EuiTitle>
-      </EuiFlyoutHeader>
-      <EuiFlyoutBody>{findings.rule.description}</EuiFlyoutBody>
-    </EuiFlyout>
-  );
-};
-
-export const FindingsTable = ({ data, isLoading }: FindingsTableProps) => {
+export const FindingsTable = ({ data, isLoading, error }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
   const [sortField, setSortField] = useState<keyof CSPFinding>('resource');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentRule, setCurrentRule] = useState<any>();
 
-  const getCellProps = (item, column) => {
+  const getCellProps = (item: any, column: any) => {
     const { field } = column;
     if (field === 'rule.name') {
       return {
@@ -140,13 +112,14 @@ export const FindingsTable = ({ data, isLoading }: FindingsTableProps) => {
     enableAllColumns: true,
   };
 
-  const sortedData = orderBy(data, [sortField], [sortDirection]);
+  const sortedData = orderBy(data, ['@timestamp'], ['desc']);
   const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
     <>
       <EuiBasicTable
         loading={isLoading}
+        error={error}
         items={page}
         columns={columns}
         tableLayout={'auto'}
@@ -155,7 +128,9 @@ export const FindingsTable = ({ data, isLoading }: FindingsTableProps) => {
         onChange={onTableChange}
         cellProps={getCellProps}
       />
-      {currentRule && <RuleInfo findings={currentRule} onClose={() => setCurrentRule(false)} />}
+      {currentRule && (
+        <FindingsRuleFlyOut findings={currentRule} onClose={() => setCurrentRule(false)} />
+      )}
     </>
   );
 };
