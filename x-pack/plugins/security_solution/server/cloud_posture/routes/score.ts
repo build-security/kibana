@@ -93,12 +93,12 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       path: '/api/csp/score',
       validate: false,
     },
+    
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const findings = await esClient.count(getAllFindingsEsQuery());
         const passFindings = await esClient.count(getAllPassFindingsEsQuery());
-        // getScorePerBenchmark(esClient);
         return response.ok({
           body: {
             total: findings.body.count,
