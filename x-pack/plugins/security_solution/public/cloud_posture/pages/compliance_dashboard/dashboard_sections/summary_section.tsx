@@ -1,9 +1,8 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
  * or more contributor license agreements. Licensed under the Elastic License
- * 2.0 and the Server Side Public License, v 1; you may not use this file except
- * in compliance with, at your election, the Elastic License 2.0 or the Server
- * Side Public License, v 1.
+ * 2.0; you may not use this file except in compliance with the Elastic License
+ * 2.0.
  */
 
 import React from 'react';
@@ -12,16 +11,18 @@ import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score
 import { ResourcesAtRiskChart } from '../compliance_charts/resources_at_risk_chart';
 import { ScorePerAccountChart } from '../compliance_charts/score_per_account_chart';
 import { ChartPanel } from '../../../components/chart_panel';
-import { ComplianceScoreGoalChart } from '../compliance_charts/compliance_score_goal_chart';
+import { ComplianceScoreBadge } from '../compliance_charts/compliance_score_badge';
+import { ComplianceStats } from '../compliance_charts/compliance_stats';
 
 export const SummarySection = () => (
   <EuiFlexGrid columns={3}>
     <EuiFlexItem>
-      <ChartPanel
-        title="Cloud Posture Score"
-        description="Percentage out of all policy rules passed"
-        chart={ComplianceScoreGoalChart}
-      />
+      {/* <ChartPanel*/}
+      {/*  title="Cloud Posture Score"*/}
+      {/*  description="Percentage out of all policy rules passed"*/}
+      {/*  chart={ComplianceScoreBadge}*/}
+      {/* />*/}
+      <ComplianceStats />
     </EuiFlexItem>
     <EuiFlexItem>
       <ChartPanel

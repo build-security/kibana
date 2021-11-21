@@ -22,6 +22,7 @@ export const FrameworksSection = () => (
             alignItems: 'center',
             flexBasis: '20%',
             borderRight: `1px solid lightgray`,
+
           }}
         >
           AWS
