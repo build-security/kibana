@@ -8,37 +8,29 @@
 import React, { useState } from 'react';
 import {
   Criteria,
-  EuiBasicTableColumn,
+  EuiLink,
+  EuiSpacer,
+  EuiButton,
+  EuiFlyout,
+  EuiFlyoutHeader,
+  EuiTitle,
+  EuiFlyoutBody,
   EuiTableFieldDataColumnType,
   EuiBadge,
   EuiBasicTable,
 } from '@elastic/eui';
+import { sortBy, orderBy } from 'lodash';
+import moment from 'moment';
+import { CSPFinding } from './types';
 
-interface CSPFinding {
-  agent: string;
-  evaluation: 'pass' | 'fail';
-  resource: string;
-  rule: string;
-  rule_id: string;
-  run_id: string;
-  severity: number;
-  tags: string[];
-  '@timestamp': string;
-}
 // TODO:
-// 1. types
-// 2. i18n
+// - fix sorting, broken for some primitive types
 
-const getEvaluationBadge = (v: string) => {
-  switch (v) {
-    case 'pass':
-      return <EuiBadge color="success">PASS</EuiBadge>;
-    case 'fail':
-      return <EuiBadge color="danger">FAIL</EuiBadge>;
-    default:
-      return <EuiBadge color="default">N/A</EuiBadge>;
-  }
-};
+const getEvaluationBadge = (v: string) => (
+  <EuiBadge color={v === 'passed' ? 'success' : v === 'failed' ? 'danger' : 'default'}>
+    {v.toUpperCase()}
+  </EuiBadge>
+);
 
 const getTagsBadges = (v: string[]) => (
   <>
@@ -48,60 +40,78 @@ const getTagsBadges = (v: string[]) => (
   </>
 );
 
+const RuleName = (v: string) => <EuiLink href="#aa">{v}</EuiLink>;
+
 const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
   {
-    field: 'resource',
+    field: 'resource.filename',
     name: 'Resource',
-    width: '20%',
     truncateText: true,
   },
   {
-    field: 'rule',
-    name: 'Rule Description',
+    field: 'rule.name',
+    name: 'Rule Name',
     width: '50%',
     truncateText: true,
+    render: RuleName,
   },
   {
-    field: 'evaluation',
+    field: 'result.evaluation',
     name: 'Evaluation',
     width: '80px',
     render: getEvaluationBadge,
   },
+  // {
+  //   field: 'severity',
+  //   name: 'Severity',
+  // },
   {
-    field: 'severity',
-    name: 'severity',
-    width: '80px',
-    // render: getEvaluationBadge,
-  },
-  {
-    field: 'tags',
+    field: 'rule.tags',
     name: 'Tags',
     truncateText: true,
     render: getTagsBadges,
   },
-  {
-    field: 'run_id',
-    name: 'Run Id',
-    truncateText: true,
-  },
+  // {
+  //   field: '@timestamp',
+  //   name: 'timestamp',
+  //   render: (v) => moment(v).format('MMMM Do, YYYY h:mm:ss A'),
+  // },
 ];
 
 interface FindingsTableProps {
-  data: any[];
+  data: CSPFinding[];
+  isLoading: boolean;
 }
 
-const sortComparator = (sortField: any, sortDir: string) => (a: any, b: any) => {
-  // TODO: account for other types than string
-  return sortDir === 'asc'
-    ? b[sortField]?.localeCompare(a[sortField])
-    : a[sortField]?.localeCompare(b[sortField]);
+const RuleInfo = ({ onClose, findings }: { onClose(): void; findings: CSPFinding }) => {
+  return (
+    <EuiFlyout onClose={onClose}>
+      <EuiFlyoutHeader hasBorder aria-labelledby={'foo'}>
+        <EuiTitle>
+          <h2>{findings.rule.name}</h2>
+        </EuiTitle>
+      </EuiFlyoutHeader>
+      <EuiFlyoutBody>{findings.rule.description}</EuiFlyoutBody>
+    </EuiFlyout>
+  );
 };
 
-export const FindingsTable = ({ data }: FindingsTableProps) => {
+export const FindingsTable = ({ data, isLoading }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const [sortField, setSortField] = useState<typeof columns[number]['field']>('resource');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState<keyof CSPFinding>('resource');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [currentRule, setCurrentRule] = useState<any>();
+
+  const getCellProps = (item, column) => {
+    const { field } = column;
+    if (field === 'rule.name') {
+      return {
+        onClick: () => setCurrentRule(item),
+      };
+    }
+    return {};
+  };
 
   const onTableChange = ({ page, sort }: Criteria<any>) => {
     if (!page || !sort) return;
@@ -110,7 +120,7 @@ export const FindingsTable = ({ data }: FindingsTableProps) => {
 
     setPageIndex(index);
     setPageSize(size);
-    setSortField(field as string);
+    setSortField(field as keyof CSPFinding);
     setSortDirection(direction);
   };
 
@@ -125,22 +135,27 @@ export const FindingsTable = ({ data }: FindingsTableProps) => {
   const sorting = {
     sort: {
       field: sortField,
-      direction: sortDirection as any,
+      direction: sortDirection,
     },
     enableAllColumns: true,
   };
 
-  const sortedData = data.slice().sort(sortComparator(sortField, sortDirection));
+  const sortedData = orderBy(data, [sortField], [sortDirection]);
   const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
-    <EuiBasicTable
-      items={page}
-      columns={columns}
-      tableLayout={'auto'}
-      pagination={pagination}
-      sorting={sorting}
-      onChange={onTableChange}
-    />
+    <>
+      <EuiBasicTable
+        loading={isLoading}
+        items={page}
+        columns={columns}
+        tableLayout={'auto'}
+        pagination={pagination}
+        sorting={sorting}
+        onChange={onTableChange}
+        cellProps={getCellProps}
+      />
+      {currentRule && <RuleInfo findings={currentRule} onClose={() => setCurrentRule(false)} />}
+    </>
   );
 };
