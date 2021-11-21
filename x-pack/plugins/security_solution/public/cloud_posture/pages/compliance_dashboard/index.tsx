@@ -26,6 +26,7 @@ import { SecuritySolutionPageWrapper } from '../../../common/components/page_wra
 import { HeaderPage } from '../../../common/components/header_page';
 import { SpyRoute } from '../../../common/utils/route/spy_routes';
 import { CloudPosturePage } from '../../../app/types';
+import { useCloudPostureScoreApi } from '../../common/api/use_cloud_posture_score_api';
 
 const paletteData = {
   euiPaletteColorBlind,
@@ -42,6 +43,9 @@ const paletteData = {
 export const dateValueToTuple = ({ date, value }: DateValue) => [date, value];
 
 const CompliancePage = () => {
+  const getScore = useCloudPostureScoreApi();
+  console.log(getScore);
+
   return (
     <>
       <EuiTitle>

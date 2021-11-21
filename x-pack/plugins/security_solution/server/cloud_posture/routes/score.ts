@@ -24,12 +24,9 @@ const getFindingsEsQuery = ({ runIds }: { runIds: string[] }): SearchRequest => 
 const getPassFindingsEsQuery = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1000,
-  
   query: {
     bool: {
-      filter: [
-        { term: { 'evaluation.keyword': 'pass' } },
-      ],
+      filter: [{ term: { 'evaluation.keyword': 'pass' } }],
     },
   },
 });
@@ -65,30 +62,41 @@ const getAgentLogsEsQuery = (): SearchRequest => ({
 const getRunId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
 
 export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
-  router.get({ path: 
-    '/api/csp/get_score', validate: false }, async (context, _, response) => {
-    try {
-      const esClient = context.core.elasticsearch.client.asCurrentUser;
-      const agentLogs = await esClient.search(getAgentLogsEsQuery());
-      const aggregations = agentLogs.body.aggregations;
+  router.get(
+    {
+      path: '/api/csp/score',
+      validate: false,
+    },
+    async (context, _, response) => {
+      try {
+        const esClient = context.core.elasticsearch.client.asCurrentUser;
+        const agentLogs = await esClient.search(getAgentLogsEsQuery());
+        const aggregations = agentLogs.body.aggregations;
 
-      if (!aggregations) {
-        logger.error(`Missing 'aggregations' in agent logs query response`);
-        return response.notFound();
-      }
-      const buckets = (aggregations.group as Record<string, AggregationsFiltersAggregate>).buckets;
-      if (!Array.isArray(buckets)) {
-        logger.error(`Missing 'buckets' in agent logs query response`);
-        return response.notFound();
-      }
-      const findings = await esClient.search(getFindingsEsQuery({ runIds: buckets.map(getRunId) }));
-      const pass_findings = await esClient.search(getPassFindingsEsQuery());
-      const score = pass_findings.body.hits.hits.length / findings.body.hits.hits.length;
-      const score_stats = {pass: pass_findings.body.hits.hits.length, fail : pass_findings.body.hits.hits.length - findings.body.hits.hits.length, score: score}
-      return response.ok({ body:  score_stats});
+        if (!aggregations) {
+          logger.error(`Missing 'aggregations' in agent logs query response`);
+          return response.notFound();
+        }
+        const buckets = (aggregations.group as Record<string, AggregationsFiltersAggregate>)
+          .buckets;
+        if (!Array.isArray(buckets)) {
+          logger.error(`Missing 'buckets' in agent logs query response`);
+          return response.notFound();
+        }
+        const findings = await esClient.search(
+          getFindingsEsQuery({ runIds: buckets.map(getRunId) })
+        );
+        const passFindings = await esClient.search(getPassFindingsEsQuery());
 
-    
-    } catch (err) {
-      return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
+        return response.ok({
+          body: {
+            score: passFindings.body.hits.hits.length / findings.body.hits.hits.length,
+            pass: passFindings.body.hits.hits.length,
+            fail: passFindings.body.hits.hits.length - findings.body.hits.hits.length,
+          },
+        });
+      } catch (err) {
+        return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
+      }
     }
-  });
+  );
