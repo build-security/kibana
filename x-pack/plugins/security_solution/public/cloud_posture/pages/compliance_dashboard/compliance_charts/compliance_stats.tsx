@@ -22,8 +22,7 @@ import {
 import { Chart, Settings, LineSeries } from '@elastic/charts';
 import { CspData } from './charts_data_types';
 import { dateValueToTuple } from '../index';
-
-const mock = 40;
+import { useCloudPostureScoreApi } from '../../../common/api/use_cloud_posture_score_api';
 
 const [green, yellow, red] = euiPaletteForStatus(3);
 
@@ -57,7 +56,12 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
   return last - beforeLast;
 };
 
-export const ComplianceStats = ({ postureScore = mock }: CspData) => {
+export const ComplianceStats = () => {
+  const getScore = useCloudPostureScoreApi();
+  console.log(getScore);
+  const postureScore = 87;
+  // const postureScore = getScore.isSuccess && getScore.data.score;
+
   const scoreTrend = [
     [0, 0],
     [1, 10],
@@ -70,16 +74,16 @@ export const ComplianceStats = ({ postureScore = mock }: CspData) => {
   const isPositiveChange = getIsPositiveChange(scoreChange);
 
   const stats = [
-    {
-      title: getHealthBadge(postureScore),
-      description: 'Posture Status',
-    },
     // {
-    //   title: postureScore,
-    //   description: 'Posture Score',
-    //   titleColor: getScoreVariant(postureScore),
-    //   iconType: getScoreIcon(postureScore),
+    //   title: getHealthBadge(postureScore),
+    //   description: 'Posture Status',
     // },
+    {
+      title: postureScore,
+      description: 'Posture Score',
+      titleColor: getScoreVariant(postureScore),
+      iconType: getScoreIcon(postureScore),
+    },
     {
       title: (
         <span>

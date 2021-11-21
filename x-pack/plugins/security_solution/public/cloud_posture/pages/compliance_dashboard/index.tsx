@@ -47,30 +47,7 @@ export const dateValueToTuple = ({ date, value }: DateValue) => [date, value];
 const CompliancePage = () => {
   const getScore = useCloudPostureScoreApi();
   console.log(getScore);
-  const { data: dataService } = useKibana().services;
-  const [views, setDataViews] = useState<[DataView, DataView]>();
 
-  const {
-    ui: { SearchBar },
-    dataViews,
-    query,
-    search,
-  } = dataService;
-
-  const findingsDataView = views?.[1];
-
-  useEffect(() => {
-    if (!dataViews) return;
-    async function getDataViews() {
-      // const dataView = (await dataViews.find('agent_log_2'))?.[0];
-      const dataViewLogs = (await dataViews.find('agent_logs'))?.[0];
-      const dataViewFindings = (await dataViews.find('findings2'))?.[0];
-      const dataViewFindings2 = (await dataViews.find('kube*'))?.[0];
-      setDataViews([dataViewLogs, dataViewFindings, dataViewFindings2]);
-    }
-    getDataViews();
-  }, [dataViews]);
-  console.log(views);
   return (
     <>
       <EuiTitle>
