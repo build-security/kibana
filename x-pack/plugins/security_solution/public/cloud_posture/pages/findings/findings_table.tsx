@@ -33,7 +33,7 @@ const getTagsBadges = (v: string[]) => (
   </>
 );
 
-const RuleName = (v: string) => <EuiLink href="#aa">{v}</EuiLink>;
+const RuleName = (v: string) => <EuiLink href="#">{v}</EuiLink>;
 
 const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
   {
@@ -65,7 +65,7 @@ const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
 interface FindingsTableProps {
   data: CSPFinding[];
   isLoading: boolean;
-  error: string | null;
+  error?: string;
 }
 
 export const FindingsTable = ({ data, isLoading, error }: FindingsTableProps) => {

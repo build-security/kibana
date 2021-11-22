@@ -79,9 +79,15 @@ export const FindingsRuleFlyOut = ({
               title: 'Remediation',
               description: <EuiCode>{findings.rule.remediation}</EuiCode>,
             },
-          ].filter((v): v is NonNullable<typeof v> => !!v)}
+          ].filter(truthy)}
         />
       </EuiFlyoutBody>
     </EuiFlyout>
   );
 };
+
+type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash
+
+function truthy<T>(value: T): value is Truthy<T> {
+  return !!value;
+}

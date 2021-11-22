@@ -11,11 +11,17 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { EuiSpacer } from '@elastic/eui';
-import { Filter, Query } from '@kbn/es-query';
+// import { Filter, Query } from '@kbn/es-query';
 import { decode, encode } from 'rison-node';
 import { SearchResponse, SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
-import { DataView, IKibanaSearchResponse } from '../../../../../../../src/plugins/data/common';
+import {
+  DataView,
+  IKibanaSearchResponse,
+  Filter,
+  Query,
+  TimeRange,
+} from '../../../../../../../src/plugins/data/common';
 import { SecuritySolutionPageWrapper } from '../../../common/components/page_wrapper';
 import { HeaderPage } from '../../../common/components/header_page';
 import { FindingsTable } from './findings_table';
@@ -23,6 +29,7 @@ import { SpyRoute } from '../../../common/utils/route/spy_routes';
 import { CloudPosturePage } from '../../../app/types';
 import { useKibana } from '../../../common/lib/kibana';
 import { CSPFinding } from './types';
+// import type { TimeRange } from '../../../../../../'
 // import { makeMapStateToProps } from '../../../common/components/url_state/helpers';
 // import { useDeepEqualSelector } from '../../../common/hooks/use_selector';
 // TODO: use urlState
@@ -53,14 +60,14 @@ const useSearchState = () => {
     const params = new URLSearchParams(loc.search);
     const query = params.get('query');
     const dateRange = params.get('dateRange');
+    console.log({ query, v: params.get('sourcerer') });
     try {
-      console.log('READ NEXT STATE', query);
       set({
         query: query ? decode(query!) : DEFAULT_QUERY.query,
         dateRange: dateRange ? decode(dateRange!) : undefined,
       });
     } catch (e) {
-      console.log('Unable to decoded URL ');
+      console.log('Unable to decode URL ');
 
       set({} as URLState);
     }
@@ -97,9 +104,10 @@ const FindingsTableContainer = () => {
   const [filters, setFilters] = useState<Filter[]>([]);
   const [findings, setFindings] = useState<CSPFinding[]>();
   const [isLoading, setLoading] = useState<boolean>();
-  const [isError, setError] = useState<string | null>(null);
+  const [isError, setError] = useState<string | undefined>(undefined);
   const { kubebeatDataView } = useKubebeatDataView();
   const searchState = useSearchState();
+  console.log({ q: searchState.query, findings });
   const history = useHistory();
   const {
     ui: { SearchBar },
@@ -110,7 +118,7 @@ const FindingsTableContainer = () => {
   const runSearch = useCallback(async () => {
     if (!kubebeatDataView) return;
 
-    setError(null);
+    setError(undefined);
     setLoading(true);
 
     query.queryString.setQuery(searchState.query || DEFAULT_QUERY.query);
@@ -131,6 +139,7 @@ const FindingsTableContainer = () => {
         filter: query.filterManager.getFilters(),
         query: query.queryString.getQuery(),
         index: kubebeatDataView,
+        // TODO: async pagination
         size: 1000,
       });
 
@@ -166,10 +175,10 @@ const FindingsTableContainer = () => {
       };
 
       if (next.search === history.location.search.slice(1)) {
-        console.log('refresh');
+        // React Router won't trigger a component re-render if navigated to same path
+        // so we call it directly
         runSearch();
       } else {
-        console.log('PUSH NEXT STATE', { query: v, encoded: next });
         history.push(next);
       }
     },
@@ -177,17 +186,11 @@ const FindingsTableContainer = () => {
   );
 
   useEffect(() => {
-    console.log('RUN NEXT STATE', searchState.query);
     runSearch();
-  }, [runSearch, searchState.query]);
-
-  useEffect(() => {
-    console.log('MOUNTED');
-  }, []);
+  }, [runSearch]);
 
   if (!kubebeatDataView || !findings) return null;
 
-  console.log({ searchState, findings });
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <SearchBar

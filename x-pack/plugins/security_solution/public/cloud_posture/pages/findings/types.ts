@@ -27,7 +27,7 @@ export interface CSPFinding {
 
 // TODO: rename
 interface CSPFindingResult {
-  evaluation: 'passed' | 'fail';
+  evaluation: 'passed' | 'failed';
   evidence: {
     filemode: string;
   };
