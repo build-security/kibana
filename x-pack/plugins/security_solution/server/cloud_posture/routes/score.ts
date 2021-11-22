@@ -29,6 +29,8 @@ const getAllFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
 });
 
+const makeScore = (value: number) => Math.round(value * 100)
+
 const getAllPassFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
   query: {
@@ -47,7 +49,7 @@ const getPassFindingsEsQueryByBenchmark = (benchmark='*'): CountRequest => ({
                   { term: { 'result.evaluation': 'passed' } },
                   { term: { 'rule.benchmark': benchmark } },
                 ],
-      
+
     },
   },
 });
@@ -77,14 +79,14 @@ const getScorePerBenchmark = async (esClient: ElasticsearchClient) => {
     return({
         name: benchmark,
         total: benchmarkFindings.body.count,
-        postureScore: benchmarkPassFindings.body.count / benchmarkFindings.body.count,
+        postureScore: makeScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
       }
-    )  
-  } ))  
+    )
+  } ))
   return benchmarkScores;
-   
+
   };
 
 export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
@@ -93,7 +95,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       path: '/api/csp/score',
       validate: false,
     },
-    
+
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
@@ -102,7 +104,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         return response.ok({
           body: {
             total: findings.body.count,
-            postureScore: passFindings.body.count / findings.body.count,
+            postureScore: makeScore(passFindings.body.count / findings.body.count),
             totalPassed: passFindings.body.count,
             totalFailed: findings.body.count - passFindings.body.count,
             benchmarks: await getScorePerBenchmark(esClient)
@@ -117,12 +119,12 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
 
 // const getRunId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
 
-// const AGENT_LOGS_INDEX = `agent_logs`;  
+// const AGENT_LOGS_INDEX = `agent_logs`;
 // const AGENT_TIMEOUT_IN_MINUTES = 60;
 
 // const getFindingsEsQuery = ({ runIds }: { runIds: string[] }): SearchRequest => ({
 //   index: FINDINGS_INDEX,
-//   size: 1000,    
+//   size: 1000,
 //   query: { terms: { 'run_id.keyword': runIds } },
 // });
 

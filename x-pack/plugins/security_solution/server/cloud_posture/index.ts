@@ -13,3 +13,5 @@ export const createCSPRoutes = (router: SecuritySolutionPluginRouter, logger: Lo
   routes.createFindingsRoute(router, logger);
   routes.getScoreRoute(router, logger);
 };
+
+
