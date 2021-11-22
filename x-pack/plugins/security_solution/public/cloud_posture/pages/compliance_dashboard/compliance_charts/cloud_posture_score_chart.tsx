@@ -18,6 +18,7 @@ import {
 } from '@elastic/charts';
 import { EuiText, euiPaletteForStatus } from '@elastic/eui';
 import { CspData } from './charts_data_types';
+import { useNavigateToCSPFindings } from '../../../common/api/useNavigateToCSPFindings';
 
 const mock = {
   totalPassed: 800,
@@ -28,10 +29,20 @@ const [green, , red] = euiPaletteForStatus(3);
 export const CloudPostureScoreChart = ({
   totalPassed = mock.totalPassed,
   totalFailed = mock.totalFailed,
-}: CspData) => {
+  name: benchmarkName,
+}: CspData & { name: string }) => {
+  const { navigate } = useNavigateToCSPFindings();
+
   const handleElementClick = (e) => {
-    // eslint-disable-next-line no-console
-    console.log(e);
+    const [data, event] = e;
+    const [groupsData, chartData] = data;
+    const query = `rule.benchmark : ${benchmarkName} and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}`;
+    console.log(query);
+
+    navigate({
+      language: 'kuery',
+      query,
+    });
   };
 
   const total = totalPassed + totalFailed;
@@ -39,8 +50,8 @@ export const CloudPostureScoreChart = ({
 
   const data = useMemo(
     () => [
-      { id: 'passed', label: 'Passed', value: totalPassed },
-      { id: 'failed', label: 'Failed', value: totalFailed },
+      { label: 'Passed', value: totalPassed },
+      { label: 'Failed', value: totalFailed },
     ],
     [totalFailed, totalPassed]
   );
@@ -48,9 +59,9 @@ export const CloudPostureScoreChart = ({
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Chart size={{ height: 200 }}>
-        <Settings />
+        <Settings onElementClick={handleElementClick} />
         <Partition
-          id="spec_1"
+          id={benchmarkName || 'score_chart'}
           data={data}
           valueGetter="percent"
           valueAccessor={(d: Datum) => d.value as number}

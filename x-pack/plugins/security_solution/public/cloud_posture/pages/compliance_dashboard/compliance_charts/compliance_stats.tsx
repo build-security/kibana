@@ -58,8 +58,6 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
 
 export const ComplianceStats = () => {
   const getScore = useCloudPostureScoreApi();
-  console.log(getScore);
-  // const postureScore = 87;
   const postureScore = getScore.isSuccess && getScore.data.postureScore;
 
   const scoreTrend = [
@@ -74,16 +72,16 @@ export const ComplianceStats = () => {
   const isPositiveChange = getIsPositiveChange(scoreChange);
 
   const stats = [
-    // {
-    //   title: getHealthBadge(postureScore),
-    //   description: 'Posture Status',
-    // },
     {
-      title: postureScore,
-      description: 'Posture Score',
-      titleColor: getScoreVariant(postureScore),
-      iconType: getScoreIcon(postureScore),
+      title: getHealthBadge(postureScore),
+      description: 'Posture Status',
     },
+    // {
+    //   title: postureScore,
+    //   description: 'Posture Score',
+    //   titleColor: getScoreVariant(postureScore),
+    //   iconType: getScoreIcon(postureScore),
+    // },
     {
       title: (
         <span>

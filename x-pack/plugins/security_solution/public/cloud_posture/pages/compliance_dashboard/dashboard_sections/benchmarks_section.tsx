@@ -16,11 +16,11 @@ export const BenchmarksSection = () => {
   const getScore = useCloudPostureScoreApi();
   const { benchmarks } = getScore.isSuccess && getScore.data;
 
-  if (!benchmarks) return null;
+  if (!benchmarks.length) return null;
 
   return (
     <>
-      {benchmarks.map(({ name, totalPassed, totalFailed }) => (
+      {benchmarks.map((benchmark) => (
         <EuiPanel hasBorder={true} hasShadow={false}>
           <EuiFlexGrid columns={4}>
             <EuiFlexItem
@@ -31,10 +31,10 @@ export const BenchmarksSection = () => {
                 borderRight: `1px solid lightgray`,
               }}
             >
-              {name}
+              {benchmark.name}
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '20%' }}>
-              <CloudPostureScoreChart {...{ totalPassed, totalFailed }} />
+              <CloudPostureScoreChart {...benchmark} />
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '40%' }}>
               <ComplianceTrendChart />
