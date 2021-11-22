@@ -50,7 +50,7 @@ export const ComplianceDashboard = () => {
     <SecuritySolutionPageWrapper noPadding={false}>
       <HeaderPage border title="Compliance" />
       <CompliancePage />
-      <SpyRoute pageName={CloudPosturePage.dashboard} />
+      {/* <SpyRoute pageName={CloudPosturePage.dashboard} /> */}
     </SecuritySolutionPageWrapper>
   );
 };

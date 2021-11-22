@@ -36,13 +36,12 @@ export const CloudPostureScoreChart = ({
   const handleElementClick = (e) => {
     const [data, event] = e;
     const [groupsData, chartData] = data;
-    const query = `rule.benchmark : ${benchmarkName} and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}`;
-    console.log(query);
+    // const query = `rule.benchmark : ${benchmarkName} and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}`;
+    // console.log(query);
 
-    navigate({
-      language: 'kuery',
-      query,
-    });
+    navigate(
+      `(language:kuery,query:'rule.benchmark : "${benchmarkName}" and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}')`
+    );
   };
 
   const total = totalPassed + totalFailed;

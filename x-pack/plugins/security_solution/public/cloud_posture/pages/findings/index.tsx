@@ -42,7 +42,7 @@ export const Findings = () => (
   <SecuritySolutionPageWrapper noPadding={false} data-test-subj="csp_rules">
     <HeaderPage border title={'Findings'} />
     <FindingsTableContainer />
-    <SpyRoute pageName={CloudPosturePage.findings} />
+    {/* <SpyRoute pageName={CloudPosturePage.findings} /> */}
   </SecuritySolutionPageWrapper>
 );
 
