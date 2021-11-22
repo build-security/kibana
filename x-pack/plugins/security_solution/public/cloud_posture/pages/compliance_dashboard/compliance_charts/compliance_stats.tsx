@@ -53,7 +53,7 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
   const beforeLast = scoreTrend.at(-2)[1];
   const last = scoreTrend.at(-1)[1];
 
-  return last - beforeLast;
+  return (last - beforeLast).toFixed(1);
 };
 
 export const ComplianceStats = () => {

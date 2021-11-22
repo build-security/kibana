@@ -45,7 +45,7 @@ export const CloudPostureScoreChart = ({
   };
 
   const total = totalPassed + totalFailed;
-  const percentage = `${Math.floor((totalPassed / total) * 100)}%`;
+  const percentage = `${((totalPassed / total) * 100).toFixed(1)}%`;
 
   const data = useMemo(
     () => [

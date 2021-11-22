@@ -29,7 +29,7 @@ const getAllFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
 });
 
-const makeScore = (value: number) => Math.round(value * 100)
+const prepareScore = (value: number) => (value * 100).toFixed(1)
 
 const getAllPassFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
@@ -79,7 +79,7 @@ const getScorePerBenchmark = async (esClient: ElasticsearchClient) => {
     return({
         name: benchmark,
         total: benchmarkFindings.body.count,
-        postureScore: makeScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
+        postureScore: prepareScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
       }
@@ -104,7 +104,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         return response.ok({
           body: {
             total: findings.body.count,
-            postureScore: makeScore(passFindings.body.count / findings.body.count),
+            postureScore: prepareScore(passFindings.body.count / findings.body.count),
             totalPassed: passFindings.body.count,
             totalFailed: findings.body.count - passFindings.body.count,
             benchmarks: await getScorePerBenchmark(esClient)
