@@ -1,15 +1,16 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
  * or more contributor license agreements. Licensed under the Elastic License
- * 2.0 and the Server Side Public License, v 1; you may not use this file except
- * in compliance with, at your election, the Elastic License 2.0 or the Server
- * Side Public License, v 1.
+ * 2.0; you may not use this file except in compliance with the Elastic License
+ * 2.0.
  */
 
 import React from 'react';
 import { Axis, BarSeries, Chart, Settings } from '@elastic/charts';
 import { euiPaletteForStatus } from '@elastic/eui/lib/services';
 import { CspData } from './charts_data_types';
+import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
+import { useNavigateToCSPFindings } from '../../../common/api/useNavigateToCSPFindings';
 
 const mockData = [
   { id: '1', name: 'AWS S3 Buckets', value: 303, evaluation: 'pass' },
@@ -24,10 +25,56 @@ const mockData = [
   { id: '10', name: 'Azure Network Policies', value: 130, evaluation: 'fail' },
 ];
 
-export const ResourcesAtRiskChart = ({ resourcesEvaluations = mockData }: CspData) => {
+export function sortAscending<T>(getter: (x: T) => number | string) {
+  return (a: T, b: T) => {
+    const v1 = getter(a);
+    const v2 = getter(b);
+    if (v1 > v2) return -1;
+    if (v2 > v1) return 1;
+
+    return 0;
+  };
+}
+
+export const ResourcesAtRiskChart = () => {
+  const { navigate } = useNavigateToCSPFindings();
+  const getStats = useCloudPostureStatsApi();
+  const { evaluationsPerFilename } = getStats.isSuccess && getStats.data;
+
+  // @ts-ignore
+  const top5Fails = evaluationsPerFilename
+    .slice()
+    .sort(sortAscending((x) => x.totalFailed))
+    .splice(0, 5);
+
+  const top5AtRisk = top5Fails.flatMap((failedResource) => {
+    const passedMatch = evaluationsPerFilename.find(
+      (resource) => resource.name === failedResource.name
+    );
+
+    return [
+      {
+        name: passedMatch.name,
+        value: passedMatch.totalPassed,
+        evaluation: 'Passed',
+      },
+      {
+        name: failedResource.name,
+        value: failedResource.totalFailed,
+        evaluation: 'Failed',
+      },
+    ];
+  });
+
   const handleElementClick = (e) => {
-    // eslint-disable-next-line no-console
-    console.log(e);
+    const [data] = e;
+    const [groupsData, chartData] = data;
+
+    navigate(
+      `(language:kuery,query:'resource.filename : "${
+        groupsData.datum.name
+      }" and result.evaluation : ${groupsData.datum.evaluation.toLowerCase()}')`
+    );
   };
 
   return (
@@ -56,7 +103,7 @@ export const ResourcesAtRiskChart = ({ resourcesEvaluations = mockData }: CspDat
         }}
         id="bars"
         name="0"
-        data={resourcesEvaluations}
+        data={top5AtRisk}
         xAccessor={'name'}
         yAccessors={['value']}
         splitSeriesAccessors={['evaluation']}

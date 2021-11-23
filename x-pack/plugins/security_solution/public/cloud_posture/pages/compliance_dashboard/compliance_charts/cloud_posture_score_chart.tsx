@@ -34,7 +34,7 @@ export const CloudPostureScoreChart = ({
   const { navigate } = useNavigateToCSPFindings();
 
   const handleElementClick = (e) => {
-    const [data, event] = e;
+    const [data] = e;
     const [groupsData, chartData] = data;
     // const query = `rule.benchmark : ${benchmarkName} and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}`;
     // console.log(query);
