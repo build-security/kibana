@@ -5,13 +5,8 @@
  * 2.0.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable no-console */
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { EuiSpacer } from '@elastic/eui';
-// import { Filter, Query } from '@kbn/es-query';
 import { decode, encode } from 'rison-node';
 import { SearchResponse, SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
@@ -25,10 +20,12 @@ import {
 import { SecuritySolutionPageWrapper } from '../../../common/components/page_wrapper';
 import { HeaderPage } from '../../../common/components/header_page';
 import { FindingsTable } from './findings_table';
-import { SpyRoute } from '../../../common/utils/route/spy_routes';
-import { CloudPosturePage } from '../../../app/types';
 import { useKibana } from '../../../common/lib/kibana';
 import { CSPFinding } from './types';
+
+// import { Filter, Query } from '@kbn/es-query';
+// import { SpyRoute } from '../../../common/utils/route/spy_routes';
+// import { CloudPosturePage } from '../../../app/types';
 // import type { TimeRange } from '../../../../../../'
 // import { makeMapStateToProps } from '../../../common/components/url_state/helpers';
 // import { useDeepEqualSelector } from '../../../common/hooks/use_selector';
@@ -46,9 +43,10 @@ export const Findings = () => (
   </SecuritySolutionPageWrapper>
 );
 
+type R = keyof {} | string;
 interface URLState {
-  query: any;
-  dateRange: any;
+  query: Query;
+  dateRange?: TimeRange;
 }
 
 // Temp URL state utility
@@ -60,13 +58,14 @@ const useSearchState = () => {
     const params = new URLSearchParams(loc.search);
     const query = params.get('query');
     const dateRange = params.get('dateRange');
-    console.log({ query, v: params.get('sourcerer') });
+
     try {
       set({
-        query: query ? decode(query!) : DEFAULT_QUERY.query,
-        dateRange: dateRange ? decode(dateRange!) : undefined,
+        query: (query ? decode(query as string) : DEFAULT_QUERY.query) as Query,
+        dateRange: (dateRange ? decode(dateRange as string) : undefined) as TimeRange,
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log('Unable to decode URL ');
 
       set({} as URLState);
@@ -83,6 +82,7 @@ const DEFAULT_QUERY = {
 
 const createEntry = (v: SearchHit<CSPFinding>): CSPFinding => ({
   ...v,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   ...v._source!,
 });
 
@@ -107,7 +107,7 @@ const FindingsTableContainer = () => {
   const [isError, setError] = useState<string | undefined>(undefined);
   const { kubebeatDataView } = useKubebeatDataView();
   const searchState = useSearchState();
-  console.log({ q: searchState.query, findings });
+
   const history = useHistory();
   const {
     ui: { SearchBar },
@@ -149,6 +149,7 @@ const FindingsTableContainer = () => {
       setFindings(findingsResponse.rawResponse.hits.hits.map(createEntry));
     } catch (e) {
       if (!!e && e instanceof Error) setError(e.message);
+      // eslint-disable-next-line no-console
       console.log('[CSP] failed to get data');
     }
     setLoading(false);
@@ -164,7 +165,7 @@ const FindingsTableContainer = () => {
   ]);
 
   const handleQuerySubmit = useCallback(
-    (v: { dateRange: any; query?: Query | undefined }) => {
+    (v: URLState) => {
       const next = {
         search: new URLSearchParams(
           [
@@ -191,18 +192,22 @@ const FindingsTableContainer = () => {
 
   if (!kubebeatDataView || !findings) return null;
 
+  // console.log({ searchState });
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <SearchBar
         isLoading={isLoading}
         appName="foo"
         onRefresh={runSearch}
+        dateRangeFrom={searchState?.dateRange?.from}
+        dateRangeTo={searchState?.dateRange?.to}
         // dateRangeFrom={searchState?.timerange?.timeline?.timerange?.fromStr}
         // dateRangeTo={searchState?.timerange?.timeline?.timerange?.toStr}
         indexPatterns={[kubebeatDataView]}
         // @ts-ignore prod should prob use SiemSearchBar
         onFiltersUpdated={setFilters}
         query={searchState.query}
+        // @ts-ignore
         onQuerySubmit={handleQuerySubmit}
         showFilterBar={false}
         showDatePicker={true}

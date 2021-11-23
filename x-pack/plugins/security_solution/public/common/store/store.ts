@@ -45,12 +45,12 @@ declare global {
 export type SecurityAppStore = Store<State, Action>;
 let store: Store<State, Action> | null = null;
 
-const logger = (store) => (next) => (action) => {
-  console.log('dispatching', action);
-  let result = next(action);
-  console.log('next state', store.getState());
-  return result;
-};
+// const logger = (store) => (next) => (action) => {
+//   console.log('dispatching', action);
+//   let result = next(action);
+//   console.log('next state', store.getState());
+//   return result;
+// };
 
 /**
  * Factory for Security App's redux store.
