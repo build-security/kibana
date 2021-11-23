@@ -22,7 +22,7 @@ import {
 import { Chart, Settings, LineSeries } from '@elastic/charts';
 import { CspData } from './charts_data_types';
 import { dateValueToTuple } from '../index';
-import { useCloudPostureScoreApi } from '../../../common/api/use_cloud_posture_score_api';
+import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
 
 const [green, yellow, red] = euiPaletteForStatus(3);
 
@@ -57,8 +57,8 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
 };
 
 export const ComplianceStats = () => {
-  const getScore = useCloudPostureScoreApi();
-  const postureScore = getScore.isSuccess && getScore.data.postureScore;
+  const getStats = useCloudPostureStatsApi();
+  const postureScore = getStats.isSuccess && getStats.data.postureScore;
 
   const scoreTrend = [
     [0, 0],

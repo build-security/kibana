@@ -8,7 +8,7 @@
 import { useQuery } from 'react-query';
 import { useKibana } from '../../../common/lib/kibana';
 
-export const useCloudPostureScoreApi = () => {
+export const useCloudPostureStatsApi = () => {
   const { http } = useKibana().services;
-  return useQuery(['csp_score'], () => http.get('/api/csp/score'));
+  return useQuery(['csp_dashboard_stats'], () => http.get('/api/csp/score'));
 };
