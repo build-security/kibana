@@ -28,7 +28,7 @@ const [green, yellow, red] = euiPaletteForStatus(3);
 
 const getScoreVariant = (value: number) => {
   if (value <= 65) return 'danger';
-  if (value <= 85) return 'warning';
+  if (value <= 86) return '#F5A700';
   if (value <= 100) return 'success';
   return 'error';
 };
@@ -37,14 +37,14 @@ const getIsPositiveChange = (value: number) => value > 0;
 
 const getScoreIcon = (value: number) => {
   if (value <= 65) return 'alert';
-  if (value <= 85) return 'clock';
+  if (value <= 86) return 'alert';
   if (value <= 100) return 'check';
   return 'error';
 };
 
 const getHealthBadge = (value: number) => {
   if (value <= 65) return <EuiBadge color="danger">Critical</EuiBadge>;
-  if (value <= 85) return <EuiBadge color="warning">Warning</EuiBadge>;
+  if (value <= 86) return <EuiBadge color="warning">Warning</EuiBadge>;
   if (value <= 100) return <EuiBadge color="success">Healthy</EuiBadge>;
   return 'error';
 };
