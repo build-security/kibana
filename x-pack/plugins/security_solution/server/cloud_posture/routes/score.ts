@@ -124,8 +124,8 @@ const getEvaluationPerFilename = async (esClient: ElasticsearchClient, runId: st
   const evaluationsBuckets = evaluationsPerFilename.body.aggregations?.group.buckets;
   const counterPerFilename = evaluationsBuckets.map((filenameObject: any) => ({
     name: filenameObject.key,
-    totalPassesd: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
-    totalFail: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
+    totalPassed: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
+    totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
   }));
   return counterPerFilename;
 };

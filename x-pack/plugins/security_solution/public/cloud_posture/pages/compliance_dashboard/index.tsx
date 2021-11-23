@@ -14,15 +14,12 @@ import { DateValue } from './compliance_charts/charts_data_types';
 import { SecuritySolutionPageWrapper } from '../../../common/components/page_wrapper';
 import { HeaderPage } from '../../../common/components/header_page';
 import { SpyRoute } from '../../../common/utils/route/spy_routes';
-import { CloudPosturePage } from '../../../app/types';
 import { useCloudPostureStatsApi } from '../../common/api/use_cloud_posture_stats_api';
 
 export const dateValueToTuple = ({ date, value }: DateValue) => [date, value];
 
 const CompliancePage = () => {
   const getStats = useCloudPostureStatsApi();
-  console.log(getStats);
-
   if (getStats.isLoading) return null;
 
   return (
