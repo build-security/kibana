@@ -29,7 +29,7 @@ const [green, , red] = euiPaletteForStatus(3);
 export const CloudPostureScoreChart = ({
   totalPassed = mock.totalPassed,
   totalFailed = mock.totalFailed,
-  name: benchmarkName,
+  name: benchmarkName = 'benchmark_mock',
 }: CspData & { name: string }) => {
   const { navigate } = useNavigateToCSPFindings();
 

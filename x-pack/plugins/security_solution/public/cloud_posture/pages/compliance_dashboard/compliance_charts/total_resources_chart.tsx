@@ -1,9 +1,8 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
  * or more contributor license agreements. Licensed under the Elastic License
- * 2.0 and the Server Side Public License, v 1; you may not use this file except
- * in compliance with, at your election, the Elastic License 2.0 or the Server
- * Side Public License, v 1.
+ * 2.0; you may not use this file except in compliance with the Elastic License
+ * 2.0.
  */
 
 import React from 'react';
@@ -17,7 +16,7 @@ import {
 } from '@elastic/charts';
 import { formatDate, dateFormatAliases } from '@elastic/eui';
 import { CspData } from './charts_data_types';
-import { dateValueToTuple } from "../index";
+import { dateValueToTuple } from '../index';
 
 const mock = [
   {
@@ -55,32 +54,34 @@ const mock = [
   },
 ];
 
-export const TotalResourcesChart = ({ totalResourcesCompliance = mock }: CspData) => (
-  <Chart size={{ height: 200 }}>
-    <Settings
-      // theme={isDarkTheme ? EUI_CHARTS_THEME_DARK.theme : EUI_CHARTS_THEME_LIGHT.theme}
-      showLegend={true}
-      legendPosition="right"
-    />
-
-    {totalResourcesCompliance.map((resource) => (
-      <AreaSeries
-        id={resource.id}
-        name={resource.name}
-        data={resource.data.map(dateValueToTuple)}
-        xScaleType="time"
-        xAccessor={0}
-        yAccessors={[1]}
+export const TotalResourcesChart = ({ totalResourcesCompliance = mock }: CspData) => {
+  return (
+    <Chart size={{ height: 200 }}>
+      <Settings
+        // theme={isDarkTheme ? EUI_CHARTS_THEME_DARK.theme : EUI_CHARTS_THEME_LIGHT.theme}
+        showLegend={true}
+        legendPosition="right"
       />
-    ))}
 
-    <Axis
-      title={formatDate(Date.now(), dateFormatAliases.date)}
-      id="bottom-axis"
-      position="bottom"
-      tickFormat={timeFormatter(niceTimeFormatByDay(1))}
-      showGridLines
-    />
-    <Axis id="left-axis" position="left" showGridLines tickFormat={(d) => Number(d).toFixed(2)} />
-  </Chart>
-);
+      {totalResourcesCompliance.map((resource) => (
+        <AreaSeries
+          id={resource.id}
+          name={resource.name}
+          data={resource.data.map(dateValueToTuple)}
+          xScaleType="time"
+          xAccessor={0}
+          yAccessors={[1]}
+        />
+      ))}
+
+      <Axis
+        title={formatDate(Date.now(), dateFormatAliases.date)}
+        id="bottom-axis"
+        position="bottom"
+        tickFormat={timeFormatter(niceTimeFormatByDay(1))}
+        showGridLines
+      />
+      <Axis id="left-axis" position="left" showGridLines tickFormat={(d) => Number(d).toFixed(2)} />
+    </Chart>
+  );
+};
