@@ -10,5 +10,5 @@ import { useKibana } from '../../../common/lib/kibana';
 
 export const useCloudPostureStatsApi = () => {
   const { http } = useKibana().services;
-  return useQuery(['csp_dashboard_stats'], () => http.get('/api/csp/score'));
+  return useQuery(['csp_dashboard_stats'], () => http.get('/api/csp/stats'));
 };
