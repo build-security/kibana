@@ -73,7 +73,7 @@ export const BenchmarksSection = () => {
               <EuiDescriptionList>
                 <EuiDescriptionListTitle>Compliance Trend</EuiDescriptionListTitle>
                 <EuiDescriptionListDescription>
-                  <ComplianceTrendChart />
+                  <ComplianceTrendChart {...benchmark} />
                 </EuiDescriptionListDescription>
               </EuiDescriptionList>
             </EuiFlexItem>
