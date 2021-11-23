@@ -14,14 +14,26 @@ import {
   EuiTitle,
   IconType,
   EuiSpacer,
+  EuiBadge,
+  EuiDescriptionList,
+  EuiDescriptionListTitle,
+  EuiDescriptionListDescription,
 } from '@elastic/eui';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { MiniCPSGoalChart } from '../compliance_charts/mini_cps_goal_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
+import { TotalResourcesChart } from '../compliance_charts/total_resources_chart';
 
 const logoMap: Record<string, IconType> = {
   'CIS Kubernetes': 'logoKubernetes',
+};
+
+const getHealthBadge = (value: number) => {
+  if (value <= 65) return <EuiBadge color="danger">Critical</EuiBadge>;
+  if (value <= 85) return <EuiBadge color="warning">Warning</EuiBadge>;
+  if (value <= 100) return <EuiBadge color="success">Healthy</EuiBadge>;
+  return 'error';
 };
 
 export const BenchmarksSection = () => {
@@ -50,13 +62,37 @@ export const BenchmarksSection = () => {
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '20%' }}>
-              <CloudPostureScoreChart {...benchmark} />
+              <EuiDescriptionList>
+                <EuiDescriptionListTitle>Compliance Score</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <CloudPostureScoreChart {...benchmark} />
+                </EuiDescriptionListDescription>
+              </EuiDescriptionList>
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '40%' }}>
-              <ComplianceTrendChart />
+              <EuiDescriptionList>
+                <EuiDescriptionListTitle>Compliance Trend</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  <ComplianceTrendChart />
+                </EuiDescriptionListDescription>
+              </EuiDescriptionList>
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '10%' }}>
-              <MiniCPSGoalChart />
+              <EuiDescriptionList>
+                <EuiDescriptionListTitle>Posture Score</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  {benchmark.postureScore}
+                </EuiDescriptionListDescription>
+                <EuiDescriptionListTitle>Status</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  {getHealthBadge(benchmark.postureScore)}
+                </EuiDescriptionListDescription>
+                <EuiDescriptionListTitle>Total Failures</EuiDescriptionListTitle>
+                <EuiDescriptionListDescription>
+                  {benchmark.totalFailed}
+                </EuiDescriptionListDescription>
+              </EuiDescriptionList>
+              {/* <MiniCPSGoalChart />*/}
             </EuiFlexItem>
           </EuiFlexGrid>
         </EuiPanel>

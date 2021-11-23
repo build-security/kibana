@@ -72,7 +72,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
   };
 };
 
-const roundScore = (value: number) => (value * 100).toFixed(1);
+const fixScore = (value: number) => (value * 100).toFixed(1);
 
 const getBenchmarksQuery = (): SearchRequest => ({
   index: FINDINGS_INDEX,
@@ -135,7 +135,7 @@ const getAllFindingsStats = async (esClient: ElasticsearchClient, runId: string)
   const passFindings = await esClient.count(getPassFindingsEsQuery('*', runId));
   return {
     total: findings.body.count,
-    postureScore: roundScore(passFindings.body.count / findings.body.count),
+    postureScore: fixScore(passFindings.body.count / findings.body.count),
     totalPassed: passFindings.body.count,
     totalFailed: findings.body.count - passFindings.body.count,
   };
@@ -154,7 +154,7 @@ const getScorePerBenchmark = async (esClient: ElasticsearchClient, runId: string
       return {
         name: benchmark,
         total: benchmarkFindings.body.count,
-        postureScore: roundScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
+        postureScore: fixScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
       };

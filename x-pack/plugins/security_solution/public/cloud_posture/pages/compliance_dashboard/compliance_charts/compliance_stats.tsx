@@ -56,9 +56,11 @@ const getScoreTrendPercentage = (scoreTrend: any) => {
   return (last - beforeLast).toFixed(1);
 };
 
+const mock = 20;
+
 export const ComplianceStats = () => {
   const getStats = useCloudPostureStatsApi();
-  const postureScore = getStats.isSuccess && getStats.data.postureScore;
+  const postureScore = (getStats.isSuccess && getStats.data.postureScore) || mock;
 
   const scoreTrend = [
     [0, 0],
@@ -72,16 +74,16 @@ export const ComplianceStats = () => {
   const isPositiveChange = getIsPositiveChange(scoreChange);
 
   const stats = [
-    {
-      title: getHealthBadge(postureScore),
-      description: 'Posture Status',
-    },
     // {
-    //   title: postureScore,
-    //   description: 'Posture Score',
-    //   titleColor: getScoreVariant(postureScore),
-    //   iconType: getScoreIcon(postureScore),
+    //   title: getHealthBadge(postureScore),
+    //   description: 'Posture Status',
     // },
+    {
+      title: postureScore,
+      description: 'Posture Score',
+      titleColor: getScoreVariant(postureScore),
+      iconType: getScoreIcon(postureScore),
+    },
     {
       title: (
         <span>
