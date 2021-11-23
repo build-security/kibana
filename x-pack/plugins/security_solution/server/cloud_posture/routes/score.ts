@@ -51,7 +51,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
       query: {
         bool: {
           filter: [
-            { term: { 'result.evaluation': 'passed' } },
+            { term: { 'result.evaluation.keyword': 'passed' } },
             { term: { 'run_id.keyword': runId } },
           ],
         },
@@ -63,7 +63,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
     query: {
       bool: {
         filter: [
-          { term: { 'result.evaluation': 'passed' } },
+          { term: { 'result.evaluation.keyword': 'passed' } },
           { term: { 'rule.benchmark.keyword': benchmark } },
           { term: { 'run_id.keyword': runId } },
         ],
