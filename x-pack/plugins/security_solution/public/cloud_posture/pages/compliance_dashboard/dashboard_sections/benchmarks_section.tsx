@@ -6,22 +6,34 @@
  */
 
 import React from 'react';
-import { EuiFlexGrid, EuiFlexItem, EuiPanel, EuiSpacer } from '@elastic/eui';
+import {
+  EuiFlexGrid,
+  EuiFlexItem,
+  EuiPanel,
+  EuiIcon,
+  EuiTitle,
+  IconType,
+  EuiSpacer,
+} from '@elastic/eui';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { MiniCPSGoalChart } from '../compliance_charts/mini_cps_goal_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
-import { useCloudPostureScoreApi } from '../../../common/api/use_cloud_posture_score_api';
+import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
+
+const logoMap: Record<string, IconType> = {
+  'CIS Kubernetes': 'logoKubernetes',
+};
 
 export const BenchmarksSection = () => {
-  const getScore = useCloudPostureScoreApi();
-  const { benchmarks } = getScore.isSuccess && getScore.data;
+  const getStats = useCloudPostureStatsApi();
+  const { benchmarks } = getStats.isSuccess && getStats.data;
 
   if (!benchmarks.length) return null;
 
   return (
     <>
-      {benchmarks.map((benchmark) => (
-        <EuiPanel hasBorder={true} hasShadow={false}>
+      {benchmarks.map((benchmark: { name: string; totalPassed: number; totalFailed: number }) => (
+        <EuiPanel hasBorder hasShadow={false}>
           <EuiFlexGrid columns={4}>
             <EuiFlexItem
               style={{
@@ -31,7 +43,11 @@ export const BenchmarksSection = () => {
                 borderRight: `1px solid lightgray`,
               }}
             >
-              {benchmark.name}
+              <EuiIcon type={logoMap[benchmark.name]} size="xxl" />
+              <EuiSpacer />
+              <EuiTitle size={'s'}>
+                <h3>{benchmark.name}</h3>
+              </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem style={{ flexBasis: '20%' }}>
               <CloudPostureScoreChart {...benchmark} />

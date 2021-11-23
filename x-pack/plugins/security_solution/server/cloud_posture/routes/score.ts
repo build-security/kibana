@@ -19,17 +19,30 @@ const getFindingsEsQueryByBenchmark = (benchmark:string): CountRequest => ({
   index: FINDINGS_INDEX,
   query: {
     bool: {
-      filter: [{ term: { 'rule.benchmark': benchmark } }
+      filter: [{ term: { 'rule.benchmark.keyword': benchmark } }
       ],
     },
   }
+});
+
+const getPassFindingsEsQueryByBenchmark = (benchmark: string): CountRequest => ({
+  index: FINDINGS_INDEX,
+  query: {
+    bool: {
+      filter: [
+                  { term: { 'result.evaluation': 'passed' } },
+                  { term: { 'rule.benchmark.keyword': benchmark } },
+                ],
+
+    },
+  },
 });
 
 const getAllFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
 });
 
-const makeScore = (value: number) => Math.round(value * 100)
+const prepareScore = (value: number) => (value * 100).toFixed(1)
 
 const getAllPassFindingsEsQuery = (): CountRequest => ({
   index: FINDINGS_INDEX,
@@ -41,32 +54,20 @@ const getAllPassFindingsEsQuery = (): CountRequest => ({
   },
 });
 
-const getPassFindingsEsQueryByBenchmark = (benchmark='*'): CountRequest => ({
-  index: FINDINGS_INDEX,
-  query: {
-    bool: {
-      filter: [
-                  { term: { 'result.evaluation': 'passed' } },
-                  { term: { 'rule.benchmark': benchmark } },
-                ],
-
-    },
-  },
-});
-
 const getBenchmarksQuery = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 0,
   aggs: {
     benchmarks: {
-      terms: { field: "rule.benchmark" }
+      terms: { field: "rule.benchmark.keyword" }
     }
   }
 });
 
 const getScorePerBenchmark = async (esClient: ElasticsearchClient) => {
   // const benachmarksQueryResult = await esClient.search(getBenchmarksQuery());
-  // const getRunId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];/
+  // const benachmarks1 = benachmarksQueryResult.body.hits.hits?.field
+  // const benachmarks1 = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
   // @ts-ignore
   // console.log(benachmarksQueryResult.body.aggregations?);
   // const benchmarks = benachmarksQueryResult.body.aggregations?.benachmarks?.buckets?.map((e) => e.key);
@@ -76,10 +77,11 @@ const getScorePerBenchmark = async (esClient: ElasticsearchClient) => {
   const benchmarkScores = Promise.all(benchmarks.map(async (benchmark) => {
     const benchmarkFindings = await esClient.count(getFindingsEsQueryByBenchmark(benchmark));
     const benchmarkPassFindings = await esClient.count(getPassFindingsEsQueryByBenchmark(benchmark));
+    console.log(benchmarkPassFindings)
     return({
         name: benchmark,
         total: benchmarkFindings.body.count,
-        postureScore: makeScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
+        postureScore: prepareScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
       }
@@ -104,7 +106,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         return response.ok({
           body: {
             total: findings.body.count,
-            postureScore: makeScore(passFindings.body.count / findings.body.count),
+            postureScore: prepareScore(passFindings.body.count / findings.body.count),
             totalPassed: passFindings.body.count,
             totalFailed: findings.body.count - passFindings.body.count,
             benchmarks: await getScorePerBenchmark(esClient)
