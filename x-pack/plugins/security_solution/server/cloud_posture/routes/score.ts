@@ -6,22 +6,19 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable  */
 
 import { ElasticsearchClient, Logger } from 'src/core/server';
 import {
-  AggregationsFiltersAggregate,
+  // AggregationsFiltersAggregate,
   SearchRequest,
   CountRequest,
-  SearchSort,
 } from '@elastic/elasticsearch/lib/api/types';
 import type { SecuritySolutionPluginRouter } from '../../types';
-import { any, string } from 'joi';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
 const getFindingsEsQuery = (benchmark: string = '*', runId: string): CountRequest => {
-  if (benchmark == '*') {
+  if (benchmark === '*') {
     return {
       index: FINDINGS_INDEX,
       query: {
@@ -45,7 +42,7 @@ const getFindingsEsQuery = (benchmark: string = '*', runId: string): CountReques
 };
 
 const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRequest => {
-  if (benchmark == '*') {
+  if (benchmark === '*') {
     return {
       index: FINDINGS_INDEX,
       query: {
@@ -72,17 +69,17 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
   };
 };
 
-const roundScore = (value: number) => (value * 100).toFixed(1);
+const roundScore = (value: number) => parseFloat((value * 100).toFixed(1));
 
-const getBenchmarksQuery = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
-  size: 0,
-  aggs: {
-    benchmarks: {
-      terms: { field: 'rule.benchmark.keyword' },
-    },
-  },
-});
+// const getBenchmarksQuery = (): SearchRequest => ({
+//   index: FINDINGS_INDEX,
+//   size: 0,
+//   aggs: {
+//     benchmarks: {
+//       terms: { field: 'rule.benchmark.keyword' },
+//     },
+//   },
+// });
 
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
@@ -176,7 +173,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         const latestRunId = await getLatestRunId(esClient);
         const allFindingsStats = await getAllFindingsStats(esClient, latestRunId);
         const statsPerBenchmark = await getScorePerBenchmark(esClient, latestRunId);
-        const evaluationsPerFilename = await getEvaluationPerFilename(esClient, latestRunId);
+        const evaluationsPerFilenames = await getEvaluationPerFilename(esClient, latestRunId);
 
         return response.ok({
           body: {
@@ -185,7 +182,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
             totalPassed: allFindingsStats.totalPassed,
             totalFailed: allFindingsStats.totalFailed,
             benchmarks: statsPerBenchmark,
-            evaluationsPerFilename: evaluationsPerFilename,
+            evaluationsPerFilename: evaluationsPerFilenames,
           },
         });
       } catch (err) {

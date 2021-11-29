@@ -16,7 +16,7 @@ import {
   SAVED_QUERY_RULE_TYPE_ID,
   THRESHOLD_RULE_TYPE_ID,
 } from '@kbn/securitysolution-rules';
-
+import { ScoreTask } from './score_task';
 import { Logger, SavedObjectsClient } from '../../../../src/core/server';
 import { UsageCounter } from '../../../../src/plugins/usage_collection/server';
 
@@ -109,6 +109,7 @@ export class Plugin implements ISecuritySolutionPlugin {
   private artifactsCache: LRU<string, Buffer>;
   private telemetryUsageCounter?: UsageCounter;
   private kibanaIndex?: string;
+  private foo: ScoreTask | undefined;
 
   constructor(context: PluginInitializerContext) {
     this.pluginContext = context;
@@ -292,7 +293,13 @@ export class Plugin implements ISecuritySolutionPlugin {
     const exceptionListsSetupEnabled = () => {
       return plugins.taskManager && plugins.lists;
     };
-
+    // const foo = new ScoreTask();
+    this.foo = new ScoreTask({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      taskManager: plugins.taskManager!,
+    });
+    // console.log('***************************');
+    // console.log({ foo });
     if (exceptionListsSetupEnabled()) {
       this.lists = plugins.lists;
       this.manifestTask = new ManifestTask({
