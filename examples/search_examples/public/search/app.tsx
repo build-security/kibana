@@ -119,8 +119,6 @@ export const SearchExamplesApp = ({
   useEffect(() => {
     const setDefaultIndexPattern = async () => {
       const defaultIndexPattern = await data.indexPatterns.getDefault();
-
-      console.log({ defaultIndexPattern });
       setIndexPattern(defaultIndexPattern);
     };
 
