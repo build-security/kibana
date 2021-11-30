@@ -67,7 +67,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', cycleId: string): Count
   };
 };
 
-const fixScore = (value: number) => (value * 100).toFixed(1);
+const roundScore = (value: number) => (value * 100).toFixed(1);
 
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
@@ -134,13 +134,8 @@ const getAllFindingsStats = async (
   const findings = await esClient.count(getFindingsEsQuery('*', cycleId));
   const passFindings = await esClient.count(getPassFindingsEsQuery('*', cycleId));
   return {
-<<<<<<< HEAD
-    total: findings.body.count,
-    postureScore: fixScore(passFindings.body.count / findings.body.count),
-=======
     totalFindings: findings.body.count,
     postureScore: roundScore(passFindings.body.count / findings.body.count),
->>>>>>> a56802f928c (data types fix)
     totalPassed: passFindings.body.count,
     totalFailed: findings.body.count - passFindings.body.count,
   };
@@ -161,13 +156,8 @@ const getScorePerBenchmark = async (
       );
       return {
         name: benchmark,
-<<<<<<< HEAD
-        total: benchmarkFindings.body.count,
-        postureScore: fixScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
-=======
         totalFindings: benchmarkFindings.body.count,
         postureScore: roundScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
->>>>>>> a56802f928c (data types fix)
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
       };
