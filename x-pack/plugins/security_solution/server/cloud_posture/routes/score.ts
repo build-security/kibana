@@ -12,7 +12,7 @@ import { SearchRequest, CountRequest } from '@elastic/elasticsearch/lib/api/type
 import type { SecuritySolutionPluginRouter } from '../../types';
 import type { CloudPostureStats, PostureScore } from '../types';
 
-const FINDINGS_INDEX = `kubebeat*`;
+const FINDINGS_INDEX = `kubebea*`;
 
 const getFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequest => {
   if (benchmark == '*') {
