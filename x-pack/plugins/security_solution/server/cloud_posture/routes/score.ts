@@ -133,8 +133,6 @@ const getAllFindingsStats = async (
 ): Promise<PostureScore> => {
   const findings = await esClient.count(getFindingsEsQuery('*', cycleId));
   const passFindings = await esClient.count(getPassFindingsEsQuery('*', cycleId));
-  console.log(findings);
-  console.log(passFindings);
   return {
 <<<<<<< HEAD
     total: findings.body.count,
@@ -189,8 +187,6 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const latestCycleID = await getLatestCycleId(esClient);
-        console.log('!!!!!!!');
-        console.log(latestCycleID);
         if (typeof latestCycleID === 'undefined') {
           throw 'cycle id is missing';
         }
