@@ -15,12 +15,7 @@ import {
 import { orderBy } from 'lodash';
 import { CSPFinding } from './types';
 import { FindingsRuleFlyout } from './rule_flyout';
-
-const getEvaluationBadge = (v: string) => (
-  <EuiBadge color={v === 'passed' ? 'success' : v === 'failed' ? 'danger' : 'default'}>
-    {v.toUpperCase()}
-  </EuiBadge>
-);
+import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
 const getTagsBadges = (v: string[]) => (
   <>
@@ -49,7 +44,7 @@ const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
     field: 'result.evaluation',
     name: 'Evaluation',
     width: '80px',
-    render: getEvaluationBadge,
+    render: (v) => <CSPEvaluationBadge type={v} />,
   },
   {
     field: 'rule.tags',
