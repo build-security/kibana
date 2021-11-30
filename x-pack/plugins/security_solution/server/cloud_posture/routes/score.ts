@@ -5,28 +5,22 @@
  * 2.0.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable  */
 
 import { ElasticsearchClient, Logger } from 'src/core/server';
-import {
-  AggregationsFiltersAggregate,
-  SearchRequest,
-  CountRequest,
-  SearchSort,
-} from '@elastic/elasticsearch/lib/api/types';
+import { SearchRequest, CountRequest } from '@elastic/elasticsearch/lib/api/types';
 import type { SecuritySolutionPluginRouter } from '../../types';
-import { any, string } from 'joi';
+import type { CloudPostureStats, PostureScore } from '../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
-const getFindingsEsQuery = (benchmark: string = '*', runId: string): CountRequest => {
+const getFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
       query: {
         bool: {
-          filter: [{ term: { 'run_id.keyword': runId } }],
+          filter: [{ term: { 'run_id.keyword': cycleId } }],
         },
       },
     };
@@ -37,14 +31,15 @@ const getFindingsEsQuery = (benchmark: string = '*', runId: string): CountReques
       bool: {
         filter: [
           { term: { 'rule.benchmark.keyword': benchmark } },
-          { term: { 'run_id.keyword': runId } },
+          { term: { 'run_id.keyword': cycleId } },
         ],
       },
     },
   };
 };
 
-const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRequest => {
+// todo: replace "*"
+const getPassFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
@@ -52,7 +47,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
         bool: {
           filter: [
             { term: { 'result.evaluation.keyword': 'passed' } },
-            { term: { 'run_id.keyword': runId } },
+            { term: { 'run_id.keyword': cycleId } },
           ],
         },
       },
@@ -65,7 +60,7 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
         filter: [
           { term: { 'result.evaluation.keyword': 'passed' } },
           { term: { 'rule.benchmark.keyword': benchmark } },
-          { term: { 'run_id.keyword': runId } },
+          { term: { 'run_id.keyword': cycleId } },
         ],
       },
     },
@@ -74,32 +69,22 @@ const getPassFindingsEsQuery = (benchmark: string = '*', runId: string): CountRe
 
 const roundScore = (value: number) => (value * 100).toFixed(1);
 
-const getBenchmarksQuery = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
-  size: 0,
-  aggs: {
-    benchmarks: {
-      terms: { field: 'rule.benchmark.keyword' },
-    },
-  },
-});
-
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1,
-  sort: { '@timestamp': 'desc' },
+  sort: { '@timestamp': 'desc' }, // todo - fix error
   query: {
     match_all: {},
   },
 });
 
 // todo: get top 5 frequent
-const getEvaluationPerFilenameEsQuery = (runId: string): SearchRequest => ({
+const getEvaluationPerFilenameEsQuery = (cycleId: string): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1000,
   query: {
     bool: {
-      filter: [{ term: { 'run_id.keyword': runId } }],
+      filter: [{ term: { 'run_id.keyword': cycleId } }],
     },
   },
   aggs: {
@@ -113,47 +98,67 @@ const getEvaluationPerFilenameEsQuery = (runId: string): SearchRequest => ({
     },
   },
 });
-const getLatestRunId = async (esClient: ElasticsearchClient) => {
-  const latestFinding = await esClient.search(getLatestFinding());
-  const latestRunId = latestFinding.body.hits.hits[0]?._source.run_id;
-  return latestRunId;
+
+interface LastCycle {
+  run_id: string;
+}
+
+const getLatestCycleId = async (esClient: ElasticsearchClient) => {
+  const latestFinding = await esClient.search<LastCycle>(getLatestFinding());
+  const lastCycle = latestFinding.body.hits.hits[0];
+  const latestCycleId = lastCycle._source?.run_id;
+  return latestCycleId;
 };
 
-const getEvaluationPerFilename = async (esClient: ElasticsearchClient, runId: string) => {
-  const evaluationsPerFilename = await esClient.search(getEvaluationPerFilenameEsQuery(runId));
+const getEvaluationPerFilename = async (
+  esClient: ElasticsearchClient,
+  cycleId: string
+): Promise<PostureScore[]> => {
+  const evaluationsPerFilename = await esClient.search(getEvaluationPerFilenameEsQuery(cycleId));
+  //@ts-expect-error
   const evaluationsBuckets = evaluationsPerFilename.body.aggregations?.group.buckets;
   const counterPerFilename = evaluationsBuckets.map((filenameObject: any) => ({
     name: filenameObject.key,
+    //@ts-expect-error
     totalPassed: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
+    //@ts-expect-error
     totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
   }));
   return counterPerFilename;
 };
 
-const getAllFindingsStats = async (esClient: ElasticsearchClient, runId: string) => {
-  const findings = await esClient.count(getFindingsEsQuery('*', runId));
-  const passFindings = await esClient.count(getPassFindingsEsQuery('*', runId));
+const getAllFindingsStats = async (
+  esClient: ElasticsearchClient,
+  cycleId: string
+): Promise<PostureScore> => {
+  const findings = await esClient.count(getFindingsEsQuery('*', cycleId));
+  const passFindings = await esClient.count(getPassFindingsEsQuery('*', cycleId));
+  console.log(findings);
+  console.log(passFindings);
   return {
-    total: findings.body.count,
+    totalFindings: findings.body.count,
     postureScore: roundScore(passFindings.body.count / findings.body.count),
     totalPassed: passFindings.body.count,
     totalFailed: findings.body.count - passFindings.body.count,
   };
 };
 
-const getScorePerBenchmark = async (esClient: ElasticsearchClient, runId: string) => {
-  // const benachmarksQueryResult = await esClient.search(getBenchmarksQuery());
-  // const benchmarks = benachmarksQueryResult.body.aggregations?.map((benchmark: any) => benchmark.bucket.key );
-  // console.log(counterPerFilename1);
+const getScorePerBenchmark = async (
+  esClient: ElasticsearchClient,
+  cycleId: string
+): Promise<PostureScore[]> => {
+  //todo: get benchmarks from DB
   // @ts-ignore
   const benchmarks = ['CIS Kubernetes'];
   const benchmarkScores = Promise.all(
     benchmarks.map(async (benchmark) => {
-      const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, runId));
-      const benchmarkPassFindings = await esClient.count(getPassFindingsEsQuery(benchmark, runId));
+      const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, cycleId));
+      const benchmarkPassFindings = await esClient.count(
+        getPassFindingsEsQuery(benchmark, cycleId)
+      );
       return {
         name: benchmark,
-        total: benchmarkFindings.body.count,
+        totalFindings: benchmarkFindings.body.count,
         postureScore: roundScore(benchmarkPassFindings.body.count / benchmarkFindings.body.count),
         totalPassed: benchmarkPassFindings.body.count,
         totalFailed: benchmarkFindings.body.count - benchmarkPassFindings.body.count,
@@ -173,20 +178,25 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
-        const latestRunId = await getLatestRunId(esClient);
-        const allFindingsStats = await getAllFindingsStats(esClient, latestRunId);
-        const statsPerBenchmark = await getScorePerBenchmark(esClient, latestRunId);
-        const evaluationsPerFilename = await getEvaluationPerFilename(esClient, latestRunId);
-
+        const latestCycleID = await getLatestCycleId(esClient);
+        console.log('!!!!!!!');
+        console.log(latestCycleID);
+        if (typeof latestCycleID === 'undefined') {
+          throw 'cycle id is missing';
+        }
+        const allFindingsStats = await getAllFindingsStats(esClient, latestCycleID);
+        const statsPerBenchmark = await getScorePerBenchmark(esClient, latestCycleID);
+        const evaluationsPerFilename = await getEvaluationPerFilename(esClient, latestCycleID);
+        const body: CloudPostureStats = {
+          totalFindings: allFindingsStats.totalFindings,
+          postureScore: allFindingsStats.postureScore,
+          totalPassed: allFindingsStats.totalPassed,
+          totalFailed: allFindingsStats.totalFailed,
+          statsPerBenchmark: statsPerBenchmark,
+          evaluationPerFilename: evaluationsPerFilename,
+        };
         return response.ok({
-          body: {
-            totalFindings: allFindingsStats.total,
-            postureScore: allFindingsStats.postureScore,
-            totalPassed: allFindingsStats.totalPassed,
-            totalFailed: allFindingsStats.totalFailed,
-            benchmarks: statsPerBenchmark,
-            evaluationsPerFilename: evaluationsPerFilename,
-          },
+          body,
         });
       } catch (err) {
         return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
@@ -273,3 +283,12 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
 //     }
 
 //   );
+// const getBenchmarksQuery = (): SearchRequest => ({
+//   index: FINDINGS_INDEX,
+//   size: 0,
+//   aggs: {
+//     benchmarks: {
+//       terms: { field: 'rule.benchmark.keyword' },
+//     },
+//   },
+// });
