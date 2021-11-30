@@ -14,7 +14,7 @@ import {
 } from '@elastic/eui';
 import { orderBy } from 'lodash';
 import { CSPFinding } from './types';
-import { FindingsRuleFlyOut } from './rule_flyout';
+import { FindingsRuleFlyout } from './rule_flyout';
 
 const getEvaluationBadge = (v: string) => (
   <EuiBadge color={v === 'passed' ? 'success' : v === 'failed' ? 'danger' : 'default'}>
@@ -120,7 +120,7 @@ export const FindingsTable = ({ data, isLoading, error }: FindingsTableProps) =>
         cellProps={getCellProps}
       />
       {selectedFinding && (
-        <FindingsRuleFlyOut
+        <FindingsRuleFlyout
           findings={selectedFinding}
           onClose={() => setSelectedFinding(undefined)}
         />
