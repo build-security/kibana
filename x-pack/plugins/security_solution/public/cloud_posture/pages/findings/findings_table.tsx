@@ -4,7 +4,6 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-
 import React, { useState } from 'react';
 import {
   Criteria,
@@ -16,8 +15,6 @@ import {
 import { orderBy } from 'lodash';
 import { CSPFinding } from './types';
 import { FindingsRuleFlyOut } from './rule_flyout';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const getEvaluationBadge = (v: string) => (
   <EuiBadge color={v === 'passed' ? 'success' : v === 'failed' ? 'danger' : 'default'}>
@@ -73,19 +70,13 @@ export const FindingsTable = ({ data, isLoading, error }: FindingsTableProps) =>
   const [pageSize, setPageSize] = useState(25);
   const [sortField, setSortField] = useState<keyof CSPFinding>('resource');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [currentRule, setCurrentRule] = useState<any>();
+  const [selectedFinding, setSelectedFinding] = useState<CSPFinding | undefined>();
 
-  const getCellProps = (item: any, column: any) => {
-    const { field } = column;
-    if (field === 'rule.name') {
-      return {
-        onClick: () => setCurrentRule(item),
-      };
-    }
-    return {};
-  };
+  const getCellProps = (item: CSPFinding, column: EuiTableFieldDataColumnType<CSPFinding>) => ({
+    onClick: column.field === 'rule.name' ? () => setSelectedFinding(item) : undefined,
+  });
 
-  const onTableChange = ({ page, sort }: Criteria<any>) => {
+  const onTableChange = ({ page, sort }: Criteria<CSPFinding>) => {
     if (!page || !sort) return;
     const { index, size } = page;
     const { field, direction } = sort;
@@ -128,8 +119,11 @@ export const FindingsTable = ({ data, isLoading, error }: FindingsTableProps) =>
         onChange={onTableChange}
         cellProps={getCellProps}
       />
-      {currentRule && (
-        <FindingsRuleFlyOut findings={currentRule} onClose={() => setCurrentRule(false)} />
+      {selectedFinding && (
+        <FindingsRuleFlyOut
+          findings={selectedFinding}
+          onClose={() => setSelectedFinding(undefined)}
+        />
       )}
     </>
   );
