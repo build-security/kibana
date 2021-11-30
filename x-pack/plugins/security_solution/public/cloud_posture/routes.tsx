@@ -38,4 +38,4 @@ const Routes = () => (
   </Providers>
 );
 
-export const routes: RouteProps[] = [{ path: '/csp', render: Routes }];
+export const routes: RouteProps[] = [{ path: CSP_ROOT_PATH, render: Routes }];
