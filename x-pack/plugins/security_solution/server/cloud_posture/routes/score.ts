@@ -14,7 +14,7 @@ import type { CloudPostureStats, PostureScore } from '../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
-const getFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest => {
+const getFindingsEsQuery = (cycleId: string, benchmark = '*'): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
@@ -39,7 +39,7 @@ const getFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest => {
 };
 
 // todo: replace "*"
-const getPassFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest => {
+const getPassFindingsEsQuery = (cycleId: string, benchmark = '*'): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
@@ -67,7 +67,7 @@ const getPassFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest 
   };
 };
 
-const roundScore = (value: number) => Number((value * 100).toFixed(1));
+const roundScore = (value: number) => Number((value * 100).toFixed(1)); // value is [0, 1] range
 
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
@@ -131,8 +131,8 @@ const getAllFindingsStats = async (
   esClient: ElasticsearchClient,
   cycleId: string
 ): Promise<PostureScore> => {
-  const findings = await esClient.count(getFindingsEsQuery('*', cycleId));
-  const passFindings = await esClient.count(getPassFindingsEsQuery('*', cycleId));
+  const findings = await esClient.count(getFindingsEsQuery(cycleId));
+  const passFindings = await esClient.count(getPassFindingsEsQuery(cycleId));
   return {
     totalFindings: findings.body.count,
     postureScore: roundScore(passFindings.body.count / findings.body.count),
@@ -146,7 +146,6 @@ const getScorePerBenchmark = async (
   cycleId: string
 ): Promise<PostureScore[]> => {
   //todo: get benchmarks from DB
-  // @ts-ignore
   const benchmarks = ['CIS Kubernetes'];
   const benchmarkScores = Promise.all(
     benchmarks.map(async (benchmark) => {
