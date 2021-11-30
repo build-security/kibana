@@ -14,7 +14,7 @@ import type { CloudPostureStats, PostureScore } from '../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
-const getFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequest => {
+const getFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
@@ -39,7 +39,7 @@ const getFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequ
 };
 
 // todo: replace "*"
-const getPassFindingsEsQuery = (benchmark: string = '*', cycleId: string): CountRequest => {
+const getPassFindingsEsQuery = (benchmark = '*', cycleId: string): CountRequest => {
   if (benchmark == '*') {
     return {
       index: FINDINGS_INDEX,
@@ -67,12 +67,12 @@ const getPassFindingsEsQuery = (benchmark: string = '*', cycleId: string): Count
   };
 };
 
-const roundScore = (value: number) => (value * 100).toFixed(1);
+const roundScore = (value: number) => Number((value * 100).toFixed(1));
 
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1,
-  sort: { '@timestamp': 'desc' }, // todo - fix error
+  sort: { '@timestamp': 'desc' }, // todo - working but expected to get string or string[] but working. check it.
   query: {
     match_all: {},
   },
@@ -177,17 +177,16 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const latestCycleID = await getLatestCycleId(esClient);
-        if (typeof latestCycleID === 'undefined') {
-          throw 'cycle id is missing';
+        if (latestCycleID === undefined) {
+          throw new Error('cycle id is missing');
         }
-        const allFindingsStats = await getAllFindingsStats(esClient, latestCycleID);
-        const statsPerBenchmark = await getScorePerBenchmark(esClient, latestCycleID);
-        const evaluationsPerFilename = await getEvaluationPerFilename(esClient, latestCycleID);
+        const [allFindingsStats, statsPerBenchmark, evaluationsPerFilename] = await Promise.all([
+          getAllFindingsStats(esClient, latestCycleID),
+          getScorePerBenchmark(esClient, latestCycleID),
+          getEvaluationPerFilename(esClient, latestCycleID),
+        ]);
         const body: CloudPostureStats = {
-          totalFindings: allFindingsStats.totalFindings,
-          postureScore: allFindingsStats.postureScore,
-          totalPassed: allFindingsStats.totalPassed,
-          totalFailed: allFindingsStats.totalFailed,
+          ...allFindingsStats,
           statsPerBenchmark: statsPerBenchmark,
           evaluationPerFilename: evaluationsPerFilename,
         };
