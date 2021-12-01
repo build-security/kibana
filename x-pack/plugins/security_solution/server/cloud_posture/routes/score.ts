@@ -5,8 +5,6 @@
  * 2.0.
  */
 
-/* eslint-disable  */
-
 import { ElasticsearchClient, Logger } from 'src/core/server';
 import {
   SearchRequest,
