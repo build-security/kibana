@@ -16,7 +16,9 @@ import type { CloudPostureStats, PostureScore } from '../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
-// todo: find a way to get all values withous using '*'
+// TODO:
+// 1. find the wildcard symbol for es client query
+// 2. dont use '*' as a flag
 const getFindingsEsQuery = (
   cycleId: string,
   evaluationResult = '*',
@@ -41,7 +43,6 @@ const getFindingsEsQuery = (
 };
 
 /**
- *
  * @param value value is [0, 1] range
  */
 const roundScore = (value: number) => Number((value * 100).toFixed(1));
@@ -49,17 +50,17 @@ const roundScore = (value: number) => Number((value * 100).toFixed(1));
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1,
-  //@ts-expect-error TS2322
-  sort: { '@timestamp': 'desc' }, // todo - expected to get string or string[] but it's working. check it.
+  /* @ts-expect-error TS2322 */
+  sort: { '@timestamp': 'desc' }, // TODO - expected to get string or string[] but it's working. check it.
   query: {
     match_all: {},
   },
 });
 
-// todo: get top 5 frequent
+// TODO: get top 5 frequent
 const getEvaluationPerFilenameEsQuery = (cycleId: string): SearchRequest => ({
   index: FINDINGS_INDEX,
-  // need research to understand beeter how to use 'size'
+  // TODO: figure out what needs to be the size (considering large collections / pagination)
   size: 1000,
   query: {
     bool: {
@@ -92,14 +93,15 @@ const getEvaluationPerFilename = async (
   esClient: ElasticsearchClient,
   cycleId: string
 ): Promise<PostureScore[]> => {
+  // TODO: fix types
   const evaluationsPerFilename = await esClient.search(getEvaluationPerFilenameEsQuery(cycleId));
-  //@ts-expect-error TS2339
+  /* @ts-expect-error TS2339 */
   const evaluationsBuckets = evaluationsPerFilename.body.aggregations?.group.buckets;
   const counterPerFilename = evaluationsBuckets.map((filenameObject: any) => ({
     name: filenameObject.key,
-    //@ts-expect-error TS7006
+    /* @ts-expect-error TS7006 */
     totalPassed: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
-    //@ts-expect-error TS7006
+    /* @ts-expect-error TS7006 */
     totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
   }));
   return counterPerFilename;
@@ -159,7 +161,6 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
       path: '/api/csp/stats',
       validate: false,
     },
-
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
@@ -169,7 +170,12 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         }
         const [allFindingsStats, statsPerBenchmark, evaluationsPerFilename] = await Promise.all([
           getAllFindingsStats(esClient, latestCycleID),
-          getScorePerBenchmark(esClient, latestCycleID, ['CIS Kubernetes']), //todo: get benchmarks from DB
+          getScorePerBenchmark(
+            esClient,
+            latestCycleID,
+            /* todo: get benchmarks from DB */
+            ['CIS Kubernetes']
+          ),
           getEvaluationPerFilename(esClient, latestCycleID),
         ]);
         const body: CloudPostureStats = {
@@ -181,6 +187,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
           body,
         });
       } catch (err) {
+        // TODO: add custom error handling
         return response.customError({ body: { message: 'Unknown error' }, statusCode: 400 });
       }
     }
