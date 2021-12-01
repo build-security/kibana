@@ -12,6 +12,7 @@ import {
   QueryDslQueryContainer,
   AggregationsTermsAggregate,
   DictionaryResponseBase,
+  AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
 import type { SecuritySolutionPluginRouter } from '../../types';
 import type { CloudPostureStats, PostureScore } from '../types';
@@ -107,7 +108,7 @@ const getBenchmarks = async (esClient: ElasticsearchClient) => {
 
 interface GroupFilename {
   key: string;
-  group_docs: AggregationsTermsAggregate<DictionaryResponseBase<string, number>>;
+  group_docs: AggregationsTermsAggregate<AggregationsKeyedBucketKeys>;
 }
 
 const getEvaluationPerFilename = async (
@@ -120,9 +121,7 @@ const getEvaluationPerFilename = async (
   const counterPerFilename = evaluationsBuckets.buckets.map((filenameObject) => ({
     name: filenameObject.key,
     totalPassed: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
-    // totalPassed: 0,
-    totalFailed: 0,
-    // totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
+    totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
   }));
   return counterPerFilename;
 };

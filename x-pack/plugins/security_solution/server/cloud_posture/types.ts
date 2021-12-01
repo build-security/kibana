@@ -7,10 +7,10 @@
 
 export interface PostureScore {
   name?: string;
-  totalFindings: number;
+  totalFindings?: number;
   postureScore?: number | undefined;
-  totalPassed: number;
-  totalFailed: number;
+  totalPassed: number | undefined;
+  totalFailed: number | undefined;
 }
 export interface CloudPostureStats extends PostureScore {
   statsPerBenchmark: PostureScore[];
