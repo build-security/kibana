@@ -8,7 +8,7 @@
 export interface PostureScore {
   name?: string;
   totalFindings: number;
-  postureScore?: string | undefined;
+  postureScore?: number | undefined;
   totalPassed: number;
   totalFailed: number;
 }
