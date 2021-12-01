@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { ReactNode, useState, useCallback } from 'react';
 import {
   EuiSpacer,
   EuiCode,
@@ -26,8 +26,12 @@ import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
 const tabs = ['resource', 'rule', 'overview'] as const;
 
-interface CSPTabProps {
-  data: CSPFinding;
+interface Card {
+  title: string;
+  listItems: Array<{
+    title: NonNullable<ReactNode>;
+    description: NonNullable<ReactNode>;
+  }>;
 }
 
 interface FindingFlyoutProps {
@@ -41,11 +45,11 @@ export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) =>
   const Tab = useCallback(() => {
     switch (tab) {
       case 'overview':
-        return <OverviewTab data={findings} />;
+        return <FlyoutTab cards={getOverviewCards(findings)} />;
       case 'rule':
-        return <RuleTab data={findings} />;
+        return <FlyoutTab cards={getRuleCards(findings)} />;
       case 'resource':
-        return <ResourceTab data={findings} />;
+        return <FlyoutTab cards={getResourceCards(findings)} />;
     }
 
     assertNever(tab);
@@ -80,114 +84,98 @@ export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) =>
   );
 };
 
-const getTagsBadges = (v: string[]) => (
-  <>
-    {v.map((x) => (
-      <EuiBadge color="default">{x}</EuiBadge>
+const FlyoutTab = ({ cards }: { cards: Card[] }) => (
+  <div style={{ display: 'grid', gridGap: 15, gridAutoFlow: 'rows' }}>
+    {cards.map((card) => (
+      <EuiCard textAlign="left" title={card.title}>
+        <EuiDescriptionList compressed={false} type="column" listItems={card.listItems} />
+      </EuiCard>
     ))}
-  </>
+  </div>
 );
 
-const OverviewTab = ({ data }: CSPTabProps) => (
-  <TabWrapper>
-    <EuiCard textAlign="left" title={'Agent'}>
-      <EuiDescriptionList
-        compressed={false}
-        type="column"
-        listItems={[
-          { title: 'Name', description: data.agent.name },
-          { title: 'ID', description: data.agent.id },
-          { title: 'Type', description: data.agent.type },
-          { title: 'Version', description: data.agent.version },
-        ]}
-      />
-    </EuiCard>
-    <EuiCard textAlign="left" title={'Host'}>
-      <EuiDescriptionList
-        type="column"
-        compressed={false}
-        listItems={[
-          { title: 'Architecture', description: data.host.architecture },
-          { title: 'Containerized', description: data.host.containerized ? 'true' : 'false' },
-          { title: 'Hostname', description: data.host.hostname },
-          { title: 'ID', description: data.host.id },
-          { title: 'IP', description: data.host.ip.join(',') },
-          { title: 'Mac', description: data.host.mac.join(',') },
-          { title: 'Name', description: data.host.name },
-        ]}
-      />
-    </EuiCard>
-    <EuiCard textAlign="left" title={'OS'}>
-      <EuiDescriptionList
-        type="column"
-        compressed={false}
-        listItems={[
-          { title: 'Codename', description: data.host.os.codename },
-          { title: 'Family', description: data.host.os.family },
-          { title: 'Kernel', description: data.host.os.kernel },
-          { title: 'Name', description: data.host.os.name },
-          { title: 'Platform', description: data.host.os.platform },
-          { title: 'Type', description: data.host.os.type },
-          { title: 'Version', description: data.host.os.version },
-        ]}
-      />
-    </EuiCard>
-  </TabWrapper>
-);
+const getOverviewCards = ({ agent, host }: CSPFinding): Card[] => [
+  {
+    title: 'Agent',
+    listItems: [
+      { title: 'Name', description: agent.name },
+      { title: 'ID', description: agent.id },
+      { title: 'Type', description: agent.type },
+      { title: 'Version', description: agent.version },
+    ],
+  },
+  {
+    title: 'Host',
+    listItems: [
+      { title: 'Architecture', description: host.architecture },
+      {
+        title: 'Containerized',
+        description: host.containerized ? 'true' : 'false',
+      },
+      { title: 'Hostname', description: host.hostname },
+      { title: 'ID', description: host.id },
+      { title: 'IP', description: host.ip.join(',') },
+      { title: 'Mac', description: host.mac.join(',') },
+      { title: 'Name', description: host.name },
+    ],
+  },
+  {
+    title: 'OS',
+    listItems: [
+      { title: 'Codename', description: host.os.codename },
+      { title: 'Family', description: host.os.family },
+      { title: 'Kernel', description: host.os.kernel },
+      { title: 'Name', description: host.os.name },
+      { title: 'Platform', description: host.os.platform },
+      { title: 'Type', description: host.os.type },
+      { title: 'Version', description: host.os.version },
+    ],
+  },
+];
 
-const RuleTab = ({ data }: CSPTabProps) => (
-  <TabWrapper>
-    <EuiCard textAlign="left" title={'Rule'}>
-      <EuiDescriptionList
-        compressed={false}
-        type="column"
-        listItems={[
-          { title: 'Benchmark', description: data.rule.benchmark },
-          { title: 'Name', description: data.rule.name },
-          { title: 'Description', description: data.rule.description },
-          { title: 'Tags', description: getTagsBadges(data.rule.tags) },
-          { title: 'Remediation', description: <EuiCode>{data.rule.remediation}</EuiCode> },
-        ]}
-      />
-    </EuiCard>
-  </TabWrapper>
-);
+const getRuleCards = ({ rule }: CSPFinding): Card[] => [
+  {
+    title: 'Rule',
+    listItems: [
+      { title: 'Benchmark', description: rule.benchmark },
+      { title: 'Name', description: rule.name },
+      { title: 'Description', description: rule.description },
+      {
+        title: 'Tags',
+        description: rule.tags.map((t) => (
+          <EuiBadge key={t} color="default">
+            {t}
+          </EuiBadge>
+        )),
+      },
+      { title: 'Remediation', description: <EuiCode>{rule.remediation}</EuiCode> },
+    ],
+  },
+];
 
-const ResourceTab = ({ data }: CSPTabProps) => (
-  <TabWrapper>
-    <EuiCard textAlign="left" title={'Resource'}>
-      <EuiDescriptionList
-        compressed={false}
-        type="column"
-        listItems={[
-          { title: 'Filename', description: <EuiCode>{data.resource.filename}</EuiCode> },
-          { title: 'Mode', description: data.resource.mode },
-          { title: 'Path', description: <EuiCode>{data.resource.path}</EuiCode> },
-          { title: 'Type', description: data.resource.type },
-          { title: 'UID', description: data.resource.uid },
-          { title: 'GID', description: data.resource.gid },
-        ]}
-      />
-    </EuiCard>
-    <EuiCard textAlign="left" title={'Result'}>
-      <EuiDescriptionList
-        compressed={false}
-        type="column"
-        listItems={[
-          {
-            title: 'Evaluation',
-            description: <CSPEvaluationBadge type={data.result.evaluation} />,
-          },
-          {
-            title: 'Evidence',
-            description: <EuiCode>{JSON.stringify(data.result.evidence, null, 2)}</EuiCode>,
-          },
-        ]}
-      />
-    </EuiCard>
-  </TabWrapper>
-);
-
-const TabWrapper: React.FC = ({ children }) => (
-  <div style={{ display: 'grid', gridGap: 15, gridAutoFlow: 'rows' }}>{children}</div>
-);
+const getResourceCards = ({ resource, result }: CSPFinding): Card[] => [
+  {
+    title: 'Resource',
+    listItems: [
+      { title: 'Filename', description: <EuiCode>{resource.filename}</EuiCode> },
+      { title: 'Mode', description: resource.mode },
+      { title: 'Path', description: <EuiCode>{resource.path}</EuiCode> },
+      { title: 'Type', description: resource.type },
+      { title: 'UID', description: resource.uid },
+      { title: 'GID', description: resource.gid },
+    ],
+  },
+  {
+    title: 'Result',
+    listItems: [
+      {
+        title: 'Evaluation',
+        description: <CSPEvaluationBadge type={result.evaluation} />,
+      },
+      {
+        title: 'Evidence',
+        description: <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>,
+      },
+    ],
+  },
+];
