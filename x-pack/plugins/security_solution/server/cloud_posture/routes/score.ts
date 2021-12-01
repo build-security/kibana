@@ -183,9 +183,6 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
           body,
         });
       } catch (err) {
-        // if (err.message.include('cycle_id'))
-        //   return response.customError({ body: { message: err.message }, statusCode: 400 });
-
         return response.customError({ body: { message: 'Unknown error' }, statusCode: 400 });
       }
     }
