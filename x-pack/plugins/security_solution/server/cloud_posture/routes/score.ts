@@ -51,6 +51,7 @@ const roundScore = (value: number) => Number((value * 100).toFixed(1));
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1,
+  //@ts-expect-error TS2322
   sort: { '@timestamp': 'desc' }, // todo - expected to get string or string[] but it's working. check it.
   query: {
     match_all: {},
