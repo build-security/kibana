@@ -176,14 +176,17 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         ]);
         const body: CloudPostureStats = {
           ...allFindingsStats,
-          statsPerBenchmark: statsPerBenchmark,
-          evaluationPerFilename: evaluationsPerFilename,
+          statsPerBenchmark,
+          evaluationsPerFilename,
         };
         return response.ok({
           body,
         });
       } catch (err) {
-        return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
+        // if (err.message.include('cycle_id'))
+        //   return response.customError({ body: { message: err.message }, statusCode: 400 });
+
+        return response.customError({ body: { message: 'Unknown error' }, statusCode: 400 });
       }
     }
   );

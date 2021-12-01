@@ -14,5 +14,5 @@ export interface PostureScore {
 }
 export interface CloudPostureStats extends PostureScore {
   statsPerBenchmark: PostureScore[];
-  evaluationPerFilename: PostureScore[];
+  evaluationsPerFilename: PostureScore[];
 }
