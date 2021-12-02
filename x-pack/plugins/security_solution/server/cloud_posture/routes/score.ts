@@ -15,7 +15,7 @@ import {
   AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
 import type { SecuritySolutionPluginRouter } from '../../types';
-import type { CloudPostureStats, PostureScore } from '../types';
+import type { CloudPostureStats, PostureScore, EvaluationStats } from '../types';
 
 const FINDINGS_INDEX = `kubebeat*`;
 
@@ -26,11 +26,11 @@ const getFindingsEsQuery = (
 ): CountRequest => {
   const filter: QueryDslQueryContainer[] = [{ term: { 'run_id.keyword': cycleId } }];
 
-  if (benchmark !== undefined) {
+  if (!!benchmark) {
     filter.push({ term: { 'rule.benchmark.keyword': benchmark } });
   }
 
-  if (evaluationResult !== undefined) {
+  if (!!evaluationResult) {
     filter.push({ term: { 'result.evaluation.keyword': evaluationResult } });
   }
 
@@ -50,35 +50,42 @@ const roundScore = (value: number) => Number((value * 100).toFixed(1));
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 1,
-  /* @ts-expect-error TS2322 */
-  sort: { '@timestamp': 'desc' }, // TODO - expected to get string or string[] but it's working. check it.
+  /* @ts-expect-error TS2322 - missing SearchSortContainer */
+  sort: { '@timestamp': 'desc' },
   query: {
     match_all: {},
   },
 });
 
-// TODO: get top 5 frequent
-const getEvaluationPerFilenameEsQuery = (cycleId: string): SearchRequest => ({
-  index: FINDINGS_INDEX,
-  // TODO: figure out what needs to be the size (considering large collections / pagination)
-  size: 1000,
-  query: {
+const getEvaluationPerFilenameEsQuery = (
+  cycleId: string,
+  result: 'passed' | 'failed',
+  size: number,
+  resources?: string[]
+): SearchRequest => {
+  const query: QueryDslQueryContainer = {
     bool: {
-      filter: [{ term: { 'run_id.keyword': cycleId } }],
+      filter: [
+        { term: { 'run_id.keyword': cycleId } },
+        { term: { 'result.evaluation.keyword': result } },
+      ],
     },
-  },
-  aggs: {
-    group: {
-      terms: { field: 'resource.filename.keyword' },
-      aggs: {
-        group_docs: {
-          terms: { field: 'result.evaluation.keyword' },
-        },
+  };
+  if (!!resources) {
+    query.bool!.must = { terms: { 'resource.filename.keyword': resources } };
+  }
+  return {
+    index: FINDINGS_INDEX,
+    size: size,
+    query: query,
+    aggs: {
+      group: {
+        terms: { field: 'resource.filename.keyword' },
       },
     },
-  },
-});
-
+    sort: 'resource.filename.keyword',
+  };
+};
 interface LastCycle {
   run_id: string;
 }
@@ -101,29 +108,52 @@ const getBenchmarksQuery = (): SearchRequest => ({
 
 const getBenchmarks = async (esClient: ElasticsearchClient) => {
   const queryReult = await esClient.search(getBenchmarksQuery());
-  const bencmarksBuckets = queryReult.body.aggregations
-    ?.benchmarks as AggregationsTermsAggregate<DictionaryResponseBase>;
+  const bencmarksBuckets = queryReult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
+    DictionaryResponseBase<string, string>
+  >;
   return bencmarksBuckets.buckets.map((e) => e.key);
 };
 
 interface GroupFilename {
+  //TODO find the 'key', 'doc_count' interface
   key: string;
+  doc_count: number;
   group_docs: AggregationsTermsAggregate<AggregationsKeyedBucketKeys>;
 }
 
 const getEvaluationPerFilename = async (
   esClient: ElasticsearchClient,
   cycleId: string
-): Promise<PostureScore[]> => {
-  const evaluationsPerFilename = await esClient.search(getEvaluationPerFilenameEsQuery(cycleId));
-  const evaluationsBuckets = evaluationsPerFilename.body.aggregations
+): Promise<EvaluationStats[]> => {
+  const failedEvaluationsPerResourceResult = await esClient.search(
+    getEvaluationPerFilenameEsQuery(cycleId, 'failed', 5)
+  );
+
+  const failedResourcesGroup = failedEvaluationsPerResourceResult.body.aggregations
     ?.group as AggregationsTermsAggregate<GroupFilename>;
-  const counterPerFilename = evaluationsBuckets.buckets.map((filenameObject) => ({
-    name: filenameObject.key,
-    totalPassed: filenameObject.group_docs.buckets.find((e) => e.key === 'passed')?.doc_count || 0,
-    totalFailed: filenameObject.group_docs.buckets.find((e) => e.key === 'failed')?.doc_count || 0,
-  }));
-  return counterPerFilename;
+  const topFailedResources = failedResourcesGroup.buckets.map((e) => e.key);
+  const failedEvaluationPerResorces = failedResourcesGroup.buckets.map((e) => {
+    return {
+      resource: e.key,
+      value: e.doc_count,
+      evaluation: 'failed',
+    } as const;
+  });
+
+  const passedEvaluationsPerResourceResult = await esClient.search(
+    getEvaluationPerFilenameEsQuery(cycleId, 'passed', 5, topFailedResources)
+  );
+  const passedResourcesGroup = passedEvaluationsPerResourceResult.body.aggregations
+    ?.group as AggregationsTermsAggregate<GroupFilename>;
+  const passedEvaluationPerResorces = passedResourcesGroup.buckets.map((e) => {
+    return {
+      resource: e.key,
+      value: e.doc_count,
+      evaluation: 'passed',
+    } as const;
+  });
+
+  return [...passedEvaluationPerResorces, ...failedEvaluationPerResorces];
 };
 
 const getAllFindingsStats = async (
@@ -134,6 +164,7 @@ const getAllFindingsStats = async (
   const passedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'passed'));
   const failedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'failed'));
   return {
+    name: 'general',
     totalFindings: findings.body.count,
     postureScore:
       findings.body.count === 0
@@ -188,7 +219,7 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         if (latestCycleID === undefined) {
           throw new Error('cycle id is missing');
         }
-        const [allFindingsStats, statsPerBenchmark, evaluationsPerFilename] = await Promise.all([
+        const [allFindingsStats, statsPerBenchmark, evaluationsPerResource] = await Promise.all([
           getAllFindingsStats(esClient, latestCycleID),
           getScorePerBenchmark(esClient, latestCycleID, benchmarks),
           getEvaluationPerFilename(esClient, latestCycleID),
@@ -196,14 +227,14 @@ export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logg
         const body: CloudPostureStats = {
           ...allFindingsStats,
           statsPerBenchmark,
-          evaluationsPerFilename,
+          evaluationsPerResource,
         };
         return response.ok({
           body,
         });
       } catch (err) {
-        // TODO: add custom error handling
-        return response.customError({ body: { message: 'Unknown error' }, statusCode: 400 });
+        // TODO - validate err object and parse
+        return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
       }
     }
   );

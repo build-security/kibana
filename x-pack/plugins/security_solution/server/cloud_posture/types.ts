@@ -6,13 +6,18 @@
  */
 
 export interface PostureScore {
-  name?: string;
+  name: string;
   totalFindings?: number;
-  postureScore?: number | undefined;
+  postureScore: number | undefined;
   totalPassed: number | undefined;
   totalFailed: number | undefined;
 }
 export interface CloudPostureStats extends PostureScore {
   statsPerBenchmark: PostureScore[];
-  evaluationsPerFilename: PostureScore[];
+  evaluationsPerResource: EvaluationStats[];
+}
+export interface EvaluationStats {
+  resource: string;
+  value: number;
+  evaluation: 'passed' | 'failed' | 'NA';
 }
