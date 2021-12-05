@@ -7,6 +7,7 @@
 
 import { useQuery } from 'react-query';
 import { useKibana } from '../../../common/lib/kibana';
+// TODO: find out how to import from the server folder without warnings
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { CloudPostureStats } from '../../../../server/cloud_posture/types';
 
