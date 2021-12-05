@@ -26,7 +26,7 @@ import { assertNever } from '@kbn/std';
 import { CSPFinding } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
-const tabs = ['resource', 'rule', 'result', 'run'] as const;
+const tabs = ['result', 'rule', 'resource'] as const;
 
 type FindingsTab = typeof tabs[number];
 
@@ -47,7 +47,7 @@ interface FindingFlyoutProps {
 
 // TODO: fix scrollbar jumps
 export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) => {
-  const [tab, setTab] = useState<FindingsTab>('resource');
+  const [tab, setTab] = useState<FindingsTab>('result');
   return (
     <EuiFlyout onClose={onClose}>
       <EuiFlyoutHeader>
@@ -95,8 +95,6 @@ const Cards = ({ data }: { data: Card[] }) => (
 
 const FindingsTab = ({ tab, findings }: { findings: CSPFinding; tab: FindingsTab }) => {
   switch (tab) {
-    case 'run':
-      return <Cards data={getRunCards(findings)} />;
     case 'result':
       return <Cards data={getResultCards(findings)} />;
     case 'rule':
@@ -141,17 +139,16 @@ const getRuleCards = ({ rule }: CSPFinding): Card[] => [
   },
 ];
 
-const getResultCards = ({ result }: CSPFinding): Card[] => [
+const getResultCards = ({ result, agent, host, ...rest }: CSPFinding): Card[] => [
   {
     title: 'Result',
     listItems: [
       ['Evaluation', <CSPEvaluationBadge type={result.evaluation} />],
       ['Evidence', <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
-    ],
+      ['Timestamp', rest['@timestamp']],
+      result.evaluation === 'failed' && ['Remediation', rest['@timestamp']],
+    ].filter(Boolean) as Card['listItems'], // TODO: is a type guard,
   },
-];
-
-const getRunCards = ({ agent, host }: CSPFinding): Card[] => [
   {
     title: 'Agent',
     listItems: [
