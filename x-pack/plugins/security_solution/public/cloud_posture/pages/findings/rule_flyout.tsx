@@ -30,10 +30,7 @@ const tabs = ['result', 'rule', 'resource'] as const;
 
 type FindingsTab = typeof tabs[number];
 
-type EuiListItemsProps = Extract<
-  PropsOf<typeof EuiDescriptionList>['listItems'],
-  unknown[]
->[number];
+type EuiListItemsProps = NonNullable<PropsOf<typeof EuiDescriptionList>['listItems']>[number];
 
 interface Card {
   title: string;
