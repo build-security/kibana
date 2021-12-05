@@ -146,7 +146,7 @@ const getResultCards = ({ result, agent, host, ...rest }: CSPFinding): Card[] =>
       ['Evaluation', <CSPEvaluationBadge type={result.evaluation} />],
       ['Evidence', <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
       ['Timestamp', rest['@timestamp']],
-      result.evaluation === 'failed' && ['Remediation', rest['@timestamp']],
+      result.evaluation === 'failed' && ['Remediation', rest.rule.remediation],
     ].filter(Boolean) as Card['listItems'], // TODO: is a type guard,
   },
   {
