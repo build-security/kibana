@@ -54,7 +54,9 @@ const mock = [
   },
 ];
 
-export const TotalResourcesChart = ({ totalResourcesCompliance = mock }: CspData) => {
+export const TotalResourcesChart = () => {
+  const totalResourcesCompliance = mock;
+
   return (
     <Chart size={{ height: 200 }}>
       <Settings
