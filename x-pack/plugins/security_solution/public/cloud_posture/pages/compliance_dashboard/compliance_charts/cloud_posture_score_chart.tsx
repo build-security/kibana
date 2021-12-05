@@ -7,12 +7,21 @@
 
 import React from 'react';
 import { Chart, Datum, Partition, PartitionLayout, Settings } from '@elastic/charts';
+<<<<<<< HEAD
 import { EuiText } from '@elastic/eui';
+=======
+import { EuiText, euiPaletteForStatus } from '@elastic/eui';
+>>>>>>> bdba4aad1b1d7620648ede822533bed175a66841
 import { useNavigateToCSPFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
 // TODO: find out how to import from the server folder without warnings
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { BenchmarkStats } from '../../../../../server/cloud_posture/types';
+<<<<<<< HEAD
 import { statusColors } from '../../../common/constants';
+=======
+
+const [green, , red] = euiPaletteForStatus(3);
+>>>>>>> bdba4aad1b1d7620648ede822533bed175a66841
 
 export const CloudPostureScoreChart = ({
   totalPassed,
