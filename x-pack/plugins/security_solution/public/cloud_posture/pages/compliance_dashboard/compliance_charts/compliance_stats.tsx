@@ -18,6 +18,8 @@ import {
 import { Chart, Settings, LineSeries } from '@elastic/charts';
 import { useCloudPostureStatsApi } from '../../../common/api';
 
+type Trend = Array<[time: number, value: number]>;
+
 const [green, yellow, red] = euiPaletteForStatus(3);
 const warningColor = '#F5A700';
 
@@ -35,7 +37,7 @@ const getScoreIcon = (value: number) => {
   return 'error';
 };
 
-const getScoreTrendPercentage = (scoreTrend: Array<[time: number, value: number]>) => {
+const getScoreTrendPercentage = (scoreTrend: Trend) => {
   const beforeLast = scoreTrend[scoreTrend.length - 2][1];
   const last = scoreTrend[scoreTrend.length - 1][1];
 
@@ -45,7 +47,6 @@ const getScoreTrendPercentage = (scoreTrend: Array<[time: number, value: number]
 export const ComplianceStats = () => {
   const getStats = useCloudPostureStatsApi();
   const postureScore = getStats.isSuccess && getStats.data.postureScore;
-  if (!postureScore) return null;
 
   const scoreTrend = [
     [0, 0],
@@ -53,7 +54,10 @@ export const ComplianceStats = () => {
     [2, 100],
     [3, 50],
     [4, postureScore],
-  ];
+  ] as Trend;
+
+  // TODO: in case we dont have a full length trend we will need to handle the sparkline chart alone. not rendering anything is just a temporary solution
+  if (!postureScore || scoreTrend.length < 2) return null;
 
   const scoreChange = getScoreTrendPercentage(scoreTrend);
   const isPositiveChange = scoreChange > 0;
