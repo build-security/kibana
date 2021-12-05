@@ -28,11 +28,8 @@ export const ResourcesAtRiskChart = () => {
   const resources = getStats.isSuccess && getStats.data.resourcesEvaluations;
   if (!resources) return null;
 
-<<<<<<< HEAD
   // TODO: add type
   // @ts-ignore
-=======
->>>>>>> bdba4aad1b1d7620648ede822533bed175a66841
   const handleElementClick = (e) => {
     const [data] = e;
     const [groupsData] = data;

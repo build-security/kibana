@@ -19,10 +19,7 @@ import {
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
-<<<<<<< HEAD
 import { CSPHealthBadge } from '../../../components/csp_health_badge';
-=======
->>>>>>> bdba4aad1b1d7620648ede822533bed175a66841
 
 const logoMap: Record<string, IconType> = {
   'CIS Kubernetes': 'logoKubernetes',
