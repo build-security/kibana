@@ -117,8 +117,9 @@ export const FindingsSearchBar = ({
     (v: URLState) => {
       // TODO: use util fn to build query (not with URLSearchParams as it escapes 'rison')
       const next = `source=${encode(v)}`;
+      const current = history.location.search.slice(1);
 
-      if (next === history.location.search.slice(1)) {
+      if (next === current) {
         // React Router won't trigger a component re-render if navigated to same path
         // so we call it directly
         runSearch();
