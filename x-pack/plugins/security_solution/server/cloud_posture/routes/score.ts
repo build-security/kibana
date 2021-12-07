@@ -45,7 +45,7 @@ const getFindingsEsQuery = (
 /**
  * @param value value is [0, 1] range
  */
-const roundScore = (value: number) => Number((value * 100).toFixed(1));
+export const roundScore = (value: number) => Number((value * 100).toFixed(1));
 
 const getLatestFinding = (): SearchRequest => ({
   index: FINDINGS_INDEX,
@@ -96,7 +96,7 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
   return lastCycle?._source?.run_id;
 };
 
-const getBenchmarksQuery = (): SearchRequest => ({
+export const getBenchmarksQuery = (): SearchRequest => ({
   index: FINDINGS_INDEX,
   size: 0,
   aggs: {
@@ -106,7 +106,7 @@ const getBenchmarksQuery = (): SearchRequest => ({
   },
 });
 
-const getBenchmarks = async (esClient: ElasticsearchClient) => {
+export const getBenchmarks = async (esClient: ElasticsearchClient) => {
   const queryResult = await esClient.search(getBenchmarksQuery());
   const bencmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
     DictionaryResponseBase<string, string>
@@ -156,7 +156,7 @@ const getEvaluationPerFilename = async (
   return [...passedEvaluationPerResorces, ...failedEvaluationPerResorces];
 };
 
-const getAllFindingsStats = async (
+export const getAllFindingsStats = async (
   esClient: ElasticsearchClient,
   cycleId: string
 ): Promise<BenchmarkStats> => {
