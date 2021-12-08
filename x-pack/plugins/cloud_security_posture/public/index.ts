@@ -7,6 +7,6 @@
  */
 
 import { PluginInitializer } from 'kibana/public';
-import { RoutingExamplePlugin } from './plugin';
+import { CSPPlugin } from './plugin';
 
-export const plugin: PluginInitializer<{}, {}> = () => new RoutingExamplePlugin();
+export const plugin: PluginInitializer<{}, {}> = () => new CSPPlugin();
