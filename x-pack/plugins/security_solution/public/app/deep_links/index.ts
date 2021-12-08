@@ -344,6 +344,13 @@ export const securitySolutionsDeepLinks: SecuritySolutionDeepLink[] = [
       },
     ],
   },
+  {
+    id: 'cloud_posture',
+    title: 'Cloud Posture',
+    path: '/csp',
+    navLinkStatus: AppNavLinkStatus.visible,
+    keywords: [],
+  },
 ];
 
 /**

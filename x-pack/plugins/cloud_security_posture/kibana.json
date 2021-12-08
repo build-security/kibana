@@ -1,0 +1,14 @@
+{
+  "id": "csp",
+  "owner": {
+    "name": "Cloud Security Posture",
+    "githubTeam": "csp"
+  },
+  "version": "8.0.0",
+  "kibanaVersion": "kibana",
+  "server": true,
+  "ui": true,
+  "configPath": ["xpack", "csp"],
+  "requiredPlugins": [],
+  "requiredBundles": []
+}

@@ -38,6 +38,7 @@ import type { Overview } from './overview';
 import type { Rules } from './rules';
 import type { Timelines } from './timelines';
 import type { Management } from './management';
+import type { CloudPosture } from './cloud_posture';
 import type { Ueba } from './ueba';
 import type { LicensingPluginStart, LicensingPluginSetup } from '../../licensing/public';
 import type { DashboardStart } from '../../../../src/plugins/dashboard/public';
@@ -101,6 +102,7 @@ export interface SubPlugins {
   overview: Overview;
   timelines: Timelines;
   management: Management;
+  cloudPosture: CloudPosture;
 }
 
 // TODO: find a better way to defined these types
@@ -115,4 +117,5 @@ export interface StartedSubPlugins {
   overview: ReturnType<Overview['start']>;
   timelines: ReturnType<Timelines['start']>;
   management: ReturnType<Management['start']>;
+  cloudPosture: ReturnType<CloudPosture['start']>;
 }

@@ -300,6 +300,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         overview: new subPluginClasses.Overview(),
         timelines: new subPluginClasses.Timelines(),
         management: new subPluginClasses.Management(),
+        cloudPosture: new subPluginClasses.CloudPosture(),
       };
     }
     return this._subPlugins;
@@ -325,6 +326,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
       ueba: subPlugins.ueba.start(storage),
       timelines: subPlugins.timelines.start(),
       management: subPlugins.management.start(core, plugins),
+      cloudPosture: subPlugins.cloudPosture.start(),
     };
   }
   /**
