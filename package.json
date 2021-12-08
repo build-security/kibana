@@ -95,9 +95,6 @@
     "**/underscore": "^1.13.1",
     "globby/fast-glob": "3.2.7"
   },
-  "jest": {
-    "testEnvironment": "node"
-  },
   "dependencies": {
     "@babel/runtime": "^7.16.3",
     "@dnd-kit/core": "^3.1.1",

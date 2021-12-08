@@ -23,53 +23,6 @@ import type { CloudPostureStats, BenchmarkStats, EvaluationStats } from '../../t
 /**
  * @param value value is [0, 1] range
  */
-<<<<<<< HEAD:x-pack/plugins/security_solution/server/cloud_posture/routes/score.ts
-const roundScore = (value: number) => Number((value * 100).toFixed(1));
-
-const calculatePostureScore = (total: number, passed: number, failed: number) =>
-  total === 0 ? undefined : roundScore(passed / failed);
-
-const getLatestFinding = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
-  size: 1,
-  /* @ts-expect-error TS2322 - missing SearchSortContainer */
-  sort: { '@timestamp': 'desc' },
-  query: {
-    match_all: {},
-  },
-});
-
-const getResourcesEvaluationEsQuery = (
-  cycleId: string,
-  result: 'passed' | 'failed',
-  size: number,
-  resources?: string[]
-): SearchRequest => {
-  const query: Required<Pick<QueryDslQueryContainer, 'bool'>> = {
-    bool: {
-      filter: [
-        { term: { 'run_id.keyword': cycleId } },
-        { term: { 'result.evaluation.keyword': result } },
-      ],
-    },
-  };
-  if (resources) {
-    query.bool.must = { terms: { 'resource.filename.keyword': resources } };
-  }
-  return {
-    index: FINDINGS_INDEX,
-    size,
-    query,
-    aggs: {
-      group: {
-        terms: { field: 'resource.filename.keyword' },
-      },
-    },
-    sort: 'resource.filename.keyword',
-  };
-};
-=======
->>>>>>> b537cc5b564 (server tests):x-pack/plugins/security_solution/server/cloud_posture/routes/stats/stats.ts
 interface LastCycle {
   run_id: string;
 }
