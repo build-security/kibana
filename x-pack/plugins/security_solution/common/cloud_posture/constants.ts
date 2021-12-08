@@ -5,4 +5,4 @@
  * 2.0.
  */
 
-export * from './stats/stats';
+export const FINDINGS_INDEX = `kubebeat*`;

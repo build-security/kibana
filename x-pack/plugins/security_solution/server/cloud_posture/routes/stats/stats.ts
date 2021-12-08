@@ -7,44 +7,23 @@
 
 import { ElasticsearchClient, Logger } from 'src/core/server';
 import {
-  SearchRequest,
-  CountRequest,
-  QueryDslQueryContainer,
   AggregationsTermsAggregate,
   DictionaryResponseBase,
   AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
-import type { SecuritySolutionPluginRouter } from '../../types';
-import type { CloudPostureStats, BenchmarkStats, EvaluationStats } from '../types';
-
-const FINDINGS_INDEX = `kubebeat*`;
-
-const getFindingsEsQuery = (
-  cycleId: string,
-  evaluationResult?: string,
-  benchmark?: string
-): CountRequest => {
-  const filter: QueryDslQueryContainer[] = [{ term: { 'run_id.keyword': cycleId } }];
-
-  if (benchmark) {
-    filter.push({ term: { 'rule.benchmark.keyword': benchmark } });
-  }
-
-  if (evaluationResult) {
-    filter.push({ term: { 'result.evaluation.keyword': evaluationResult } });
-  }
-
-  return {
-    index: FINDINGS_INDEX,
-    query: {
-      bool: { filter },
-    },
-  };
-};
+import {
+  getFindingsEsQuery,
+  getResourcesEvaluationEsQuery,
+  getBenchmarksQuery,
+  getLatestFindingQuery,
+} from './stats_queries';
+import type { SecuritySolutionPluginRouter } from '../../../types';
+import type { CloudPostureStats, BenchmarkStats, EvaluationStats } from '../../types';
 
 /**
  * @param value value is [0, 1] range
  */
+<<<<<<< HEAD:x-pack/plugins/security_solution/server/cloud_posture/routes/score.ts
 const roundScore = (value: number) => Number((value * 100).toFixed(1));
 
 const calculatePostureScore = (total: number, passed: number, failed: number) =>
@@ -89,33 +68,11 @@ const getResourcesEvaluationEsQuery = (
     sort: 'resource.filename.keyword',
   };
 };
+=======
+>>>>>>> b537cc5b564 (server tests):x-pack/plugins/security_solution/server/cloud_posture/routes/stats/stats.ts
 interface LastCycle {
   run_id: string;
 }
-
-const getLatestCycleId = async (esClient: ElasticsearchClient) => {
-  const latestFinding = await esClient.search<LastCycle>(getLatestFinding());
-  const lastCycle = latestFinding.body.hits.hits[0];
-  return lastCycle?._source?.run_id;
-};
-
-const getBenchmarksQuery = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
-  size: 0,
-  aggs: {
-    benchmarks: {
-      terms: { field: 'rule.benchmark.keyword' },
-    },
-  },
-});
-
-const getBenchmarks = async (esClient: ElasticsearchClient) => {
-  const queryReult = await esClient.search(getBenchmarksQuery());
-  const bencmarksBuckets = queryReult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
-    DictionaryResponseBase<string, string>
-  >;
-  return bencmarksBuckets.buckets.map((e) => e.key);
-};
 
 interface GroupFilename {
   // TODO find the 'key', 'doc_count' interface
@@ -124,7 +81,77 @@ interface GroupFilename {
   group_docs: AggregationsTermsAggregate<AggregationsKeyedBucketKeys>;
 }
 
-const getResourcesEvaluation = async (
+export const roundScore = (value: number) => Number((value * 100).toFixed(1));
+
+const calculatePostureScore = (total: number, passed: number, failed: number) =>
+  passed + failed === 0 || total === undefined ? undefined : roundScore(passed / (passed + failed));
+
+const getLatestCycleId = async (esClient: ElasticsearchClient) => {
+  const latestFinding = await esClient.search<LastCycle>(getLatestFindingQuery());
+  const lastCycle = latestFinding.body.hits.hits[0];
+  return lastCycle?._source?.run_id;
+};
+
+export const getBenchmarks = async (esClient: ElasticsearchClient) => {
+  const queryResult = await esClient.search(getBenchmarksQuery());
+  const bencmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
+    DictionaryResponseBase<string, string>
+  >;
+  return bencmarksBuckets.buckets.map((e) => e.key);
+};
+
+export const getAllFindingsStats = async (
+  esClient: ElasticsearchClient,
+  cycleId: string
+): Promise<BenchmarkStats> => {
+  const findings = await esClient.count(getFindingsEsQuery(cycleId));
+  const passedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'passed'));
+  const failedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'failed'));
+
+  const totalFindings = findings.body.count;
+  const totalPassed = passedFindings.body.count;
+  const totalFailed = failedFindings.body.count;
+
+  return {
+    name: 'general',
+    postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
+    totalFindings,
+    totalPassed,
+    totalFailed,
+  };
+};
+
+export const getBenchmarksStats = async (
+  esClient: ElasticsearchClient,
+  cycleId: string,
+  benchmarks: string[]
+): Promise<BenchmarkStats[]> => {
+  const benchmarkScores = Promise.all(
+    benchmarks.map(async (benchmark) => {
+      const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, cycleId));
+      const benchmarkPassedFindings = await esClient.count(
+        getFindingsEsQuery(cycleId, 'passed', benchmark)
+      );
+      const benchmarkFailedFindings = await esClient.count(
+        getFindingsEsQuery(cycleId, 'failed', benchmark)
+      );
+      const totalFindings = benchmarkFindings.body.count;
+      const totalPassed = benchmarkPassedFindings.body.count;
+      const totalFailed = benchmarkFailedFindings.body.count;
+
+      return {
+        name: benchmark,
+        postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
+        totalFindings,
+        totalPassed,
+        totalFailed,
+      };
+    })
+  );
+  return benchmarkScores;
+};
+
+export const getResourcesEvaluation = async (
   esClient: ElasticsearchClient,
   cycleId: string
 ): Promise<EvaluationStats[]> => {
@@ -146,6 +173,7 @@ const getResourcesEvaluation = async (
   const passedEvaluationsPerResourceResult = await esClient.search(
     getResourcesEvaluationEsQuery(cycleId, 'passed', 5, topFailedResources)
   );
+
   const passedResourcesGroup = passedEvaluationsPerResourceResult.body.aggregations
     ?.group as AggregationsTermsAggregate<GroupFilename>;
   const passedEvaluationPerResorces = passedResourcesGroup.buckets.map((e) => {
@@ -157,58 +185,6 @@ const getResourcesEvaluation = async (
   });
 
   return [...passedEvaluationPerResorces, ...failedEvaluationPerResorces];
-};
-
-const getAllFindingsStats = async (
-  esClient: ElasticsearchClient,
-  cycleId: string
-): Promise<BenchmarkStats> => {
-  const findings = await esClient.count(getFindingsEsQuery(cycleId));
-  const passedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'passed'));
-  const failedFindings = await esClient.count(getFindingsEsQuery(cycleId, 'failed'));
-
-  const totalFindings = findings.body.count;
-  const totalPassed = passedFindings.body.count;
-  const totalFailed = failedFindings.body.count;
-
-  return {
-    name: 'general',
-    postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
-    totalFindings,
-    totalPassed,
-    totalFailed,
-  };
-};
-
-const getBenchmarksStats = async (
-  esClient: ElasticsearchClient,
-  cycleId: string,
-  benchmarks: string[]
-): Promise<BenchmarkStats[]> => {
-  const benchmarkScores = Promise.all(
-    benchmarks.map(async (benchmark) => {
-      const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, cycleId));
-      const benchmarkPassedFindings = await esClient.count(
-        getFindingsEsQuery(cycleId, 'passed', benchmark)
-      );
-      const benchmarkFailedFindings = await esClient.count(
-        getFindingsEsQuery(cycleId, 'failed', benchmark)
-      );
-
-      const totalFindings = benchmarkFindings.body.count;
-      const totalPassed = benchmarkPassedFindings.body.count;
-      const totalFailed = benchmarkFailedFindings.body.count;
-
-      return {
-        name: benchmark,
-        postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
-        totalFindings,
-        totalPassed,
-        totalFailed,
-      };
-    })
-  );
-  return benchmarkScores;
 };
 
 export const getScoreRoute = (router: SecuritySolutionPluginRouter, logger: Logger): void =>
