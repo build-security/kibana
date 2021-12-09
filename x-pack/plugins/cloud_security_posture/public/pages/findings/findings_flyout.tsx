@@ -9,6 +9,7 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiCode,
+  EuiCodeBlock,
   EuiDescriptionList,
   EuiTextColor,
   EuiFlyout,
@@ -123,7 +124,13 @@ const getRuleCards = ({ rule }: CSPFinding): Card[] => [
       ['Benchmark', rule.benchmark],
       ['Name', rule.name],
       ['Description', rule.description],
-      ['Remediation', <EuiCode>{rule.remediation}</EuiCode>],
+      [
+        // TODO: make a PR to `eui` so EuiCode can be isCopyable and inline
+        'Remediation',
+        <EuiCodeBlock paddingSize="s" isCopyable>
+          {rule.remediation}
+        </EuiCodeBlock>,
+      ],
       [
         'Tags',
         rule.tags.map((t) => (
