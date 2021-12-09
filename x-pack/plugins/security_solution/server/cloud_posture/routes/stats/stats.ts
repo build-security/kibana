@@ -79,28 +79,29 @@ export const getBenchmarksStats = async (
   cycleId: string,
   benchmarks: string[]
 ): Promise<BenchmarkStats[]> => {
-  const benchmarkScores = Promise.all(
-    benchmarks.map(async (benchmark) => {
-      const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, cycleId));
-      const benchmarkPassedFindings = await esClient.count(
-        getFindingsEsQuery(cycleId, 'passed', benchmark)
-      );
-      const benchmarkFailedFindings = await esClient.count(
-        getFindingsEsQuery(cycleId, 'failed', benchmark)
-      );
-      const totalFindings = benchmarkFindings.body.count;
-      const totalPassed = benchmarkPassedFindings.body.count;
-      const totalFailed = benchmarkFailedFindings.body.count;
+  const ps = [];
 
-      return {
-        name: benchmark,
-        postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
-        totalFindings,
-        totalPassed,
-        totalFailed,
-      };
-    })
-  );
+  for (const benchmark of benchmarks) {
+    const benchmarkFindings = await esClient.count(getFindingsEsQuery(benchmark, cycleId));
+    const benchmarkPassedFindings = await esClient.count(
+      getFindingsEsQuery(cycleId, 'passed', benchmark)
+    );
+    const benchmarkFailedFindings = await esClient.count(
+      getFindingsEsQuery(cycleId, 'failed', benchmark)
+    );
+    const totalFindings = benchmarkFindings.body.count;
+    const totalPassed = benchmarkPassedFindings.body.count;
+    const totalFailed = benchmarkFailedFindings.body.count;
+
+    ps.push({
+      name: benchmark,
+      postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
+      totalFindings,
+      totalPassed,
+      totalFailed,
+    });
+  }
+  const benchmarkScores = Promise.all(ps);
   return benchmarkScores;
 };
 
