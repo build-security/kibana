@@ -5,8 +5,8 @@
  * 2.0.
  */
 
-import { ElasticsearchClient, IRouter } from 'src/core/server';
-import {
+import type { ElasticsearchClient, IRouter } from 'src/core/server';
+import type {
   SearchRequest,
   CountRequest,
   QueryDslQueryContainer,
@@ -14,10 +14,9 @@ import {
   DictionaryResponseBase,
   AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
+import type { CloudPostureStats, BenchmarkStats, EvaluationStats } from '../../common/types';
 
-import type { CloudPostureStats, BenchmarkStats, EvaluationStats } from '../types';
-
-const FINDINGS_INDEX = `kubebeat*`;
+import { CSP_KUBEBEAT_INDEX } from '../../common/constants';
 
 const getFindingsEsQuery = (
   cycleId: string,
@@ -35,7 +34,7 @@ const getFindingsEsQuery = (
   }
 
   return {
-    index: FINDINGS_INDEX,
+    index: CSP_KUBEBEAT_INDEX,
     query: {
       bool: { filter },
     },
@@ -51,7 +50,7 @@ const calculatePostureScore = (total: number, passed: number, failed: number) =>
   total === 0 ? undefined : roundScore(passed / failed);
 
 const getLatestFinding = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
+  index: CSP_KUBEBEAT_INDEX,
   size: 1,
   /* @ts-expect-error TS2322 - missing SearchSortContainer */
   sort: { '@timestamp': 'desc' },
@@ -78,7 +77,7 @@ const getResourcesEvaluationEsQuery = (
     query.bool.must = { terms: { 'resource.filename.keyword': resources } };
   }
   return {
-    index: FINDINGS_INDEX,
+    index: CSP_KUBEBEAT_INDEX,
     size,
     query,
     aggs: {
@@ -100,7 +99,7 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
 };
 
 const getBenchmarksQuery = (): SearchRequest => ({
-  index: FINDINGS_INDEX,
+  index: CSP_KUBEBEAT_INDEX,
   size: 0,
   aggs: {
     benchmarks: {
@@ -241,7 +240,6 @@ export const defineGetScoreRoute = (router: IRouter): void =>
       } catch (err) {
         // TODO - validate err object and parse
 
-        console.log({ err });
         return response.customError({ body: { message: 'sssUnknown error' }, statusCode: 500 });
       }
     }

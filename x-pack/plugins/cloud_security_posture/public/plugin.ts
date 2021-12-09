@@ -11,9 +11,7 @@ import { PLUGIN_NAME } from '../common';
 
 export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {
   public setup(core: CoreSetup, plugins: CspPluginSetup): CspSetup {
-    console.log({ coreSetup: core, setupPlugins: plugins });
     // Register an application into the side navigation menu
-
     core.application.register({
       id: 'csp_root',
       title: PLUGIN_NAME,
@@ -31,7 +29,6 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
     return {};
   }
   public start(core: CoreStart, plugins: CspPluginStart): CspStart {
-    console.log({ coreStart: core, startPlugins: plugins });
     return {};
   }
 

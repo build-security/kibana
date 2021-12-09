@@ -12,11 +12,13 @@ import { DataView } from '../../../../../../src/plugins/data/common';
 import { FindingsTable } from './findings_table';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
-import { CSPFinding, FetchState } from './types';
-// import { CSP_KUBEBEAT_INDEX } from '../../../../common/constants';
+import type { CSPFinding, FetchState } from './types';
+import type { CspPluginSetup } from '../../types';
+
 import { FindingsSearchBar } from './findings_search_bar';
 
-const CSP_KUBEBEAT_INDEX = 'kubebeat*';
+import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
+
 /**
  * This component syncs the FindingsTable with FindingsSearchBar
  */
@@ -56,13 +58,13 @@ const Wrapper = styled.div`
 
 /**
  *  Temp DataView Utility
- *  TODO: use prefetched kibana data views
+ *  TODO: use perfected kibana data views
  */
 const useKubebeatDataView = () => {
   const [kubebeatDataView, setKubebeatDataView] = useState<DataView>();
   const {
     data: { dataViews },
-  } = useKibana().services;
+  } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
   useEffect(() => {
     if (!dataViews) return;
     (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();

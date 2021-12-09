@@ -6,11 +6,17 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import { decode, encode } from 'rison-node';
-import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
-import { DataView, IKibanaSearchResponse, Filter } from '../../../../../../src/plugins/data/common';
-import { SearchBarProps } from '../../../../../../src/plugins/data/public';
+import type {
+  DataView,
+  IKibanaSearchResponse,
+  Filter,
+} from '../../../../../../src/plugins/data/common';
+import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
+import type { CSPFinding, FetchState } from './types';
+import type { CspPluginSetup } from '../../types';
 
 // TODO: find kibanas' equivalent fn
 const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
@@ -48,7 +54,7 @@ export const FindingsSearchBar = ({
   onLoading,
   onSuccess,
 }: FindingsSearchBarProps) => {
-  const { data: dataService } = useKibana().services;
+  const { data: dataService } = useKibana<CspPluginSetup>().services;
   const [filters, setFilters] = useState<Filter[]>([]);
   const searchState = useSearchState();
   const history = useHistory();

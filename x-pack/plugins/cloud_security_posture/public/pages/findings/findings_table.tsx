@@ -15,7 +15,7 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 import { orderBy } from 'lodash';
-import { CSPFinding, FetchState } from './types';
+import type { CSPFinding, FetchState } from './types';
 import { FindingsRuleFlyout } from './findings_flyout';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
@@ -122,6 +122,7 @@ const getColumns = (): Array<EuiTableFieldDataColumnType<CSPFinding>> => [
   {
     field: 'rule.tags',
     name: 'Tags',
+    width: '300px',
     truncateText: true,
     // TODO: tags need to be truncated (as they are components, not texts)
     // and on hover they should show the full tags

@@ -7,8 +7,16 @@
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CspSetup {}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CspStart {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CspPluginSetup {}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CspPluginStart {}
+
+export type Evaluation = 'passed' | 'failed' | 'NA';
+/** number between 1-100 */
+export type Score = number;

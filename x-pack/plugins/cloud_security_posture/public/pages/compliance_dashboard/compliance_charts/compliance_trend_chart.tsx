@@ -15,9 +15,7 @@ import {
   AreaSeries,
 } from '@elastic/charts';
 import { dateValueToTuple } from '../index';
-// TODO: find out how to import from the server folder without warnings
-// eslint-disable-next-line @kbn/eslint/no-restricted-paths
-import { BenchmarkStats } from '../../../../../server/cloud_posture/types';
+import type { BenchmarkStats } from '../../../../common/types';
 
 export const ComplianceTrendChart = ({ postureScore }: BenchmarkStats) => {
   if (postureScore === undefined) return null;
