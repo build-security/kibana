@@ -29,6 +29,12 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
     return {};
   }
   public start(core: CoreStart, plugins: CspPluginStart): CspStart {
+    const res = core.http.post('/api/csp/create_finding_index', { asSystemRequest: true });
+    console.log('***************');
+    console.log('***************');
+    console.log('***************');
+    console.log('***************');
+    console.log(res);
     return {};
   }
 
