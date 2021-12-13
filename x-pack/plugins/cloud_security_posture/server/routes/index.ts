@@ -5,9 +5,11 @@
  * 2.0.
  */
 
+import { defineGetStatsRoute } from './stats/stats';
+import { defineCreateIndexRoute } from './create_index_route';
 import type { IRouter } from '../../../../../src/core/server';
-import { defineGetScoreRoute } from './stats/stats';
 
 export function defineRoutes(router: IRouter) {
-  defineGetScoreRoute(router);
+  defineGetStatsRoute(router);
+  defineCreateIndexRoute(router);
 }
