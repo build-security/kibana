@@ -6,6 +6,7 @@
  */
 
 import { IRouter } from 'kibana/server';
+import { RUNTIME_FIELD_TYPES } from 'src/plugins/data_views/common';
 import { CREATE_FINDING_INDEX_URL, CSP_KUBEBEAT_INDEX } from '../../common/constants';
 
 export const defineCreateIndexRoute = (router: IRouter) => {
@@ -18,21 +19,382 @@ export const defineCreateIndexRoute = (router: IRouter) => {
       const esClient = context.core.elasticsearch.client.asInternalUser;
       try {
         // const body = getTemplate();
-        await esClient.indices.putIndexTemplate({
-          name: 'lowercases',
-          index_patterns: 'banana*',
-          template: {
-            mappings: {
-              properties: {
-                rule: {
-                  properties: {
-                    benchmark: {
-                      type: 'keyword',
+        await esClient.indices.putTemplate({
+          name: 'findings',
+          index_patterns: 'kubebeat-8.1.0-*',
+          // _meta: {
+          //   managed: true,
+          //   created_by: 'BuildSecurity',
+          // },
+          // priority: 500,
+
+          // template: {
+          mappings: {
+            properties: {
+              '@timestamp': {
+                type: 'date',
+              },
+              agent: {
+                properties: {
+                  ephemeral_id: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  id: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  name: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  type: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  version: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
                     },
                   },
                 },
               },
+              ecs: {
+                properties: {
+                  version: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                },
+              },
+              host: {
+                properties: {
+                  architecture: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  containerized: {
+                    type: 'boolean',
+                  },
+                  hostname: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  id: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  ip: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  mac: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  name: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  os: {
+                    properties: {
+                      codename: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      family: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      kernel: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      name: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      platform: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      type: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      version: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              resource: {
+                properties: {
+                  filename: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  gid: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  mode: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  path: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  type: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  uid: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                },
+              },
+              result: {
+                properties: {
+                  evaluation: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  evidence: {
+                    properties: {
+                      filemode: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      gid: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                      uid: {
+                        type: 'text',
+                        fields: {
+                          keyword: {
+                            type: 'keyword',
+                            ignore_above: 256,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              rule: {
+                properties: {
+                  benchmark: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  description: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  impact: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  name: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  remediation: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                  tags: {
+                    type: 'text',
+                    fields: {
+                      keyword: {
+                        type: 'keyword',
+                        ignore_above: 256,
+                      },
+                    },
+                  },
+                },
+              },
+              run_id: {
+                type: 'text',
+                fields: {
+                  keyword: {
+                    type: 'keyword',
+                    ignore_above: 256,
+                  },
+                },
+              },
             },
+            // },
           },
         });
 
@@ -58,55 +420,367 @@ export const getTemplate = () => {
     // index_patterns: [`kubebeat-*`],
     template: {
       mappings: {
-        dynamic: false,
-        properties: {
-          '@timestamp': {
-            type: 'date',
-          },
-          rule: {
-            properties: {
-              benchmark: {
-                type: 'text',
-                fields: {
-                  keyword: {
-                    type: 'keyword',
-                    ignore_above: 256,
+        mappings: {
+          properties: {
+            '@timestamp': {
+              type: 'date',
+            },
+            agent: {
+              properties: {
+                ephemeral_id: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                id: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                name: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                type: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                version: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
                   },
                 },
               },
             },
-          },
-          result: {
-            properties: {
-              evaluation: {
-                type: 'text',
-                fields: {
-                  keyword: {
-                    type: 'keyword',
-                    ignore_above: 256,
+            ecs: {
+              properties: {
+                version: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
                   },
                 },
               },
             },
-          },
-          run_id: {
-            type: 'text',
-            fields: {
-              keyword: {
-                type: 'keyword',
-                ignore_above: 256,
+            host: {
+              properties: {
+                architecture: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                containerized: {
+                  type: 'boolean',
+                },
+                hostname: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                id: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                ip: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                mac: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                name: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                os: {
+                  properties: {
+                    codename: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    family: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    kernel: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    name: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    platform: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    type: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    version: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
-          },
-          resource: {
-            properties: {
-              filename: {
-                type: 'text',
-                fields: {
-                  keyword: {
-                    type: 'keyword',
-                    ignore_above: 256,
+            resource: {
+              properties: {
+                filename: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
                   },
+                },
+                gid: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                mode: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                path: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                type: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                uid: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+              },
+            },
+            result: {
+              properties: {
+                evaluation: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                evidence: {
+                  properties: {
+                    filemode: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    gid: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                    uid: {
+                      type: 'text',
+                      fields: {
+                        keyword: {
+                          type: 'keyword',
+                          ignore_above: 256,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            rule: {
+              properties: {
+                benchmark: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                description: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                impact: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                name: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                remediation: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+                tags: {
+                  type: 'text',
+                  fields: {
+                    keyword: {
+                      type: 'keyword',
+                      ignore_above: 256,
+                    },
+                  },
+                },
+              },
+            },
+            run_id: {
+              type: 'text',
+              fields: {
+                keyword: {
+                  type: 'keyword',
+                  ignore_above: 256,
                 },
               },
             },
