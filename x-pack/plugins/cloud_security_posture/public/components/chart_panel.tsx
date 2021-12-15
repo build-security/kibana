@@ -15,7 +15,8 @@ interface ChartPanelProps {
   hasBorder?: boolean;
   isLoading: boolean;
   isError: boolean;
-  chart: JSX.Element;
+  data: any;
+  chart: React.FC<{ data: any }>;
 }
 
 const Loading = () => (
@@ -32,6 +33,14 @@ const Error = () => (
   </EuiFlexGroup>
 );
 
+const Empty = () => (
+  <EuiFlexGroup justifyContent="center" alignItems="center">
+    <EuiText size="xs" color="subdued">
+      {'No data to display'}
+    </EuiText>
+  </EuiFlexGroup>
+);
+
 export const ChartPanel = ({
   title,
   description,
@@ -39,12 +48,14 @@ export const ChartPanel = ({
   chart: Chart,
   isLoading,
   isError,
+  data,
 }: ChartPanelProps) => {
   const renderChart = useCallback(() => {
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
-    return Chart;
-  }, [isLoading, isError, Chart]);
+    if (!data) return <Empty />;
+    return <Chart data={data} />;
+  }, [isLoading, isError, data, Chart]);
 
   return (
     <EuiPanel hasBorder={hasBorder} hasShadow={false}>

@@ -23,19 +23,21 @@ export const SummarySection = () => {
       </EuiFlexItem>
       <EuiFlexItem>
         <ChartPanel
+          chart={ResourcesAtRiskChart}
           title="Top 5 Resources Types At Risk"
           description="Non compliant first"
-          chart={<ResourcesAtRiskChart data={getStats.data?.resourcesEvaluations} />}
+          data={getStats.data?.resourcesEvaluations}
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         />
       </EuiFlexItem>
       <EuiFlexItem>
         <ChartPanel
+          chart={ScorePerAccountChart}
           title="Score Per Account / Cluster"
           description="Non compliant first"
           // TODO: no api for this chart yet, using empty state for now
-          chart={<ScorePerAccountChart data={[]} />}
+          data={[]}
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         />

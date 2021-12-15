@@ -58,9 +58,10 @@ export const BenchmarksSection = () => {
                     description: (
                       <ChartPanel
                         hasBorder={false}
+                        chart={CloudPostureScoreChart}
+                        data={benchmark}
                         isLoading={getStats.isLoading}
                         isError={getStats.isError}
-                        chart={<CloudPostureScoreChart {...benchmark} />}
                       />
                     ),
                   },
@@ -75,9 +76,10 @@ export const BenchmarksSection = () => {
                     description: (
                       <ChartPanel
                         hasBorder={false}
+                        chart={ComplianceTrendChart}
+                        data={benchmark}
                         isLoading={getStats.isLoading}
                         isError={getStats.isError}
-                        chart={<ComplianceTrendChart {...benchmark} />}
                       />
                     ),
                   },
