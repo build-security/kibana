@@ -11,7 +11,6 @@ import { SummarySection } from './dashboard_sections/summary_section';
 import { AccumulatedSection } from './dashboard_sections/accumulated_section';
 import { BenchmarksSection } from './dashboard_sections/benchmarks_section';
 import { useCloudPostureStatsApi } from '../../common/api';
-
 import { CspPageTemplate } from '../../components/page_template';
 
 export const dateValueToTuple = ({ date, value }: { date: number; value: number }) => [date, value];

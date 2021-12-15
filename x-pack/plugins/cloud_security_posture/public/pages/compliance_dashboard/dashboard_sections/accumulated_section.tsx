@@ -16,18 +16,18 @@ export const AccumulatedSection = () => (
   <SectionContainer title="Accumulated">
     <EuiFlexGrid columns={2}>
       <EuiFlexItem>
-        <ChartPanel
-          title="Total Resources"
-          description="Since last week"
-          chart={TotalResourcesChart}
-        />
+        {/* <ChartPanel*/}
+        {/*  title="Total Resources"*/}
+        {/*  description="Since last week"*/}
+        {/*  chart={TotalResourcesChart}*/}
+        {/* />*/}
       </EuiFlexItem>
       <EuiFlexItem>
-        <ChartPanel
-          title="Resources Findings"
-          description="Showing: 4,065 Findings"
-          chart={FindingsTrendChart}
-        />
+        {/* <ChartPanel*/}
+        {/*  title="Resources Findings"*/}
+        {/*  description="Showing: 4,065 Findings"*/}
+        {/*  chart={FindingsTrendChart}*/}
+        {/* />*/}
       </EuiFlexItem>
     </EuiFlexGrid>
   </SectionContainer>

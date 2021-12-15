@@ -22,10 +22,10 @@ export function sortAscending<T>(getter: (x: T) => number | string) {
   };
 }
 
-export const ResourcesAtRiskChart = () => {
+export const ResourcesAtRiskChart = ({ data: resources }: any) => {
   const { navigate } = useNavigateToCSPFindings();
-  const getStats = useCloudPostureStatsApi();
-  const resources = getStats.isSuccess && getStats.data.resourcesEvaluations;
+  // const getStats = useCloudPostureStatsApi();
+  // const resources = data.resourcesEvaluations;
   if (!resources) return null;
 
   // TODO: add type
