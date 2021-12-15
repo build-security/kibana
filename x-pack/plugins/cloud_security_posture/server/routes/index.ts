@@ -6,10 +6,8 @@
  */
 
 import { defineGetStatsRoute } from './stats/stats';
-import { defineCreateIndexRoute } from './create_index_route';
 import type { IRouter } from '../../../../../src/core/server';
 
 export function defineRoutes(router: IRouter) {
   defineGetStatsRoute(router);
-  defineCreateIndexRoute(router);
 }

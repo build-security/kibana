@@ -17,7 +17,7 @@ import type { CspPluginSetup } from '../../types';
 
 import { FindingsSearchBar } from './findings_search_bar';
 
-import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 
 /**
  * This component syncs the FindingsTable with FindingsSearchBar
@@ -67,7 +67,7 @@ const useKubebeatDataView = () => {
   } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
   useEffect(() => {
     if (!dataViews) return;
-    (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();
+    (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX_PATTERN))?.[0]))();
   }, [dataViews]);
   return { kubebeatDataView };
 };

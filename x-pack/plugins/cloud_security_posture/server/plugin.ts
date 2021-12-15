@@ -12,7 +12,7 @@ import type {
   Plugin,
   Logger,
 } from '../../../../src/core/server';
-
+import { createIndexTemplate } from './create_index_template';
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { defineRoutes } from './routes';
 
@@ -35,6 +35,7 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
 
   public start(core: CoreStart) {
     this.logger.debug('csp: Started');
+    createIndexTemplate(core.elasticsearch.client.asInternalUser);
     return {};
   }
 
