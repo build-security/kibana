@@ -7,7 +7,25 @@
 import { ElasticsearchClient } from 'src/core/server';
 import { CSP_KUBEBEAT_INDEX_PATTERN, CSP_KUBEBEAT_INDEX_NAME } from '../common/constants';
 import indexTemplate from './mapping.json';
+
 const VERSION = 0.1; // TODO: get current agent version
+
+export const createBackwardsCompatibilityIndexTemplate = (version: number) => {
+  const backwardsCompatibilityMapping = [indexTemplate]
+    .filter((mapping) => version <= mapping.maxVersion && version >= mapping.minVersion)
+    .map((mapping) => mapping.mappings);
+  if (backwardsCompatibilityMapping.length) {
+    return { mappings: backwardsCompatibilityMapping[0] };
+  }
+};
+
+async function doesIndexTemplateExist(esClient: ElasticsearchClient, templateName: string) {
+  try {
+    return await esClient.indices.existsIndexTemplate({ name: templateName }).body;
+  } catch (err) {
+    throw new Error(`error checking existence of index template: ${err.message}`);
+  }
+}
 
 export async function createIndexTemplate(esClient: ElasticsearchClient) {
   try {
@@ -37,22 +55,4 @@ export async function createIndexTemplate(esClient: ElasticsearchClient) {
     }
   }
 }
-export const createBackwardsCompatibilityIndexTemplate = (version: number) => {
-  const backwardsCompatibilityMapping = [indexTemplate]
-    .filter((mapping) => version <= mapping.maxVersion && version >= mapping.minVersion)
-    .map((mapping) => mapping.mappings);
-  if (backwardsCompatibilityMapping.length) {
-    return { mappings: backwardsCompatibilityMapping[0] };
-  }
-};
 
-async function doesIndexTemplateExist(esClient: ElasticsearchClient, templateName: string) {
-  let result;
-  try {
-    result = (await esClient.indices.existsIndexTemplate({ name: templateName })).body;
-  } catch (err) {
-    throw new Error(`error checking existence of index template: ${err.message}`);
-  }
-
-  return result;
-}

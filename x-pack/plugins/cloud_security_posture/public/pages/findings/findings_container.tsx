@@ -11,13 +11,10 @@ import styled from 'styled-components';
 import { DataView } from '../../../../../../src/plugins/data/common';
 import { FindingsTable } from './findings_table';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
-
+import { FindingsSearchBar } from './findings_search_bar';
+import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import type { CSPFinding, FetchState } from './types';
 import type { CspPluginSetup } from '../../types';
-
-import { FindingsSearchBar } from './findings_search_bar';
-
-import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 
 /**
  * This component syncs the FindingsTable with FindingsSearchBar

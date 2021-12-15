@@ -7,4 +7,4 @@
 
 export const CSP_KUBEBEAT_INDEX_PATTERN = 'kubebeat*';
 export const CSP_KUBEBEAT_INDEX_NAME = 'findings';
-export const GET_STATS_URL = '/api/csp/stats';
+export const STATS_URL = '/api/csp/stats';
