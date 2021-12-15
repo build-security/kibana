@@ -8,9 +8,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart, EuiFlexGroup } from '@elastic/eui';
-import { Datum } from '@elastic/charts';
-
-type ChartData = Datum[] | undefined;
 
 interface ChartPanelProps {
   title?: string;
@@ -18,8 +15,7 @@ interface ChartPanelProps {
   hasBorder?: boolean;
   isLoading: boolean;
   isError: boolean;
-  data: ChartData;
-  chart: React.FC<{ data: ChartData }>;
+  chart: JSX.Element;
 }
 
 const Loading = () => (
@@ -43,16 +39,15 @@ export const ChartPanel = ({
   chart: Chart,
   isLoading,
   isError,
-  data,
 }: ChartPanelProps) => {
   const renderChart = useCallback(() => {
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
-    return <Chart data={data} />;
-  }, [isLoading, isError, Chart, data]);
+    return Chart;
+  }, [isLoading, isError, Chart]);
 
   return (
-    <EuiPanel hasBorder={hasBorder}>
+    <EuiPanel hasBorder={hasBorder} hasShadow={false}>
       <EuiFlexGroup direction="column" gutterSize="xs">
         {title && (
           <StyledEuiTitle size="s">

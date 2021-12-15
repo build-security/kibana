@@ -20,6 +20,7 @@ import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
 import { CSPHealthBadge } from '../../../components/csp_health_badge';
+import { ChartPanel } from '../../../components/chart_panel';
 
 const logoMap: Record<string, IconType> = {
   'CIS Kubernetes': 'logoKubernetes',
@@ -54,7 +55,14 @@ export const BenchmarksSection = () => {
                 listItems={[
                   {
                     title: 'Compliance Score',
-                    description: <CloudPostureScoreChart {...benchmark} />,
+                    description: (
+                      <ChartPanel
+                        hasBorder={false}
+                        isLoading={getStats.isLoading}
+                        isError={getStats.isError}
+                        chart={<CloudPostureScoreChart {...benchmark} />}
+                      />
+                    ),
                   },
                 ]}
               />
@@ -64,7 +72,14 @@ export const BenchmarksSection = () => {
                 listItems={[
                   {
                     title: 'Compliance Trend',
-                    description: <ComplianceTrendChart {...benchmark} />,
+                    description: (
+                      <ChartPanel
+                        hasBorder={false}
+                        isLoading={getStats.isLoading}
+                        isError={getStats.isError}
+                        chart={<ComplianceTrendChart {...benchmark} />}
+                      />
+                    ),
                   },
                 ]}
               />

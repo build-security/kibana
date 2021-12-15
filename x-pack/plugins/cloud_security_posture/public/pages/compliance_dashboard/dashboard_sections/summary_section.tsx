@@ -25,8 +25,7 @@ export const SummarySection = () => {
         <ChartPanel
           title="Top 5 Resources Types At Risk"
           description="Non compliant first"
-          chart={ResourcesAtRiskChart}
-          data={[]}
+          chart={<ResourcesAtRiskChart data={getStats.data?.resourcesEvaluations} />}
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         />
@@ -35,8 +34,8 @@ export const SummarySection = () => {
         <ChartPanel
           title="Score Per Account / Cluster"
           description="Non compliant first"
-          chart={ScorePerAccountChart}
-          data={getStats.data?.resourcesEvaluations}
+          // TODO: no api for this chart yet, using empty state for now
+          chart={<ScorePerAccountChart data={[]} />}
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         />

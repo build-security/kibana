@@ -8,7 +8,6 @@
 import React from 'react';
 import { EuiSpacer, EuiTitle } from '@elastic/eui';
 import { SummarySection } from './dashboard_sections/summary_section';
-import { AccumulatedSection } from './dashboard_sections/accumulated_section';
 import { BenchmarksSection } from './dashboard_sections/benchmarks_section';
 import { useCloudPostureStatsApi } from '../../common/api';
 import { CspPageTemplate } from '../../components/page_template';
@@ -26,8 +25,6 @@ const CompliancePage = () => {
       </EuiTitle>
       <EuiSpacer />
       <SummarySection />
-      <EuiSpacer />
-      <AccumulatedSection />
       <EuiSpacer />
       <EuiTitle>
         <h3>{'Benchmarks'}</h3>
