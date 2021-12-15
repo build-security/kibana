@@ -18,6 +18,12 @@ import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import type { CSPFinding, FetchState } from './types';
 import type { CspPluginSetup } from '../../types';
 
+/**
+ * tests:
+ *  - reads URL and sends a request
+ *  - writes to URL when clicked on submit
+ */
+
 // TODO: find kibanas' equivalent fn
 const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
@@ -118,6 +124,7 @@ export const FindingsSearchBar = ({
     (v: URLState) => {
       // TODO: use util fn to build query (not with URLSearchParams as it escapes 'rison')
       const next = `source=${encode(v)}`;
+      // const current = history.location.search.slice(1);
       const current = history.location.search.slice(1);
 
       if (next === current) {
@@ -140,6 +147,7 @@ export const FindingsSearchBar = ({
 
   return (
     <SearchBar
+      dataTestSubj="findings_search_bar"
       showFilterBar={true}
       showDatePicker={true}
       showQueryBar={true}

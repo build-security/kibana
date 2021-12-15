@@ -22,6 +22,11 @@ import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 type FindingsTableProps = FetchState<CSPFinding[]>;
 
 /**
+ * tests:
+ *  - pagination state
+ * - selected row id is shown in flyout
+ */
+/**
  * Temporary findings table
  */
 export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
@@ -60,27 +65,29 @@ export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
   };
 
   // TODO: async sorting?
-  const sorting: EuiBasicTableProps<CSPFinding>['sorting'] = {
-    sort: {
-      field: sortField,
-      direction: sortDirection,
-    },
-    enableAllColumns: true,
-  };
+  // const sorting: EuiBasicTableProps<CSPFinding>['sorting'] = {
+  //   sort: {
+  //     field: sortField,
+  //     direction: sortDirection,
+  //   },
+  //   enableAllColumns: true,
+  // };
 
   const sortedData = orderBy(data, ['@timestamp'], ['desc']);
   const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
+    // TODO: return a single parent
     <>
       <EuiBasicTable
+        data-test-subj="findings_table"
         loading={loading}
         error={error ? error : undefined}
         items={page}
         columns={columns}
         tableLayout={'auto'}
         pagination={pagination}
-        sorting={sorting}
+        // sorting={sorting}
         onChange={onTableChange}
         cellProps={getCellProps}
       />
