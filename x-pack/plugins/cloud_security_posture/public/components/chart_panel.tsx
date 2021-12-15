@@ -5,31 +5,35 @@
  * 2.0.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart } from '@elastic/eui';
+import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart, EuiFlexGroup } from '@elastic/eui';
 import { Datum } from '@elastic/charts';
+
+type ChartData = Datum[] | undefined;
 
 interface ChartPanelProps {
   title?: string;
   description?: string;
   hasBorder?: boolean;
-  chart: React.FC<{ data: any }>;
   isLoading: boolean;
   isError: boolean;
-  data: Datum[] | undefined;
+  data: ChartData;
+  chart: React.FC<{ data: ChartData }>;
 }
 
 const Loading = () => (
-  <CenteredBox color="subdued">
+  <EuiFlexGroup justifyContent="center" alignItems="center">
     <EuiLoadingChart size="m" />
-  </CenteredBox>
+  </EuiFlexGroup>
 );
 
 const Error = () => (
-  <CenteredBox color="subdued">
-    <EuiText color="subdued">{'Error'}</EuiText>
-  </CenteredBox>
+  <EuiFlexGroup justifyContent="center" alignItems="center">
+    <EuiText size="xs" color="subdued">
+      {'Error'}
+    </EuiText>
+  </EuiFlexGroup>
 );
 
 export const ChartPanel = ({
@@ -41,37 +45,31 @@ export const ChartPanel = ({
   isError,
   data,
 }: ChartPanelProps) => {
-  const renderChart = () => {
+  const renderChart = useCallback(() => {
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
     return <Chart data={data} />;
-  };
+  }, [isLoading, isError, Chart, data]);
 
   return (
-    <EuiPanel hasBorder={hasBorder} style={{ display: 'flex', flexDirection: 'column' }}>
-      {title && (
-        <StyledEuiTitle size="s">
-          <h3>{title}</h3>
-        </StyledEuiTitle>
-      )}
-      {description && (
-        <EuiText size="xs" color="subdued">
-          {description}
-        </EuiText>
-      )}
-      {renderChart()}
+    <EuiPanel hasBorder={hasBorder}>
+      <EuiFlexGroup direction="column" gutterSize="xs">
+        {title && (
+          <StyledEuiTitle size="s">
+            <h3>{title}</h3>
+          </StyledEuiTitle>
+        )}
+        {description && (
+          <EuiText size="xs" color="subdued">
+            {description}
+          </EuiText>
+        )}
+        {renderChart()}
+      </EuiFlexGroup>
     </EuiPanel>
   );
 };
 
 const StyledEuiTitle = styled(EuiTitle)`
   font-weight: 400;
-`;
-
-const CenteredBox = styled.div`
-  width: 100%;
-  flex-basis: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
