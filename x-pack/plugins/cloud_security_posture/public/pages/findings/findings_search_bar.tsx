@@ -6,15 +6,15 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import { decode, encode } from 'rison-node';
-import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
+import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import type {
   DataView,
   IKibanaSearchResponse,
   Filter,
 } from '../../../../../../src/plugins/data/common';
 import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
-import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import type { CSPFinding, FetchState } from './types';
 import type { CspPluginSetup } from '../../types';
 
@@ -124,7 +124,6 @@ export const FindingsSearchBar = ({
     (v: URLState) => {
       // TODO: use util fn to build query (not with URLSearchParams as it escapes 'rison')
       const next = `source=${encode(v)}`;
-      // const current = history.location.search.slice(1);
       const current = history.location.search.slice(1);
 
       if (next === current) {

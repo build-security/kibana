@@ -69,13 +69,8 @@ const useKubebeatDataView = () => {
     data: { dataViews },
   } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
   useEffect(() => {
-    let isMounted = true;
     if (!dataViews) return;
-    (async () =>
-      isMounted && setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();
-    return () => {
-      isMounted = false;
-    };
+    (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();
   }, [dataViews]);
   return { kubebeatDataView };
 };
