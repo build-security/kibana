@@ -19,15 +19,21 @@ export const createBackwardsCompatibilityIndexTemplate = (version: number) => {
   }
 };
 
-async function doesIndexTemplateExist(esClient: ElasticsearchClient, templateName: string) {
+export const doesIndexTemplateExist = async (
+  esClient: ElasticsearchClient,
+  templateName: string
+) => {
   try {
-    return await esClient.indices.existsIndexTemplate({ name: templateName }).body;
+    const isExisting = await (
+      await esClient.indices.existsIndexTemplate({ name: templateName })
+    ).body;
+    return isExisting;
   } catch (err) {
     throw new Error(`error checking existence of index template: ${err.message}`);
   }
-}
+};
 
-export async function createIndexTemplate(esClient: ElasticsearchClient) {
+export const createIndexTemplate = async (esClient: ElasticsearchClient): Promise<void> => {
   try {
     const mappings = createBackwardsCompatibilityIndexTemplate(VERSION)?.mappings;
     if (!!mappings) {
@@ -53,6 +59,6 @@ export async function createIndexTemplate(esClient: ElasticsearchClient) {
     if (!existsNow) {
       throw new Error(`error creating index template: ${err.message}`);
     }
+    throw new Error(`error creating index template`);
   }
-}
-
+};
