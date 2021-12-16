@@ -12,7 +12,7 @@ import { ChartPanel } from './chart_panel';
 const testData = 'test';
 
 const TestingChart = ({ data }: { data: string }) => {
-  return <div data-test-id="testing-chart">{data}</div>;
+  return <div data-test-subj="testing-chart">{data}</div>;
 };
 
 describe('Testing chart panel display state', () => {
@@ -21,7 +21,7 @@ describe('Testing chart panel display state', () => {
       <ChartPanel isLoading={true} isError={false} data={testData} chart={TestingChart} />
     );
     expect(component.getByTestId('loading')).toBeInTheDocument();
-    expect(component.getByTestId('testing-chart')).not.toBeInTheDocument();
+    expect(component.queryByTestId('testing-chart')).not.toBeInTheDocument();
   });
 
   it('renders error state', () => {
@@ -29,7 +29,7 @@ describe('Testing chart panel display state', () => {
       <ChartPanel isLoading={false} isError={true} data={testData} chart={TestingChart} />
     );
     expect(component.getByTestId('error')).toBeInTheDocument();
-    expect(component.getByTestId('testing-chart')).not.toBeInTheDocument();
+    expect(component.queryByTestId('testing-chart')).not.toBeInTheDocument();
   });
 
   it('renders empty state', () => {
@@ -37,16 +37,16 @@ describe('Testing chart panel display state', () => {
       <ChartPanel isLoading={false} isError={false} data={undefined} chart={TestingChart} />
     );
     expect(component.getByTestId('empty')).toBeInTheDocument();
-    expect(component.getByTestId('testing-chart')).not.toBeInTheDocument();
+    expect(component.queryByTestId('testing-chart')).not.toBeInTheDocument();
   });
 
   it('renders chart component', () => {
     const component = render(
       <ChartPanel isLoading={false} isError={false} data={testData} chart={TestingChart} />
     );
-    expect(component.getByTestId('loading')).not.toBeInTheDocument();
-    expect(component.getByTestId('error')).not.toBeInTheDocument();
-    expect(component.getByTestId('empty')).not.toBeInTheDocument();
+    expect(component.queryByTestId('loading')).not.toBeInTheDocument();
+    expect(component.queryByTestId('error')).not.toBeInTheDocument();
+    expect(component.queryByTestId('empty')).not.toBeInTheDocument();
     expect(component.getByTestId('testing-chart')).toBeInTheDocument();
   });
 });

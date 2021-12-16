@@ -20,13 +20,13 @@ interface ChartPanelProps {
 }
 
 const Loading = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center">
+  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="loading">
     <EuiLoadingChart size="m" />
   </EuiFlexGroup>
 );
 
 const Error = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center">
+  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="error">
     <EuiText size="xs" color="subdued">
       {'Error'}
     </EuiText>
@@ -34,7 +34,7 @@ const Error = () => (
 );
 
 const Empty = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center">
+  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="empty">
     <EuiText size="xs" color="subdued">
       {'No data to display'}
     </EuiText>
@@ -51,10 +51,10 @@ export const ChartPanel = ({
   data,
 }: ChartPanelProps) => {
   const renderChart = useCallback(() => {
-    if (isLoading) return <Loading data-test-subj="loading" />;
-    if (isError) return <Error data-test-subj="error" />;
-    if (!data) return <Empty data-test-subj="empty" />;
-    return <Chart data={data} data-test-subj="chart" />;
+    if (isLoading) return <Loading />;
+    if (isError) return <Error />;
+    if (!data) return <Empty />;
+    return <Chart data={data} />;
   }, [isLoading, isError, data, Chart]);
 
   return (
