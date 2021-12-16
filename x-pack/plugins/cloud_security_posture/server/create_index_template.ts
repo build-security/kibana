@@ -59,6 +59,5 @@ export const createIndexTemplate = async (esClient: ElasticsearchClient): Promis
     if (!existsNow) {
       throw new Error(`error creating index template: ${err.message}`);
     }
-    throw new Error(`error creating index template`);
   }
 };
