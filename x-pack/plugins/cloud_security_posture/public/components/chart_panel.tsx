@@ -51,14 +51,14 @@ export const ChartPanel = ({
   data,
 }: ChartPanelProps) => {
   const renderChart = useCallback(() => {
-    if (isLoading) return <Loading />;
-    if (isError) return <Error />;
-    if (!data) return <Empty />;
-    return <Chart data={data} />;
+    if (isLoading) return <Loading data-test-subj="loading" />;
+    if (isError) return <Error data-test-subj="error" />;
+    if (!data) return <Empty data-test-subj="empty" />;
+    return <Chart data={data} data-test-subj="chart" />;
   }, [isLoading, isError, data, Chart]);
 
   return (
-    <EuiPanel hasBorder={hasBorder} hasShadow={false}>
+    <EuiPanel hasBorder={hasBorder} hasShadow={false} data-test-subj="chart-panel">
       <EuiFlexGroup direction="column" gutterSize="xs">
         {title && (
           <StyledEuiTitle size="s">
