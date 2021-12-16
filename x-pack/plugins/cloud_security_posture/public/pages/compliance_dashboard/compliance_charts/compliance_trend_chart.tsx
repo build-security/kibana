@@ -17,7 +17,11 @@ import {
 import { dateValueToTuple } from '../index';
 import type { BenchmarkStats } from '../../../../common/types';
 
-export const ComplianceTrendChart = ({ postureScore }: BenchmarkStats) => {
+interface ComplianceTrendChartProps {
+  data: BenchmarkStats;
+}
+
+export const ComplianceTrendChart = ({ data: { postureScore } }: ComplianceTrendChartProps) => {
   if (postureScore === undefined) return null;
 
   const complianceScoreTrend = [
