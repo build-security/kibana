@@ -51,7 +51,7 @@ export const createFindingsIndexTemplate = async (
 ): Promise<Status> => {
   try {
     const isExisting = await doesIndexTemplateExist(esClient, CSP_KUBEBEAT_INDEX_NAME);
-    if (isExisting === true) return true;
+    if (isExisting) return true;
     return await createIndexTemplate(
       esClient,
       CSP_KUBEBEAT_INDEX_NAME,
