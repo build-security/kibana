@@ -11,7 +11,7 @@ module.exports = {
   /** all nested directories have their own Jest config file */
   testMatch: [
     '<rootDir>/x-pack/plugins/cloud_security_posture/server/routes/stats/stats.tests.ts',
-    '<rootDir>/x-pack/plugins/cloud_security_posture/server/create_index_template.test.ts',
+    '<rootDir>/x-pack/plugins/cloud_security_posture/server/index_template/create_index_template.test.ts',
   ],
   roots: ['<rootDir>/x-pack/plugins/cloud_security_posture/server/'],
   coverageDirectory:

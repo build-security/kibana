@@ -12,7 +12,7 @@ import type {
   Plugin,
   Logger,
 } from '../../../../src/core/server';
-import { createFindingsIndexTemplate } from './create_index_template';
+import { createFindingsIndexTemplate } from './index_template/create_index_template';
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { defineRoutes } from './routes';
 
