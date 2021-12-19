@@ -15,7 +15,7 @@ describe('create index template for findings', () => {
       elasticsearchClientMock.createSuccessTransportRequestPromise(true)
     );
     const response = await createFindingsIndexTemplate(mockEsClient);
-    expect(response).toEqual('exists');
+    expect(response).toEqual(true);
   });
 
   it('expect to valid request', async () => {

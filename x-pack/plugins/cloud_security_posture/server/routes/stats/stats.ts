@@ -18,7 +18,7 @@ import {
   getBenchmarksQuery,
   getLatestFindingQuery,
 } from './stats_queries';
-import { STATS_URL } from '../../../common/constants';
+import { STATS_ROUTH_PATH } from '../../../common/constants';
 interface LastCycle {
   run_id: string;
 }
@@ -142,7 +142,7 @@ export const getResourcesEvaluation = async (
 export const defineGetStatsRoute = (router: IRouter): void =>
   router.get(
     {
-      path: STATS_URL,
+      path: STATS_ROUTH_PATH,
       validate: false,
     },
     async (context, _, response) => {
