@@ -31,6 +31,7 @@ import {
   APP_HOST_ISOLATION_EXCEPTIONS_PATH,
   CSP_FINDINGS_PATH,
   CSP_DASHBOARD_PATH,
+  CSP_RULES_PATH,
 } from '../../../common/constants';
 
 export const cloudPostureNavTabs: Record<CloudPosturePage, NavTab> = {
@@ -44,6 +45,12 @@ export const cloudPostureNavTabs: Record<CloudPosturePage, NavTab> = {
     id: CloudPosturePage.findings,
     name: 'Findings',
     href: CSP_FINDINGS_PATH,
+    disabled: false,
+  },
+  [CloudPosturePage.rules]: {
+    id: CloudPosturePage.rules,
+    name: 'Rules',
+    href: CSP_RULES_PATH,
     disabled: false,
   },
 };

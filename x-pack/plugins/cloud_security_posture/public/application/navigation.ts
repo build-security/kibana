@@ -5,9 +5,10 @@
  * 2.0.
  */
 
-import { CSP_FINDINGS_PATH, CSP_DASHBOARD_PATH } from '../common/constants';
+import { CSP_FINDINGS_PATH, CSP_DASHBOARD_PATH, CSP_RULES_PATH } from '../common/constants';
 
 export const navigationLinks = [
   { name: 'Dashboard', path: CSP_DASHBOARD_PATH },
   { name: 'Findings', path: CSP_FINDINGS_PATH },
+  { name: 'Rules', path: CSP_RULES_PATH },
 ] as const;

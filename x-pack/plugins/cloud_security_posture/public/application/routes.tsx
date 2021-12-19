@@ -6,9 +6,10 @@
  */
 import { RouteProps } from 'react-router-dom';
 import * as pages from '../pages';
-import { CSP_FINDINGS_PATH, CSP_DASHBOARD_PATH } from '../common/constants';
+import { CSP_FINDINGS_PATH, CSP_DASHBOARD_PATH, CSP_RULES_PATH } from '../common/constants';
 
 export const routes: readonly RouteProps[] = [
   { path: CSP_FINDINGS_PATH, component: pages.Findings },
   { path: CSP_DASHBOARD_PATH, component: pages.ComplianceDashboard },
+  { path: CSP_RULES_PATH, component: pages.Rules },
 ];

@@ -5,8 +5,8 @@
  * 2.0.
  */
 
+import { CoreStart } from 'kibana/public';
 import { Storage } from '../../../../../src/plugins/kibana_utils/public';
-import { CoreStart } from '../../../../../src/core/public';
 import { routes } from './routes';
 import { StartPlugins } from '../types';
 import { SecuritySubPlugin } from '../app/types';

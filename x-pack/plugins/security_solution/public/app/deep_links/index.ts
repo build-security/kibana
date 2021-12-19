@@ -49,6 +49,7 @@ import {
   CSP_ROOT_PATH,
   CSP_FINDINGS_PATH,
   CSP_DASHBOARD_PATH,
+  CSP_RULES_PATH,
 } from '../../../common/constants';
 import { ExperimentalFeatures } from '../../../common/experimental_features';
 
@@ -363,6 +364,11 @@ export const securitySolutionsDeepLinks: SecuritySolutionDeepLink[] = [
         id: CloudPosturePage.findings,
         title: 'Findings',
         path: CSP_FINDINGS_PATH,
+      },
+      {
+        id: CloudPosturePage.rules,
+        title: 'Rules',
+        path: CSP_RULES_PATH,
       },
     ],
   },

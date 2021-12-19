@@ -9,11 +9,11 @@ import React from 'react';
 import { I18nProvider } from '@kbn/i18n-react';
 import { Router, Redirect, Switch, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import type { AppMountParameters, CoreStart } from 'kibana/public';
 import { routes } from './routes';
 
 import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/public';
 
-import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
 import type { CspStart } from '../types';
 
 const queryClient = new QueryClient();

@@ -45,11 +45,11 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
 };
 
 export const getBenchmarks = async (esClient: ElasticsearchClient) => {
-  const queryReult = await esClient.search(getBenchmarksQuery());
-  const bencmarksBuckets = queryReult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
+  const queryResult = await esClient.search(getBenchmarksQuery());
+  const benchmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
     DictionaryResponseBase<string, string>
   >;
-  return bencmarksBuckets.buckets.map((e) => e.key);
+  return benchmarksBuckets.buckets.map((e) => e.key);
 };
 
 export const getAllFindingsStats = async (

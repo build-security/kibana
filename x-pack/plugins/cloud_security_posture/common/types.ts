@@ -5,6 +5,8 @@
  * 2.0.
  */
 
+import {Benchmark} from "../public/pages/rules/types";
+
 export type Evaluation = 'passed' | 'failed' | 'NA';
 /** number between 1-100 */
 export type Score = number;
@@ -26,4 +28,17 @@ export interface EvaluationStats {
 export interface CloudPostureStats extends BenchmarkStats {
   benchmarksStats: BenchmarkStats[];
   resourcesEvaluations: EvaluationStats[];
+}
+
+export interface CSPRule {
+  id: string;
+  name: string;
+  description: string;
+  rationale: string;
+  impact: string;
+  default_value: string;
+  remediation: string;
+  benchmark: Benchmark;
+  tags: string[];
+  enabled: boolean;
 }

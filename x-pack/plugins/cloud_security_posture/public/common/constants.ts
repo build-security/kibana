@@ -14,3 +14,4 @@ export const statusColors = { success, warning, danger };
 export const CSP_ROOT_PATH = '/csp';
 export const CSP_FINDINGS_PATH = '/findings';
 export const CSP_DASHBOARD_PATH = '/dashboard';
+export const CSP_RULES_PATH = '/rules';

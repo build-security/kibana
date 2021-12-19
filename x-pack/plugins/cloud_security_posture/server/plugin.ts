@@ -11,10 +11,11 @@ import type {
   CoreStart,
   Plugin,
   Logger,
-} from '../../../../src/core/server';
+} from 'kibana/server';
 
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { defineRoutes } from './routes';
+import { cspRule } from './saved_objects';
 
 export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {
   private readonly logger: Logger;
@@ -25,9 +26,12 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
 
   public setup(core: CoreSetup<CspPluginStart>) {
     this.logger.debug('csp: Setup');
-    const router = core.http.createRouter();
+
+    // Register csp rule saved object
+    core.savedObjects.registerType(cspRule);
 
     // Register server side APIs
+    const router = core.http.createRouter();
     defineRoutes(router);
 
     return {};
