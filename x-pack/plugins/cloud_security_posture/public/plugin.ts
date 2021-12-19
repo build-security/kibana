@@ -28,6 +28,12 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
       },
     });
 
+    // TODO:
+    // - call from FE/BE ?
+    // - use upsert instead of override ?
+    // - error handling
+    initKubebeatDataView(core.http);
+
     // Return methods that should be available to other plugins
     return {};
   }
@@ -37,3 +43,14 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
 
   public stop() {}
 }
+
+const initKubebeatDataView = async (http: CoreSetup['http']) =>
+  http.post('/api/index_patterns/index_pattern', {
+    body: JSON.stringify({
+      override: true,
+      index_pattern: {
+        title: 'kubebeat*',
+        allowNoIndex: true,
+      },
+    }),
+  });
