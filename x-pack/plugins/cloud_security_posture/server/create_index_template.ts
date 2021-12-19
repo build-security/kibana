@@ -10,6 +10,8 @@ import indexTemplate from './mapping.json';
 
 const VERSION = 0.1; // TODO: get current agent version
 
+export type Status = true | false | 'exists' | undefined;
+
 export const createBackwardsCompatibilityIndexTemplate = (version: number) => {
   const backwardsCompatibilityMapping = [indexTemplate]
     .filter((mapping) => version <= mapping.maxVersion && version >= mapping.minVersion)
@@ -24,20 +26,23 @@ export const doesIndexTemplateExist = async (
   templateName: string
 ) => {
   try {
-    const isExisting = await (
-      await esClient.indices.existsIndexTemplate({ name: templateName })
-    ).body;
-    return isExisting;
+    const isExisting = await await esClient.indices.existsIndexTemplate({ name: templateName });
+    return isExisting.body;
   } catch (err) {
     throw new Error(`error checking existence of index template: ${err.message}`);
   }
 };
 
-export const createIndexTemplate = async (esClient: ElasticsearchClient): Promise<void> => {
+export const createFindingsIndexTemplate = async (
+  esClient: ElasticsearchClient
+): Promise<Status> => {
   try {
+    const isExisting = await doesIndexTemplateExist(esClient, CSP_KUBEBEAT_INDEX_NAME);
+    if (isExisting === true) return 'exists';
+
     const mappings = createBackwardsCompatibilityIndexTemplate(VERSION)?.mappings;
     if (!!mappings) {
-      await esClient.indices.putIndexTemplate({
+      const response = await esClient.indices.putIndexTemplate({
         name: CSP_KUBEBEAT_INDEX_NAME,
         index_patterns: CSP_KUBEBEAT_INDEX_PATTERN,
         _meta: {
@@ -49,15 +54,12 @@ export const createIndexTemplate = async (esClient: ElasticsearchClient): Promis
           mappings,
         },
       });
+      return response.body.acknowledged;
     }
+    return false;
   } catch (err) {
-    // The error message doesn't have a type attribute we can look to guarantee it's due
-    // to the template already existing (only long message) so we'll check ourselves to see
-    // if the template now exists. This scenario would happen if you startup multiple Kibana
-    // instances at the same time.
-    const existsNow = await doesIndexTemplateExist(esClient, CSP_KUBEBEAT_INDEX_NAME);
-    if (!existsNow) {
-      throw new Error(`error creating index template: ${err.message}`);
-    }
+    // TODO: error handling
+    // TODO: logger
+    return false;
   }
 };

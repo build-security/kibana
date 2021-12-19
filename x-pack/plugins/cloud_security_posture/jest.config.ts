@@ -9,7 +9,10 @@ module.exports = {
   preset: '@kbn/test',
   rootDir: '../../../',
   /** all nested directories have their own Jest config file */
-  testMatch: ['<rootDir>/x-pack/plugins/cloud_security_posture/server/routes/stats/stats.tests.ts'],
+  testMatch: [
+    '<rootDir>/x-pack/plugins/cloud_security_posture/server/routes/stats/stats.tests.ts',
+    '<rootDir>/x-pack/plugins/cloud_security_posture/server/create_index_template.test.ts',
+  ],
   roots: ['<rootDir>/x-pack/plugins/cloud_security_posture/server/'],
   coverageDirectory:
     '<rootDir>/x-pack/plugins/cloud_security_posture/server/routes/stats/stats.test.ts',
