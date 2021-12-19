@@ -6,8 +6,8 @@
  */
 
 import type { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../../src/core/public';
+import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { AppNavLinkStatus, AppStatus } from '../../../../src/core/public';
-import type { CspPluginSetup, CspPluginStart, CspSetup, CspStart } from './types';
 import { PLUGIN_NAME } from '../common';
 
 export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {

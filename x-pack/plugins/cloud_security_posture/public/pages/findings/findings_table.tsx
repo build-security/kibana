@@ -27,8 +27,6 @@ type FindingsTableProps = FetchState<CSPFinding[]>;
 export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const [sortField, setSortField] = useState<keyof CSPFinding>('resource');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedFinding, setSelectedFinding] = useState<CSPFinding | undefined>();
   const columns = useMemo(getColumns, []);
 
@@ -36,21 +34,18 @@ export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
     onClick: column.field === 'rule.name' ? () => setSelectedFinding(item) : undefined,
   });
 
-  const onTableChange = ({ page, sort }: Criteria<CSPFinding>) => {
-    if (!page || !sort) return;
+  const onTableChange = ({ page }: Criteria<CSPFinding>) => {
+    if (!page) return;
     const { index, size } = page;
-    const { field, direction } = sort;
 
     setPageIndex(index);
     setPageSize(size);
-    setSortField(field as keyof CSPFinding);
-    setSortDirection(direction);
   };
 
   // TODO: add empty/error/loading views
   if (!data) return null;
 
-  // TODO: async pagination?
+  // TODO: async pagination
   const pagination: EuiBasicTableProps<CSPFinding>['pagination'] = {
     pageIndex,
     pageSize,
@@ -59,28 +54,20 @@ export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
     hidePerPageOptions: false,
   };
 
-  // TODO: async sorting?
-  const sorting: EuiBasicTableProps<CSPFinding>['sorting'] = {
-    sort: {
-      field: sortField,
-      direction: sortDirection,
-    },
-    enableAllColumns: true,
-  };
-
   const sortedData = orderBy(data, ['@timestamp'], ['desc']);
   const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
+    // TODO: return a single parent
     <>
       <EuiBasicTable
+        data-test-subj="findings_table"
         loading={loading}
         error={error ? error : undefined}
         items={page}
         columns={columns}
         tableLayout={'auto'}
         pagination={pagination}
-        sorting={sorting}
         onChange={onTableChange}
         cellProps={getCellProps}
       />

@@ -6,15 +6,12 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import { decode, encode } from 'rison-node';
-import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { useLocation, useHistory } from 'react-router-dom';
-import type {
-  DataView,
-  IKibanaSearchResponse,
-  Filter,
-} from '../../../../../../src/plugins/data/common';
-import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
+import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import type { Filter } from '@kbn/es-query';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
+import type { DataView, IKibanaSearchResponse } from '../../../../../../src/plugins/data/common';
+import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
 import type { CSPFinding, FetchState } from './types';
 import type { CspPluginSetup } from '../../types';
 
@@ -69,10 +66,10 @@ export const FindingsSearchBar = ({
    * This sends a query using esClient
    * TODO:
    * - AbortController
+   * - async pagination
+   * - async sorting
    */
   const runSearch = useCallback(async () => {
-    if (!dataView) return;
-
     onLoading();
 
     query.queryString.setQuery(searchState.query || getDefaultQuery().query);
@@ -82,29 +79,33 @@ export const FindingsSearchBar = ({
     query.filterManager.setFilters([...filters, timefilter].filter(isNonNullable));
 
     try {
-      const findingsSearchSource = await search.searchSource.create({
+      const source = await search.searchSource.create({
         filter: query.filterManager.getFilters(),
         query: query.queryString.getQuery(),
         index: dataView.id,
-        size: 1000, // TODO: async pagination
+        size: 1000,
       });
 
-      const findingsResponse: IKibanaSearchResponse<SearchResponse<CSPFinding>> =
-        await findingsSearchSource.fetch$().toPromise();
-      onSuccess(findingsResponse.rawResponse.hits.hits.map((v) => v._source).filter(isNonNullable));
+      const response = await source
+        .fetch$()
+        .toPromise<IKibanaSearchResponse<SearchResponse<CSPFinding>>>();
+
+      const result = response.rawResponse.hits.hits.map((v) => v._source).filter(isNonNullable);
+
+      onSuccess(result);
     } catch (e) {
       onError(e);
     }
   }, [
     dataView,
-    onLoading,
+    filters,
     query.queryString,
     query.timefilter.timefilter,
     query.filterManager,
     searchState.query,
     searchState.dateRange,
-    filters,
     search.searchSource,
+    onLoading,
     onSuccess,
     onError,
   ]);
@@ -136,10 +137,9 @@ export const FindingsSearchBar = ({
     runSearch();
   }, [runSearch]);
 
-  if (!dataView) return null;
-
   return (
     <SearchBar
+      dataTestSubj="findings_search_bar"
       showFilterBar={true}
       showDatePicker={true}
       showQueryBar={true}
