@@ -5,7 +5,13 @@
  * 2.0.
  */
 
-import type { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../../src/core/public';
+import {
+  AppMountParameters,
+  AppNavLinkStatus,
+  CoreSetup,
+  CoreStart,
+  Plugin,
+} from '../../../../src/core/public';
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { PLUGIN_NAME } from '../common';
 
@@ -15,6 +21,7 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
     core.application.register({
       id: 'csp_root',
       title: PLUGIN_NAME,
+      navLinkStatus: AppNavLinkStatus.hidden,
       async mount(params: AppMountParameters) {
         // Load application bundle
         const { renderApp } = await import('./application/index');

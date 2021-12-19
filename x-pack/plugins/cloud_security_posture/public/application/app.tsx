@@ -24,22 +24,20 @@ interface CspAppDeps {
   params: AppMountParameters;
 }
 
-export const CspApp = ({ core, deps, params }: CspAppDeps) => {
-  return (
-    <KibanaContextProvider services={{ ...deps, ...core }}>
-      <QueryClientProvider client={queryClient}>
-        <Router history={params.history}>
-          <I18nProvider>
-            <Switch>
-              {routes.map((route) => (
-                <Route {...route} />
-              ))}
-              <Route exact path="/" component={() => <Redirect to={'/findings'} />} />
-              <Route path="*" component={() => <div>not found</div>} />
-            </Switch>
-          </I18nProvider>
-        </Router>
-      </QueryClientProvider>
-    </KibanaContextProvider>
-  );
-};
+export const CspApp = ({ core, deps, params }: CspAppDeps) => (
+  <KibanaContextProvider services={{ ...deps, ...core }}>
+    <QueryClientProvider client={queryClient}>
+      <Router history={params.history}>
+        <I18nProvider>
+          <Switch>
+            {routes.map((route) => (
+              <Route {...route} />
+            ))}
+            <Route exact path="/" component={() => <Redirect to={'/findings'} />} />
+            <Route path="*" component={() => <div>not found</div>} />
+          </Switch>
+        </I18nProvider>
+      </Router>
+    </QueryClientProvider>
+  </KibanaContextProvider>
+);

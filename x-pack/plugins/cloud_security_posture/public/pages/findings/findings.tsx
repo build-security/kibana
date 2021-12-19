@@ -6,15 +6,16 @@
  */
 
 import React from 'react';
+import type { EuiPageHeaderProps } from '@elastic/eui';
 import { FindingsTableContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 
+const pageHeader: EuiPageHeaderProps = {
+  pageTitle: 'Findings',
+};
+
 export const Findings = () => (
-  <CspPageTemplate
-    pageHeader={{
-      pageTitle: 'Findings',
-    }}
-  >
+  <CspPageTemplate pageHeader={pageHeader}>
     <FindingsTableContainer />
   </CspPageTemplate>
 );

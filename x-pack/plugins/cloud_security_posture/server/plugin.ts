@@ -12,7 +12,6 @@ import type {
   Plugin,
   Logger,
 } from '../../../../src/core/server';
-
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
 import { defineRoutes } from './routes';
 

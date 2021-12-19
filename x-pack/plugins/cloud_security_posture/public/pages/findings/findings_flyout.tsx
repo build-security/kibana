@@ -23,7 +23,7 @@ import {
   PropsOf,
 } from '@elastic/eui';
 import { assertNever } from '@kbn/std';
-import { CSPFinding } from './types';
+import type { CSPFinding } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
 const tabs = ['result', 'rule', 'resource'] as const;
