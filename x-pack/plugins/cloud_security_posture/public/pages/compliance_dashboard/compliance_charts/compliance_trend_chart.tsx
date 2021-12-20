@@ -14,12 +14,13 @@ import {
   niceTimeFormatByDay,
   AreaSeries,
 } from '@elastic/charts';
-import { dateValueToTuple } from '../index';
 import type { BenchmarkStats } from '../../../../common/types';
 
 interface ComplianceTrendChartProps {
   data: BenchmarkStats;
 }
+
+export const dateValueToTuple = ({ date, value }: { date: number; value: number }) => [date, value];
 
 export const ComplianceTrendChart = ({ data: { postureScore } }: ComplianceTrendChartProps) => {
   if (postureScore === undefined) return null;
