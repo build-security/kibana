@@ -32,6 +32,7 @@ type Props = Pick<KibanaPageTemplateProps, 'pageHeader'>;
 export const CspPageTemplate: React.FC<Props> = ({ children, pageHeader }) => {
   return (
     <KibanaPageTemplate
+      data-test-subj="csp_page_template"
       pageHeader={pageHeader}
       solutionNav={{
         name: 'Cloud Security Posture',

@@ -20,6 +20,9 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
   private readonly logger: Logger;
   constructor(initializerContext: PluginInitializerContext) {
     this.logger = initializerContext.logger.get();
+
+    const config = initializerContext.config.get();
+    console.log({ config });
   }
 
   public setup(core: CoreSetup<CspPluginStart>) {

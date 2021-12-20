@@ -27,3 +27,10 @@ export interface CloudPostureStats extends BenchmarkStats {
   benchmarksStats: BenchmarkStats[];
   resourcesEvaluations: EvaluationStats[];
 }
+
+// TODO: why do we need this?
+// source: https://github.com/microsoft/TypeScript/issues/28339#issuecomment-463577347
+// type UnionKeys<T> = T extends any ? keyof T : never;
+export type DistributivePick<T, K extends keyof T> = T extends any
+  ? Pick<T, Extract<keyof T, K>>
+  : never;

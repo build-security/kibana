@@ -15,23 +15,26 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 import { orderBy } from 'lodash';
-import type { CSPFinding, FetchState } from './types';
-import { FindingsRuleFlyout } from './findings_flyout';
+import { FINDINGS_TABLE_TESTID } from './constants';
+import type { CSPFinding, FindingsFetchState } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
-type FindingsTableProps = FetchState<CSPFinding[]>;
+interface BaseFindingsTableProps {
+  selectItem(v: CSPFinding | undefined): void;
+}
+
+type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
 /**
  * Temporary findings table
  */
-export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
+export const FindingsTable = ({ data, status, error, selectItem }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const [selectedFinding, setSelectedFinding] = useState<CSPFinding | undefined>();
   const columns = useMemo(getColumns, []);
 
   const getCellProps = (item: CSPFinding, column: EuiTableFieldDataColumnType<CSPFinding>) => ({
-    onClick: column.field === 'rule.name' ? () => setSelectedFinding(item) : undefined,
+    onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
   });
 
   const onTableChange = ({ page }: Criteria<CSPFinding>) => {
@@ -58,26 +61,17 @@ export const FindingsTable = ({ data, loading, error }: FindingsTableProps) => {
   const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
-    // TODO: return a single parent
-    <>
-      <EuiBasicTable
-        data-test-subj="findings_table"
-        loading={loading}
-        error={error ? error : undefined}
-        items={page}
-        columns={columns}
-        tableLayout={'auto'}
-        pagination={pagination}
-        onChange={onTableChange}
-        cellProps={getCellProps}
-      />
-      {selectedFinding && (
-        <FindingsRuleFlyout
-          findings={selectedFinding}
-          onClose={() => setSelectedFinding(undefined)}
-        />
-      )}
-    </>
+    <EuiBasicTable
+      data-test-subj={FINDINGS_TABLE_TESTID}
+      loading={status === 'loading'}
+      error={error ? error : undefined}
+      items={page}
+      columns={columns}
+      tableLayout={'auto'}
+      pagination={pagination}
+      onChange={onTableChange}
+      cellProps={getCellProps}
+    />
   );
 };
 

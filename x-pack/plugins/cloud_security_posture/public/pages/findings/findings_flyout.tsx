@@ -102,7 +102,7 @@ const FindingsTab = ({ tab, findings }: { findings: CSPFinding; tab: FindingsTab
   assertNever(tab);
 };
 
-const getResourceCards = ({ resource, result }: CSPFinding): Card[] => [
+const getResourceCards = ({ resource }: CSPFinding): Card[] => [
   {
     title: 'Resource',
     listItems: [
