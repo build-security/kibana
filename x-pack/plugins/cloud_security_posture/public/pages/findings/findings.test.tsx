@@ -15,14 +15,6 @@ import * as utils from './utils';
 import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
 import { FINDINGS_MISSING_INDEX_TESTID, FINDINGS_CONTAINER_TESTID } from './constants';
 
-jest.mock('react-router-dom', () => {
-  const orig = jest.requireActual('react-router-dom');
-  return {
-    ...orig,
-    useLocation: () => '',
-  };
-});
-
 const createTestCompWithProvider = (Comp: React.FC): React.FC => {
   const core = coreMock.createStart();
   const params = coreMock.createAppMountParameters();
