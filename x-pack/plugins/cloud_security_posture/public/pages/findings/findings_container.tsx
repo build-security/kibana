@@ -16,7 +16,7 @@ import type { Filter } from '@kbn/es-query';
 import { FindingsTable } from './findings_table';
 import { FindingsRuleFlyout } from './findings_flyout';
 import { FindingsSearchBar } from './findings_search_bar';
-import { FINDINGS_CONTAINER_TESTID } from './constants';
+import { TEST_SUBJECTS } from './constants';
 import {
   extractErrorMessage,
   useSourceQueryParam,
@@ -26,6 +26,7 @@ import {
 import type { CSPFinding, FindingsFetchState } from './types';
 import type { DataView, IKibanaSearchResponse } from '../../../../../../src/plugins/data/common';
 import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
+import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
 type FindingsEsSearchMutation = UseMutationResult<
   IKibanaSearchResponse<SearchResponse<CSPFinding>>,
@@ -47,7 +48,7 @@ const getDefaultQuery = (): Required<URLState> => ({
 });
 
 // with https://github.com/microsoft/TypeScript/pull/46266
-// this would be more concise and won't leak props
+// destructuring would make this more concise and won't leak props
 export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): FindingsFetchState => {
   switch (v.status) {
     case 'error':
@@ -66,6 +67,7 @@ export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): Finding
  * This component syncs the FindingsTable with FindingsSearchBar
  */
 export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => {
+  const { notifications } = useKibana().services;
   const [selectedFindingsItem, selectItem] = useState<CSPFinding | undefined>();
   const { source: searchState, setSource: setSearchSource } = useSourceQueryParam(getDefaultQuery);
   const mutation = useEsClientMutation<CSPFinding>({
@@ -77,12 +79,18 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
   // This sends a new search request to ES
   // it's called whenever we have a new searchState from the URL
   useEffect(() => {
-    mutation.mutate();
+    mutation.mutate(void 0, {
+      onError: (e) => {
+        notifications?.toasts.addError(e instanceof Error ? e : new Error(), {
+          title: 'Search failed',
+        });
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchState, mutation.mutate]);
 
   return (
-    <Wrapper data-test-subj={FINDINGS_CONTAINER_TESTID}>
+    <Wrapper data-test-subj={TEST_SUBJECTS.FINDINGS_CONTAINER}>
       <FindingsSearchBar
         {...searchState}
         {...fetchState}

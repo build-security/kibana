@@ -7,52 +7,63 @@
 import React from 'react';
 import { Findings } from './findings';
 import { render, screen } from '@testing-library/react';
-import { TestProvider as TestProviderComponent } from '../../application/test_provider';
+import { TestProvider } from '../../application/test_provider';
 import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks';
 import { coreMock } from '../../../../../../src/core/public/mocks';
 import { createStubDataView } from '../../../../../../src/plugins/data_views/public/data_views/data_view.stub';
 import * as utils from './utils';
-import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
-import { FINDINGS_MISSING_INDEX_TESTID, FINDINGS_CONTAINER_TESTID } from './constants';
+import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
+import { TEST_SUBJECTS } from './constants';
+import type { UseQueryResult } from 'react-query';
+import type { DataView } from '../../../../../../src/plugins/data/common';
 
+const spy = jest.spyOn(utils, 'useKubebeatDataView');
+
+beforeEach(() => {
+  spy.mockReset();
+});
+
+// TODO: move to common
 const createTestCompWithProvider = (Comp: React.FC): React.FC => {
   const core = coreMock.createStart();
   const params = coreMock.createAppMountParameters();
   const dataMock = dataPluginMock.createStartContract();
   const services = { core, deps: { data: dataMock }, params };
   return () => (
-    <TestProviderComponent {...services}>
+    <TestProvider {...services}>
       <Comp />
-    </TestProviderComponent>
+    </TestProvider>
   );
 };
 
 describe('Test findings page conditional rendering', () => {
-  it("renders the empty state component when 'kubebeat' DataView doesn't exists", async () => {
-    const spy = jest
-      .spyOn(utils, 'useKubebeatDataView')
-      .mockImplementation(() => ({ kubebeatDataView: undefined }));
+  it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
+    spy.mockImplementation(
+      () => ({ status: 'error', data: undefined } as UseQueryResult<DataView>)
+    );
 
     const TestComp = createTestCompWithProvider(Findings);
     render(<TestComp />);
 
-    expect(await screen.findByTestId(FINDINGS_MISSING_INDEX_TESTID)).toBeInTheDocument();
-    spy.mockRestore();
+    expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
   });
 
   it("renders the success state component when 'kubebeat' DataView exists", async () => {
-    const spy = jest.spyOn(utils, 'useKubebeatDataView').mockImplementation(() => ({
-      kubebeatDataView: createStubDataView({
-        spec: {
-          id: CSP_KUBEBEAT_INDEX,
-        },
-      }),
-    }));
+    spy.mockImplementation(
+      () =>
+        ({
+          status: 'success',
+          data: createStubDataView({
+            spec: {
+              id: CSP_KUBEBEAT_INDEX_PATTERN,
+            },
+          }),
+        } as UseQueryResult<DataView>)
+    );
 
     const TestComp = createTestCompWithProvider(Findings);
     render(<TestComp />);
 
-    expect(await screen.findByTestId(FINDINGS_CONTAINER_TESTID)).toBeInTheDocument();
-    spy.mockRestore();
+    expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_CONTAINER)).toBeInTheDocument();
   });
 });

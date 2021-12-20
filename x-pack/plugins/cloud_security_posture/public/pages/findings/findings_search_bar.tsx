@@ -8,11 +8,12 @@ import React from 'react';
 import type { Query } from '@kbn/es-query';
 import type { Filter } from '@kbn/es-query';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
-import { FINDINGS_SEARCHBAR_TESTID } from './constants';
+import { TEST_SUBJECTS } from './constants';
 import type { DataView, TimeRange } from '../../../../../../src/plugins/data/common';
 import type { FindingsFetchState } from './types';
 import type { CspPluginSetup } from '../../types';
 import type { URLState } from './findings_container';
+
 interface BaseFindingsSearchBarProps {
   dataView: DataView;
   dateRange: TimeRange;
@@ -37,16 +38,16 @@ export const FindingsSearchBar = ({
   status,
   setSource,
 }: FindingsSearchBarProps) => {
-  const { data: dataService } = useKibana<CspPluginSetup>().services;
-
   const {
-    ui: { SearchBar },
-  } = dataService;
+    data: {
+      ui: { SearchBar },
+    },
+  } = useKibana<CspPluginSetup>().services;
 
   return (
     <SearchBar
       appName="" // TODO: remove
-      dataTestSubj={FINDINGS_SEARCHBAR_TESTID}
+      dataTestSubj={TEST_SUBJECTS.FINDINGS_SEARCH_BAR}
       showFilterBar={true}
       showDatePicker={true}
       showQueryBar={true}

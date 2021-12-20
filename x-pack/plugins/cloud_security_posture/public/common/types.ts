@@ -8,6 +8,11 @@
 import type { UseMutationResult } from 'react-query';
 import type { DistributivePick } from '../../common/types';
 
+/**
+ * @returns a reduced UseMutationResult
+ * with the ('data' | 'error' | 'status') properties keeping the tagged union info of MutationObserverResult
+ * see @type {import('react-query').MutationObserverResult}
+ */
 export type MutationFetchState<
   TData = unknown,
   TError = unknown,

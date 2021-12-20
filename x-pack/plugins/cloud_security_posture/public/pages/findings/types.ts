@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { MutationFetchState } from '../../common/types';
+import type { MutationFetchState } from '../../common/types';
 
 export type FindingsFetchState = MutationFetchState<CSPFinding[], string>;
 

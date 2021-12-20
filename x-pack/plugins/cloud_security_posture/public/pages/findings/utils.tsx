@@ -6,7 +6,7 @@
  */
 import { useState, useEffect } from 'react';
 import type { Filter, Query } from '@kbn/es-query';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { encode, decode, RisonValue } from 'rison-node';
 import { useHistory } from 'react-router-dom';
@@ -16,8 +16,9 @@ import type {
   TimeRange,
 } from '../../../../../../src/plugins/data/common';
 import type { CspPluginSetup } from '../../types';
-import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
+import type { MutationFetchState } from '../../common/types';
 
 // TODO: find similar/existing function
 export const extractErrorMessage = (e: unknown) =>
@@ -32,15 +33,27 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
  *  TODO: use perfected kibana data views
  */
 export const useKubebeatDataView = () => {
-  const [kubebeatDataView, setKubebeatDataView] = useState<DataView>();
   const {
     data: { dataViews },
+    http,
   } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
-  useEffect(() => {
-    if (!dataViews) return;
-    (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();
-  }, [dataViews]);
-  return { kubebeatDataView };
+
+  const createDataView = () =>
+    http!.post('/api/index_patterns/index_pattern', {
+      body: JSON.stringify({
+        override: true,
+        index_pattern: {
+          title: CSP_KUBEBEAT_INDEX_PATTERN,
+          allowNoIndex: true,
+        },
+      }),
+    });
+
+  const getDataView = (r: unknown) =>
+    // TODO: find index_pattern type
+    dataViews.get((r as { index_pattern: { id: string } }).index_pattern.id);
+
+  return useQuery(['kubebeat_dataview'], () => createDataView().then(getDataView));
 };
 
 /**
