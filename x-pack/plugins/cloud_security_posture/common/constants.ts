@@ -5,4 +5,6 @@
  * 2.0.
  */
 
-export const CSP_KUBEBEAT_INDEX = 'kubebeat*';
+export const CSP_KUBEBEAT_INDEX_PATTERN = 'kubebeat*';
+export const CSP_KUBEBEAT_INDEX_NAME = 'findings';
+export const STATS_ROUTH_PATH = '/api/csp/stats';
