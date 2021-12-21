@@ -27,8 +27,6 @@ type FindingsSearchBarProps = FindingsFetchState & BaseFindingsSearchBarProps;
 /**
  * Temporary Search Bar using x-pack/plugins/data
  *
- * TODO:
- *  - use SiemSearchBar / QueryBar or something else ?
  */
 export const FindingsSearchBar = ({
   dataView,
