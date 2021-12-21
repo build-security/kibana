@@ -11,7 +11,7 @@ import { AppNavLinkStatus, AppStatus } from '../../../../src/core/public';
 import { PLUGIN_NAME } from '../common';
 
 export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {
-  public setup(core: CoreSetup, plugins: CspPluginSetup): CspSetup {
+  public setup(core: CoreSetup<CspPluginStart, CspStart>, plugins: CspPluginSetup): CspSetup {
     // Register an application into the side navigation menu
     core.application.register({
       id: 'csp_root',
