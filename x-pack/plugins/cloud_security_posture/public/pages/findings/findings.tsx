@@ -23,7 +23,9 @@ export const Findings = () => {
     <CspPageTemplate pageHeader={pageHeader}>
       {dataView.status === 'loading' && <LoadingPrompt />}
       {(dataView.status === 'error' || !dataView.data) && <ErrorPrompt />}
-      {dataView.status === 'success' && <FindingsTableContainer dataView={dataView.data} />}
+      {dataView.status === 'success' && dataView.data && (
+        <FindingsTableContainer dataView={dataView.data} />
+      )}
     </CspPageTemplate>
   );
 };
