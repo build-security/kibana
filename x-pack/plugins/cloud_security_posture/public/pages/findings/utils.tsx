@@ -18,7 +18,6 @@ import type {
 import type { CspPluginSetup } from '../../types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
-import type { MutationFetchState } from '../../common/types';
 
 // TODO: find similar/existing function
 export const extractErrorMessage = (e: unknown) =>
@@ -30,6 +29,7 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
 
 /**
  *  Temp DataView Utility
+ *  registers a kibana data view for kubebeat* index
  *  TODO: use perfected kibana data views
  */
 export const useKubebeatDataView = () => {
@@ -41,10 +41,8 @@ export const useKubebeatDataView = () => {
   const createDataView = () =>
     http!.post('/api/index_patterns/index_pattern', {
       body: JSON.stringify({
-        override: true,
         index_pattern: {
           title: CSP_KUBEBEAT_INDEX_PATTERN,
-          allowNoIndex: true,
         },
       }),
     });
@@ -53,7 +51,12 @@ export const useKubebeatDataView = () => {
     // TODO: find index_pattern type
     dataViews.get((r as { index_pattern: { id: string } }).index_pattern.id);
 
-  return useQuery(['kubebeat_dataview'], () => createDataView().then(getDataView));
+  const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_INDEX_PATTERN))?.[0];
+
+  const getKubebeatDataView = () =>
+    findDataView().then((v) => (v ? v : createDataView().then(getDataView)));
+
+  return useQuery(['kubebeat_dataview'], getKubebeatDataView);
 };
 
 /**
