@@ -32,36 +32,31 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
  *  registers a kibana data view for kubebeat* index
  *  TODO: use perfected kibana data views
  */
+
 export const useKubebeatDataView = () => {
   const {
     data: { dataViews },
-    http,
-  } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
+  } = useKibana<CspPluginSetup>().services;
 
   const createDataView = () =>
-    http!.post('/api/index_patterns/index_pattern', {
-      body: JSON.stringify({
-        index_pattern: {
-          title: CSP_KUBEBEAT_INDEX_PATTERN,
-        },
-      }),
+    dataViews.createAndSave({
+      title: CSP_KUBEBEAT_INDEX_PATTERN,
+      allowNoIndex: false,
     });
 
-  const getDataView = (r: unknown) =>
-    // TODO: find index_pattern type
-    dataViews.get((r as { index_pattern: { id: string } }).index_pattern.id);
+  // TODO: check if index exists
+  // if not, no point in creating a data view
+  // const check = () => http?.get(`/kubebeat`);
 
   const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_INDEX_PATTERN))?.[0];
 
-  const getKubebeatDataView = () =>
-    findDataView().then((v) => (v ? v : createDataView().then(getDataView)));
+  const getKubebeatDataView = () => findDataView().then((v) => (v ? v : createDataView()));
 
   return useQuery(['kubebeat_dataview'], getKubebeatDataView);
 };
 
 /**
  * Temp URL state utility
- * TODO: use x-pack/plugins/security_solution/public/common/components/url_state/index.tsx ?
  */
 export const useSourceQueryParam = <T extends object>(getDefaultQuery: () => T) => {
   const history = useHistory();

@@ -5,9 +5,8 @@
  * 2.0.
  */
 import React from 'react';
-import { EuiEmptyPrompt } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiLoadingSpinner } from '@elastic/eui';
 import type { EuiPageHeaderProps } from '@elastic/eui';
-import { EuiLoadingSpinner } from '@elastic/eui';
 import { FindingsTableContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 import { useKubebeatDataView } from './utils';
@@ -20,14 +19,11 @@ const pageHeader: EuiPageHeaderProps = {
 export const Findings = () => {
   const dataView = useKubebeatDataView();
 
-  if (dataView.status === 'loading') return <LoadingPrompt />;
-
   return (
     <CspPageTemplate pageHeader={pageHeader}>
-      {dataView.status === 'success' && dataView.data && (
-        <FindingsTableContainer dataView={dataView.data} />
-      )}
+      {dataView.status === 'loading' && <LoadingPrompt />}
       {(dataView.status === 'error' || !dataView.data) && <ErrorPrompt />}
+      {dataView.status === 'success' && <FindingsTableContainer dataView={dataView.data} />}
     </CspPageTemplate>
   );
 };
