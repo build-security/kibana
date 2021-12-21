@@ -17,24 +17,29 @@ const pageHeader: EuiPageHeaderProps = {
   pageTitle: 'Findings',
 };
 
-const MissingDataView = () => (
-  // TODO: better design
-  <EuiEmptyPrompt
-    data-test-subj={TEST_SUBJECTS.FINDINGS_MISSING_INDEX}
-    title={<>Kubebeat DataView is missing</>}
-  />
-);
-
 export const Findings = () => {
   const dataView = useKubebeatDataView();
+
+  if (dataView.status === 'loading') return <LoadingPrompt />;
+
   return (
     <CspPageTemplate pageHeader={pageHeader}>
-      {dataView.status === 'success' && <FindingsTableContainer dataView={dataView.data} />}
-      {(dataView.status === 'error' || (dataView.status !== 'loading' && !dataView.data)) && (
-        <MissingDataView />
+      {dataView.status === 'success' && dataView.data && (
+        <FindingsTableContainer dataView={dataView.data} />
       )}
-      {/* TODO: center spinner or use progress bar in header  */}
-      {dataView.status === 'loading' && <EuiLoadingSpinner size="m" />}
+      {(dataView.status === 'error' || !dataView.data) && <ErrorPrompt />}
     </CspPageTemplate>
   );
 };
+
+const LoadingPrompt = () => <EuiEmptyPrompt icon={<EuiLoadingSpinner size="xl" />} />;
+
+// TODO: follow https://elastic.github.io/eui/#/display/empty-prompt/guidelines
+const ErrorPrompt = () => (
+  <EuiEmptyPrompt
+    data-test-subj={TEST_SUBJECTS.FINDINGS_MISSING_INDEX}
+    color="danger"
+    iconType="alert"
+    title={<h2>Kubebeat DataView is missing</h2>}
+  />
+);
