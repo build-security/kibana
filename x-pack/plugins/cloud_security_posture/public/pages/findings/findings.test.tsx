@@ -23,15 +23,14 @@ beforeEach(() => {
   spy.mockReset();
 });
 
-// TODO: move to common
-const createTestCompWithProvider = (Comp: React.FC): React.FC => {
+const FindingsComponentWithTestProvider = () => {
   const core = coreMock.createStart();
   const params = coreMock.createAppMountParameters();
   const dataMock = dataPluginMock.createStartContract();
   const services = { core, deps: { data: dataMock }, params };
-  return () => (
+  return (
     <TestProvider {...services}>
-      <Comp />
+      <Findings />
     </TestProvider>
   );
 };
@@ -42,8 +41,7 @@ describe('Test findings page conditional rendering', () => {
       () => ({ status: 'error', data: undefined } as UseQueryResult<DataView>)
     );
 
-    const TestComp = createTestCompWithProvider(Findings);
-    render(<TestComp />);
+    render(<FindingsComponentWithTestProvider />);
 
     expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
   });
@@ -61,8 +59,7 @@ describe('Test findings page conditional rendering', () => {
         } as UseQueryResult<DataView>)
     );
 
-    const TestComp = createTestCompWithProvider(Findings);
-    render(<TestComp />);
+    render(<FindingsComponentWithTestProvider />);
 
     expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_CONTAINER)).toBeInTheDocument();
   });
