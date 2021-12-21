@@ -36,6 +36,7 @@ const ErrorPrompt = () => (
     data-test-subj={TEST_SUBJECTS.FINDINGS_MISSING_INDEX}
     color="danger"
     iconType="alert"
+    // TODO: account for when we have a dataview without an index
     title={<h2>Kubebeat DataView is missing</h2>}
   />
 );
