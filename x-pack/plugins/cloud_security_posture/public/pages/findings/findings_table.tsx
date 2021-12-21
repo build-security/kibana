@@ -78,20 +78,22 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
   );
 };
 
-const RuleName = (v: string) => <EuiLink href="#">{v}</EuiLink>;
-const RuleTags = (v: string[]) => (
+const RuleName = (name: string) => <EuiLink href="#">{name}</EuiLink>;
+const RuleTags = (tags: string[]) => (
   <EuiFlexGroup>
     <EuiFlexItem>
       <EuiBadgeGroup>
-        {v.map((x) => (
-          <EuiBadge color="default">{x}</EuiBadge>
+        {tags.map((tag) => (
+          <EuiBadge key={tag} color="default">
+            {tag}
+          </EuiBadge>
         ))}
       </EuiBadgeGroup>
     </EuiFlexItem>
   </EuiFlexGroup>
 );
-const ResultEvaluation = (v: PropsOf<typeof CSPEvaluationBadge>['type']) => (
-  <CSPEvaluationBadge type={v} />
+const ResultEvaluation = (type: PropsOf<typeof CSPEvaluationBadge>['type']) => (
+  <CSPEvaluationBadge type={type} />
 );
 
 const getColumns = (): Array<EuiTableFieldDataColumnType<CSPFinding>> => [

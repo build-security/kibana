@@ -66,7 +66,7 @@ export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): Finding
  */
 export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => {
   const { notifications } = useKibana().services;
-  const [selectedFindingsItem, selectItem] = useState<CSPFinding | undefined>();
+  const [selectedFinding, setSelectedFinding] = useState<CSPFinding | undefined>();
   const { source: searchState, setSource: setSearchSource } = useSourceQueryParam(getDefaultQuery);
   const mutation = useEsClientMutation<CSPFinding>({
     ...searchState,
@@ -102,9 +102,12 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
         setSource={setSearchSource}
       />
       <EuiSpacer />
-      <FindingsTable {...fetchState} selectItem={selectItem} />
-      {selectedFindingsItem && (
-        <FindingsRuleFlyout findings={selectedFindingsItem} onClose={() => selectItem(undefined)} />
+      <FindingsTable {...fetchState} selectItem={setSelectedFinding} />
+      {selectedFinding && (
+        <FindingsRuleFlyout
+          findings={selectedFinding}
+          onClose={() => setSelectedFinding(undefined)}
+        />
       )}
     </div>
   );
