@@ -6,9 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-// TODO: switch css to @emotion
-// eslint-disable-next-line @kbn/eslint/module_migration
-import styled from 'styled-components';
+import { css } from '@emotion/react';
 import { EuiSpacer } from '@elastic/eui';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import type { UseMutationResult } from 'react-query';
@@ -90,7 +88,13 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
   }, [searchState, mutation.mutate]);
 
   return (
-    <Wrapper data-test-subj={TEST_SUBJECTS.FINDINGS_CONTAINER}>
+    <div
+      data-test-subj={TEST_SUBJECTS.FINDINGS_CONTAINER}
+      css={css`
+        width: 100%;
+        height: 100%;
+      `}
+    >
       <FindingsSearchBar
         {...searchState}
         {...fetchState}
@@ -102,11 +106,6 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
       {selectedFindingsItem && (
         <FindingsRuleFlyout findings={selectedFindingsItem} onClose={() => selectItem(undefined)} />
       )}
-    </Wrapper>
+    </div>
   );
 };
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-`;
