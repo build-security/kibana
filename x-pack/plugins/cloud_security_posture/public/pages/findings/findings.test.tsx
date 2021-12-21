@@ -37,16 +37,22 @@ const FindingsComponentWithTestProvider = () => {
 
 describe('Test findings page conditional rendering', () => {
   it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
-    spy.mockImplementation(
-      () => ({ status: 'error', data: undefined } as UseQueryResult<DataView>)
-    );
+    spy.mockImplementation(() => ({ status: 'success', data: undefined } as any));
 
     render(<FindingsComponentWithTestProvider />);
 
     expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
   });
 
-  it("renders the success state component when 'kubebeat' DataView exists", async () => {
+  it("renders the error state component when 'kubebeat' request status is 'error'", async () => {
+    spy.mockImplementation(() => ({ status: 'error' } as UseQueryResult<DataView>));
+
+    render(<FindingsComponentWithTestProvider />);
+
+    expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
+  });
+
+  it("renders the success state component when 'kubebeat' DataView exists and request status is 'success'", async () => {
     spy.mockImplementation(
       () =>
         ({
