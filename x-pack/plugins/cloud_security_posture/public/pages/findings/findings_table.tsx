@@ -9,6 +9,9 @@ import {
   Criteria,
   EuiLink,
   EuiTableFieldDataColumnType,
+  EuiBadgeGroup,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiBadge,
   EuiBasicTable,
   PropsOf,
@@ -76,7 +79,17 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
 };
 
 const RuleName = (v: string) => <EuiLink href="#">{v}</EuiLink>;
-const RuleTags = (v: string[]) => v.map((x) => <EuiBadge color="default">{x}</EuiBadge>);
+const RuleTags = (v: string[]) => (
+  <EuiFlexGroup>
+    <EuiFlexItem>
+      <EuiBadgeGroup>
+        {v.map((x) => (
+          <EuiBadge color="default">{x}</EuiBadge>
+        ))}
+      </EuiBadgeGroup>
+    </EuiFlexItem>
+  </EuiFlexGroup>
+);
 const ResultEvaluation = (v: PropsOf<typeof CSPEvaluationBadge>['type']) => (
   <CSPEvaluationBadge type={v} />
 );
@@ -103,11 +116,6 @@ const getColumns = (): Array<EuiTableFieldDataColumnType<CSPFinding>> => [
   {
     field: 'rule.tags',
     name: 'Tags',
-    width: '300px',
-    truncateText: true,
-    // TODO: tags need to be truncated (as they are components, not texts)
-    // and on hover they should show the full tags
-    // currently causes the table to overflow its parent
     render: RuleTags,
   },
   {
