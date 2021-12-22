@@ -5,9 +5,11 @@
  * 2.0.
  */
 
+import type { IRouter } from 'src/core/server';
 import { defineGetStatsRoute } from './stats/stats';
-import type { IRouter } from '../../../../../src/core/server';
+import { defineFindingsIndexRoute } from './findings/findings';
 
-export function defineRoutes(router: IRouter) {
+export const defineRoutes = (router: IRouter) => {
   defineGetStatsRoute(router);
-}
+  defineFindingsIndexRoute(router);
+};
