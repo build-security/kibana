@@ -15,4 +15,5 @@ module.exports = {
     '<rootDir>/target/kibana-coverage/jest/x-pack/plugins/cloud_security_posture/public',
   coverageReporters: ['text', 'html'],
   collectCoverageFrom: ['<rootDir>/x-pack/plugins/cloud_security_posture/public/**/*.{ts,tsx}'],
+  coveragePathIgnorePatterns: ['<rootDir>/src'], // TODO: remove this
 };
