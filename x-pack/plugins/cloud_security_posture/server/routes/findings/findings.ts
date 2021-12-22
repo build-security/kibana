@@ -4,57 +4,77 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-// eslint-disable-next-line @kbn/eslint/no-restricted-paths
-import { elasticsearchClientMock } from 'src/core/server/elasticsearch/client/mocks';
 
+import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+
+import { schema as rt, TypeOf } from '@kbn/config-schema';
+import type { ElasticsearchClient } from 'src/core/server';
+import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
+import {
+  CSP_KUBEBEAT_INDEX_PATTERN,
+  FINDINGS_ROUTH_PATH,
+  DEFAULT_FINDINGS_PER_PAGE,
+} from '../../../common/constants';
 
-const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
+type FindingsQuerySchema = TypeOf<typeof schema>;
 
-afterEach(() => {
-  mockEsClient.search.mockClear();
-  mockEsClient.count.mockClear();
-});
+const buildQueryFilter = async (
+  esClient: ElasticsearchClient,
+  queryParams: FindingsQuerySchema
+): Promise<QueryDslQueryContainer> => {
+  if (queryParams.latest_cycle) {
+    const latestCycleIds = await getLatestCycleIds(esClient);
+    if (!!latestCycleIds) {
+      const filter: QueryDslQueryContainer[] = latestCycleIds.map((latestCycleId) => ({
+        term: { 'run_id.keyword': latestCycleId },
+      }));
 
-describe('get latest cycle ids', () => {
-  it('expect for empty response from client and get undefined', async () => {
-    const response = await getLatestCycleIds(mockEsClient);
-    expect(response).toEqual(undefined);
-  });
-  it('expect to find 1 cycle id', async () => {
-    mockEsClient.search.mockResolvedValueOnce(
-      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-      elasticsearchClientMock.createSuccessTransportRequestPromise({
-        // group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0]
-        aggregations: {
-          group: {
-            buckets: [
-              { group_docs: { hits: { hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }] } } },
-            ],
-          },
-        },
-      })
-    );
-    const response = await getLatestCycleIds(mockEsClient);
-    expect(response).toEqual(expect.arrayContaining(['randomId1']));
-  });
+      return {
+        bool: { filter },
+      };
+    }
+  }
+  return {
+    match_all: {},
+  };
+};
 
-  it('expect to find mutiple cycle ids', async () => {
-    mockEsClient.search.mockResolvedValueOnce(
-      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-      elasticsearchClientMock.createSuccessTransportRequestPromise({
-        aggregations: {
-          group: {
-            buckets: [
-              { group_docs: { hits: { hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }] } } },
-              { group_docs: { hits: { hits: [{ fields: { 'run_id.keyword': ['randomId2'] } }] } } },
-              { group_docs: { hits: { hits: [{ fields: { 'run_id.keyword': ['randomId3'] } }] } } },
-            ],
-          },
-        },
-      })
-    );
-    const response = await getLatestCycleIds(mockEsClient);
-    expect(response).toEqual(expect.arrayContaining(['randomId1', 'randomId2', 'randomId3']));
-  });
+const getFindingsEsQuery = async (
+  esClient: ElasticsearchClient,
+  queryParams: FindingsQuerySchema
+): Promise<SearchRequest> => {
+  const query = await buildQueryFilter(esClient, queryParams);
+  return {
+    index: CSP_KUBEBEAT_INDEX_PATTERN,
+    query,
+    size: queryParams.per_page,
+    from: (queryParams.page - 1) * queryParams.per_page,
+  };
+};
+
+export const defineFindingsIndexRoute = (router: IRouter): void =>
+  router.get(
+    {
+      path: FINDINGS_ROUTH_PATH,
+      validate: { query: schema },
+    },
+    async (context, request, response) => {
+      try {
+        const esClient = context.core.elasticsearch.client.asCurrentUser;
+        const { query } = request;
+        const esQuery = await getFindingsEsQuery(esClient, query);
+        const findings = await esClient.search(esQuery);
+        const hits = findings.body.hits.hits;
+        return response.ok({ body: hits });
+      } catch (err) {
+        return response.customError({ body: { message: err }, statusCode: 500 });
+      }
+    }
+  );
+
+const schema = rt.object({
+  latest_cycle: rt.maybe(rt.boolean()),
+  page: rt.number({ defaultValue: 1, min: 0 }),
+  per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
 });
