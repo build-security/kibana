@@ -6,12 +6,14 @@
  */
 
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { ElasticsearchClient } from 'src/core/server';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTH_PATH } from '../../../common/constants';
+// import { options } from 'joi';
 export const DEFAULT_FINDINGS_PER_PAGE = 20;
 type FindingsQuerySchema = TypeOf<typeof schema>;
 
@@ -38,16 +40,35 @@ const buildQueryFilter = async (
 
 const getFindingsEsQuery = async (
   esClient: ElasticsearchClient,
-  queryParams: FindingsQuerySchema
+  queryParams: FindingsQuerySchema,
+  options: FindingsOptions
 ): Promise<SearchRequest> => {
   const query = await buildQueryFilter(esClient, queryParams);
   return {
     index: CSP_KUBEBEAT_INDEX_PATTERN,
     query,
-    size: queryParams.per_page,
-    from: (queryParams.page - 1) * queryParams.per_page,
+    ...options,
   };
 };
+
+const rewriteQueryReq = (queryParams: FindingsQuerySchema): FindingsOptions => ({
+  size: queryParams.per_page,
+  from: (queryParams.page - 1) * queryParams.per_page,
+  // ...(queryParams.sort_order ? { sort_order: queryParams.sort_order } : {}),
+  ...(queryParams.sort_field
+    ? { sort: queryParams.sort_field + ':' + queryParams.sort_order }
+    : {}),
+  ...(queryParams.fields ? { _source: [queryParams.fields] } : {}),
+});
+
+export interface FindingsOptions {
+  size: number;
+  from?: number;
+  page?: number;
+  sortField?: string;
+  sortOrder?: SearchSortOrder;
+  fields?: string[];
+}
 
 export const defineFindingsIndexRoute = (router: IRouter): void =>
   router.get(
@@ -59,12 +80,14 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const { query } = request;
-        const esQuery = await getFindingsEsQuery(esClient, query);
+        const options = rewriteQueryReq(query);
+        console.log(options);
+        const esQuery = await getFindingsEsQuery(esClient, query, options);
         const findings = await esClient.search(esQuery);
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
       } catch (err) {
-        //TODO: research error handling
+        // TODO: research error handling
         return response.customError({ body: { message: err }, statusCode: 500 });
       }
     }
@@ -72,6 +95,9 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
 
 const schema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
-  page: rt.number({ defaultValue: 1, min: 0 }), //: TODO: research for pagintaion best practice
+  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagintaion best practice
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
+  sort_field: rt.maybe(rt.string()),
+  sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
+  fields: rt.maybe(rt.string()),
 });
