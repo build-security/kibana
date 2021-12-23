@@ -10,7 +10,6 @@ import type { ElasticsearchClient } from 'src/core/server';
 import { AGENT_LOGS_INDEX } from '../../../common/constants';
 
 const getAgentLogsEsQuery = (): SearchRequest => ({
-  // TODO: convert all string to types/variables?!
   index: AGENT_LOGS_INDEX,
   size: 0,
   //   query: {
@@ -37,7 +36,7 @@ const getAgentLogsEsQuery = (): SearchRequest => ({
   _source: false,
 });
 
-const getCycleId = (v: any) => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0]; // TODO: change to type/variable?
+const getCycleId = (v: any): string => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
 
 export const getLatestCycleIds = async (
   esClient: ElasticsearchClient

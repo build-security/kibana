@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-// eslint-disable-next-line @kbn/eslint/no-restricted-paths
+
 import { elasticsearchClientMock } from 'src/core/server/elasticsearch/client/mocks';
 
 import { getLatestCycleIds } from './get_latest_cycle_ids';
@@ -21,11 +21,26 @@ describe('get latest cycle ids', () => {
     const response = await getLatestCycleIds(mockEsClient);
     expect(response).toEqual(undefined);
   });
+
+  it('expect to find empty bucket', async () => {
+    mockEsClient.search.mockResolvedValueOnce(
+      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+      elasticsearchClientMock.createSuccessTransportRequestPromise({
+        aggregations: {
+          group: {
+            buckets: [{}],
+          },
+        },
+      })
+    );
+    const response = await getLatestCycleIds(mockEsClient);
+    expect(response).toEqual(undefined);
+  });
+
   it('expect to find 1 cycle id', async () => {
     mockEsClient.search.mockResolvedValueOnce(
       // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
       elasticsearchClientMock.createSuccessTransportRequestPromise({
-        // group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0]
         aggregations: {
           group: {
             buckets: [

@@ -11,12 +11,8 @@ import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { ElasticsearchClient } from 'src/core/server';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
-import {
-  CSP_KUBEBEAT_INDEX_PATTERN,
-  FINDINGS_ROUTH_PATH,
-  DEFAULT_FINDINGS_PER_PAGE,
-} from '../../../common/constants';
-
+import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTH_PATH } from '../../../common/constants';
+export const DEFAULT_FINDINGS_PER_PAGE = 20;
 type FindingsQuerySchema = TypeOf<typeof schema>;
 
 const buildQueryFilter = async (
@@ -26,7 +22,7 @@ const buildQueryFilter = async (
   if (queryParams.latest_cycle) {
     const latestCycleIds = await getLatestCycleIds(esClient);
     if (!!latestCycleIds) {
-      const filter: QueryDslQueryContainer[] = latestCycleIds.map((latestCycleId) => ({
+      const filter = latestCycleIds.map((latestCycleId) => ({
         term: { 'run_id.keyword': latestCycleId },
       }));
 
@@ -68,6 +64,7 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
       } catch (err) {
+        //TODO: research error handling
         return response.customError({ body: { message: err }, statusCode: 500 });
       }
     }
@@ -75,6 +72,6 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
 
 const schema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
-  page: rt.number({ defaultValue: 1, min: 0 }),
+  page: rt.number({ defaultValue: 1, min: 0 }), //: TODO: research for pagintaion best practice
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
 });
