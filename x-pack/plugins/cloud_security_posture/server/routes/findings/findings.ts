@@ -14,7 +14,7 @@ import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTH_PATH } from '../../../common/constants';
 export const DEFAULT_FINDINGS_PER_PAGE = 20;
-type FindingsQuerySchema = TypeOf<typeof schema>;
+type FindingsQuerySchema = TypeOf<typeof findingsInputSchema>;
 export interface FindingsOptions {
   size: number;
   from?: number;
@@ -46,13 +46,17 @@ const rewriteReqQuery = async (
         term: { 'run_id.keyword': latestCycleId },
       }));
       return {
-        ...(queryParams.query_string ? { query_string: { query: queryParams.query_string } } : {}),
+        ...(queryParams.query_string
+          ? { simple_query_string: { query: queryParams.query_string } }
+          : {}),
         ...{ bool: { filter } },
       };
     }
   }
   return {
-    ...(queryParams.query_string ? { query_string: { query: queryParams.query_string } } : {}),
+    ...(queryParams.query_string
+      ? { simple_query_string: { query: queryParams.query_string } }
+      : {}),
     ...{ match_all: {} },
   };
 };
@@ -70,7 +74,7 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
   router.get(
     {
       path: FINDINGS_ROUTH_PATH,
-      validate: { query: schema },
+      validate: { query: findingsInputSchema },
     },
     async (context, request, response) => {
       try {
@@ -88,12 +92,12 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
     }
   );
 
-const schema = rt.object({
+export const findingsInputSchema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
   page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagintaion best practice
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
   sort_field: rt.maybe(rt.string()),
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
   fields: rt.maybe(rt.string()),
-  query_string: rt.maybe(rt.string()),
+  query_string: rt.maybe(rt.string()), // TODO: not working for now
 });
