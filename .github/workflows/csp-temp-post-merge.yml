@@ -38,6 +38,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           version: 16.13
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Yarn bootstrap
+        run: yarn kbn bootstrap
       
       - name: Build Kibana Docker
         run: |
