@@ -45,7 +45,10 @@ const getFindingsEsQuery = async (
     index: CSP_KUBEBEAT_INDEX_PATTERN,
     query,
     size: queryParams.per_page,
-    from: (queryParams.page - 1) * queryParams.per_page,
+    from:
+      queryParams.page <= 1
+        ? 0
+        : queryParams.page * queryParams.per_page - queryParams.per_page + 1,
   };
 };
 
@@ -64,14 +67,13 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
       } catch (err) {
-        //TODO: research error handling
-        return response.customError({ body: { message: err }, statusCode: 500 });
+        return response.customError({ body: { message: err }, statusCode: 500 }); // TODO: research error handling
       }
     }
   );
 
 const schema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
-  page: rt.number({ defaultValue: 1, min: 0 }), //: TODO: research for pagintaion best practice
+  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagintaion best practice
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
 });

@@ -53,6 +53,7 @@ export const getLatestCycleIds = async (
     }
     return buckets.map(getCycleId);
   } catch (err) {
+    // TODO: return meaningful error message
     return;
   }
 };
