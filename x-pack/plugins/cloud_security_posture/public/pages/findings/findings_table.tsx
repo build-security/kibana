@@ -28,9 +28,6 @@ interface BaseFindingsTableProps {
 
 type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
-/**
- * Temporary findings table
- */
 export const FindingsTable = ({ data, status, error, selectItem }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
