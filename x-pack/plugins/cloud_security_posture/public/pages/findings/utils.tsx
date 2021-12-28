@@ -28,7 +28,7 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
 
 /**
- *  registers a kibana data view for kubebeat* index
+ *  registers a kibana data view for kubebeat* index and fetches it
  *  TODO: use perfected kibana data views
  */
 
