@@ -39,14 +39,8 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: install
-        run: yarn install --frozen-lockfile
-
-      # - name: Install Yarn
-      #   run: npm install -g yarn
-
       - name: Yarn bootstrap
-        run: yarn kbn bootstrap --no-cache
+        run: yarn kbn bootstrap --no-cache --force-install
       
       - name: Build Kibana Docker
         run: |
