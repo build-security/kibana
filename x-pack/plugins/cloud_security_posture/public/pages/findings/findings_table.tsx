@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Criteria,
   EuiLink,
@@ -44,6 +44,15 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
     setPageSize(size);
   };
 
+  const page = useMemo(
+    () =>
+      orderBy(data, ['@timestamp'], ['desc']).slice(
+        pageIndex * pageSize,
+        pageSize * pageIndex + pageSize
+      ),
+    [data, pageSize, pageIndex]
+  );
+
   // TODO: add empty/error/loading views
   if (!data) return null;
 
@@ -55,9 +64,6 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
     pageSizeOptions: [5, 10, 25],
     hidePerPageOptions: false,
   };
-
-  const sortedData = orderBy(data, ['@timestamp'], ['desc']);
-  const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
     <EuiBasicTable
