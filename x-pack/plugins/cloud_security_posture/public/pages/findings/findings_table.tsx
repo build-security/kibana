@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Criteria,
   EuiLink,
@@ -31,7 +31,6 @@ type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 export const FindingsTable = ({ data, status, error, selectItem }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const columns = useMemo(getColumns, []);
 
   const getCellProps = (item: CSPFinding, column: EuiTableFieldDataColumnType<CSPFinding>) => ({
     onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
@@ -93,7 +92,7 @@ const ResultEvaluation = (type: PropsOf<typeof CSPEvaluationBadge>['type']) => (
   <CSPEvaluationBadge type={type} />
 );
 
-const getColumns = (): Array<EuiTableFieldDataColumnType<CSPFinding>> => [
+const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
   {
     field: 'resource.filename',
     name: 'Resource',
