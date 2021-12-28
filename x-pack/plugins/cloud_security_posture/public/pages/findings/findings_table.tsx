@@ -74,8 +74,8 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
   );
 };
 
-const RuleName = (name: string) => <EuiLink>{name}</EuiLink>;
-const RuleTags = (tags: string[]) => (
+const ruleNameRenderer = (name: string) => <EuiLink>{name}</EuiLink>;
+const ruleTagsRenderer = (tags: string[]) => (
   <EuiFlexGroup>
     <EuiFlexItem>
       <EuiBadgeGroup>
@@ -88,7 +88,7 @@ const RuleTags = (tags: string[]) => (
     </EuiFlexItem>
   </EuiFlexGroup>
 );
-const ResultEvaluation = (type: PropsOf<typeof CSPEvaluationBadge>['type']) => (
+const resultEvaluationRenderer = (type: PropsOf<typeof CSPEvaluationBadge>['type']) => (
   <CSPEvaluationBadge type={type} />
 );
 
@@ -103,18 +103,18 @@ const columns: Array<EuiTableFieldDataColumnType<CSPFinding>> = [
     name: 'Rule Name',
     width: '50%',
     truncateText: true,
-    render: RuleName,
+    render: ruleNameRenderer,
   },
   {
     field: 'result.evaluation',
     name: 'Evaluation',
     width: '80px',
-    render: ResultEvaluation,
+    render: resultEvaluationRenderer,
   },
   {
     field: 'rule.tags',
     name: 'Tags',
-    render: RuleTags,
+    render: ruleTagsRenderer,
   },
   {
     field: '@timestamp',
