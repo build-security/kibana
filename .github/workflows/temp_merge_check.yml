@@ -1,0 +1,36 @@
+# DO NOT MERGE THIS TO KIBANA
+# THIS IS ONLY FOR BUILD.SECURITY KIBANA FORK
+
+# pr workflow for test only
+on:
+  push:
+    branches:
+      - temp_ci
+
+# real workflow
+# on:
+#   pull_request_target:
+#     branches:
+#       - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: install
+        run: yarn install --frozen-lockfile
+
+      - name: check TS
+        run: node scripts/type_check
+
+      # - name: kbn bootstrap
+      #   run: yarn kbn bootstrap
+
+      # - name: eslint
+      #   run: node scripts/eslint --no-cache
