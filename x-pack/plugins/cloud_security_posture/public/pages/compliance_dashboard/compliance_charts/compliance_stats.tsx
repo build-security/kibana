@@ -41,6 +41,10 @@ const getScoreTrendPercentage = (scoreTrend: Trend) => {
 export const ComplianceStats = () => {
   const getStats = useCloudPostureStatsApi();
   const postureScore = getStats.isSuccess && getStats.data.postureScore;
+  const benchmarks = getStats.isSuccess && getStats.data.benchmarksStats;
+
+  // TODO: in case we dont have a full length trend we will need to handle the sparkline chart alone. not rendering anything is just a temporary solution
+  if (!benchmarks || !postureScore) return null;
 
   const scoreTrend = [
     [0, 0],
@@ -50,11 +54,8 @@ export const ComplianceStats = () => {
     [4, postureScore],
   ] as Trend;
 
-  // TODO: in case we dont have a full length trend we will need to handle the sparkline chart alone. not rendering anything is just a temporary solution
-  if (!postureScore || scoreTrend.length < 2) return null;
-
   const scoreChange = getScoreTrendPercentage(scoreTrend);
-  const isPositiveChange = scoreChange > 0;
+  // const isPositiveChange = scoreChange > 0;
 
   const stats = [
     {
@@ -64,45 +65,52 @@ export const ComplianceStats = () => {
       iconType: getScoreIcon(postureScore),
     },
     {
-      title: (
-        <span>
-          <EuiIcon size="xl" type={isPositiveChange ? 'sortUp' : 'sortDown'} />
-          {`${scoreChange}%`}
-        </span>
-      ),
+      // TODO: remove placeholder for the commented out component, needs BE
+      title: 'No Data Yet',
       description: 'Posture Score Trend',
-      titleColor: isPositiveChange ? 'success' : 'danger',
-      renderBody: (
-        <>
-          <Chart size={{ height: 30 }}>
-            <Settings
-              showLegend={false}
-              tooltip="none"
-              theme={{
-                lineSeriesStyle: {
-                  point: {
-                    visible: false,
-                  },
-                },
-              }}
-            />
-            <LineSeries
-              id="posture-score-trend-sparkline"
-              data={scoreTrend}
-              xAccessor={0}
-              yAccessors={[1]}
-              color={isPositiveChange ? statusColors.success : statusColors.danger}
-            />
-          </Chart>
-        </>
-      ),
     },
+    // {
+    //   title: (
+    //     <span>
+    //       <EuiIcon size="xl" type={isPositiveChange ? 'sortUp' : 'sortDown'} />
+    //       {`${scoreChange}%`}
+    //     </span>
+    //   ),
+    //   description: 'Posture Score Trend',
+    //   titleColor: isPositiveChange ? 'success' : 'danger',
+    //   renderBody: (
+    //     <>
+    //       <Chart size={{ height: 30 }}>
+    //         <Settings
+    //           showLegend={false}
+    //           tooltip="none"
+    //           theme={{
+    //             lineSeriesStyle: {
+    //               point: {
+    //                 visible: false,
+    //               },
+    //             },
+    //           }}
+    //         />
+    //         <LineSeries
+    //           id="posture-score-trend-sparkline"
+    //           data={scoreTrend}
+    //           xAccessor={0}
+    //           yAccessors={[1]}
+    //           color={isPositiveChange ? statusColors.success : statusColors.danger}
+    //         />
+    //       </Chart>
+    //     </>
+    //   ),
+    // },
     {
-      title: '1',
+      // TODO: this should count only ACTIVE benchmarks. needs BE
+      title: benchmarks.length,
       description: 'Active Frameworks',
     },
     {
-      title: '1,369',
+      // TODO: should be relatively simple to return from BE. needs BE
+      title: 'No Data Yet',
       description: 'Total Resources',
     },
   ];
