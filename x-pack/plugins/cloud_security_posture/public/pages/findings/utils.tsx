@@ -19,11 +19,9 @@ import type { CspPluginSetup } from '../../types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
-// TODO: find similar/existing function
 export const extractErrorMessage = (e: unknown) =>
   typeof e === 'string' ? e : (e as Error)?.message || 'Unknown Error';
 
-// TODO: find kibanas' equivalent fn
 export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
 
