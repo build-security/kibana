@@ -97,8 +97,9 @@ const FindingsTab = ({ tab, findings }: { findings: CSPFinding; tab: FindingsTab
       return <Cards data={getRuleCards(findings)} />;
     case 'resource':
       return <Cards data={getResourceCards(findings)} />;
+    default:
+      assertNever(tab);
   }
-  assertNever(tab);
 };
 
 const getResourceCards = ({ resource }: CSPFinding): Card[] => [
