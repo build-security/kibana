@@ -77,7 +77,7 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
   // This sends a new search request to ES
   // it's called whenever we have a new searchState from the URL
   useEffect(() => {
-    mutation.mutate(void 0, {
+    mutation.mutate(undefined, {
       onError: (e) => {
         notifications?.toasts.addError(e instanceof Error ? e : new Error(), {
           title: 'Search failed',
