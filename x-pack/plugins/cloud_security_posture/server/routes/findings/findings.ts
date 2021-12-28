@@ -6,15 +6,17 @@
  */
 
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
-import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { ElasticsearchClient } from 'src/core/server';
+import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTH_PATH } from '../../../common/constants';
-export const DEFAULT_FINDINGS_PER_PAGE = 20;
+
 type FindingsQuerySchema = TypeOf<typeof findingsInputSchema>;
+
+export const DEFAULT_FINDINGS_PER_PAGE = 20;
 export interface FindingsOptions {
   size: number;
   from?: number;
@@ -63,7 +65,9 @@ const rewriteReqQuery = async (
 
 const rewriteReqOptions = (queryParams: FindingsQuerySchema): FindingsOptions => ({
   size: queryParams.per_page,
-  from: (queryParams.page - 1) * queryParams.per_page,
+  from:
+    queryParams.page <= 1 ? 0 : queryParams.page * queryParams.per_page - queryParams.per_page + 1,
+  // from: (queryParams.page - 1) * queryParams.per_page,
   ...(queryParams.sort_field
     ? { sort: [{ [queryParams.sort_field]: queryParams.sort_order }] }
     : {}),
@@ -94,10 +98,10 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
 
 export const findingsInputSchema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
-  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagintaion best practice
+  page: rt.number({ defaultValue: 1, min: 0 }),
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
   sort_field: rt.maybe(rt.string()),
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
   fields: rt.maybe(rt.string()),
-  query_string: rt.maybe(rt.string()), // TODO: not working for now
+  query_string: rt.maybe(rt.string()), // TODO: placeholder, not working for now
 });

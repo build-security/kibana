@@ -4,11 +4,14 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-
 import {
-  ElasticsearchClientMock,
   elasticsearchClientMock,
-} from '../../../../../../src/core/server/elasticsearch/client/mocks';
+  // eslint-disable-next-line @kbn/eslint/no-restricted-paths
+} from 'src/core/server/elasticsearch/client/mocks';
+import type {
+  ElasticsearchClientMock,
+  // eslint-disable-next-line @kbn/eslint/no-restricted-paths
+} from 'src/core/server/elasticsearch/client/mocks';
 
 export const mockCountResultOnce = async (mockEsClient: ElasticsearchClientMock, count: number) => {
   mockEsClient.count.mockReturnValueOnce(
