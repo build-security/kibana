@@ -35,7 +35,7 @@ const FindingsComponentWithTestProvider = () => {
   );
 };
 
-describe('Test findings page conditional rendering', () => {
+describe('<Findings />', () => {
   it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
     spy.mockImplementation(() => ({ status: 'success' } as UseQueryResult<DataView>));
 
