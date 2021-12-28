@@ -28,7 +28,6 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
 
 /**
- *  Temp DataView Utility
  *  registers a kibana data view for kubebeat* index
  *  TODO: use perfected kibana data views
  */
@@ -55,9 +54,6 @@ export const useKubebeatDataView = () => {
   return useQuery(['kubebeat_dataview'], getKubebeatDataView);
 };
 
-/**
- * Temp URL state utility
- */
 export const useSourceQueryParam = <T extends object>(getDefaultQuery: () => T) => {
   const history = useHistory();
   const [state, set] = useState<T>(getDefaultQuery());
