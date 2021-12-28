@@ -135,7 +135,7 @@ export const BootstrapCommand: ICommand = {
 
     await spawnStreaming(
       process.execPath,
-      ['scripts/build_ts_refs', '--ignore-type-failures'],
+      ['scripts/build_ts_refs', '--ignore-type-failures', '--no-cache'],
       {
         cwd: kbn.getAbsolute(),
         env: process.env,
