@@ -34,16 +34,19 @@ jobs:
           username: ${{ secrets.AWS_ECR_KEY_DEVELOP }}
           password: ${{ secrets.AWS_ECR_SECRET_DEVELOP }}
       
-      - name: Set Node.js 16
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          version: 16.13.0
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: install
+        run: yarn install --frozen-lockfile
 
-      - name: Yarn bootstrap
-        run: yarn kbn bootstrap
+      # - name: Install Yarn
+      #   run: npm install -g yarn
+
+      # - name: Yarn bootstrap
+      #   run: yarn kbn bootstrap
       
       - name: Build Kibana Docker
         run: |
@@ -57,7 +60,7 @@ jobs:
           secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           region: us-east-1
           local-image: docker.elastic.co/kibana/kibana:8.1.0-SNAPSHOT 
-          image: ${{ env.KIBANA_IMAGE_BASE }}, ${{ env.KIBANA_IMAGE}}:csp-latest
+          image: kibana, kibana:csp-latest
       # - name: Notify job failure
       #   if: failure()
       #   uses: archive/github-actions-slack@v1.0.3
