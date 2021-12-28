@@ -42,7 +42,6 @@ interface FindingFlyoutProps {
   findings: CSPFinding;
 }
 
-// TODO: fix scrollbar jumps
 export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) => {
   const [tab, setTab] = useState<FindingsTab>('result');
   return (
