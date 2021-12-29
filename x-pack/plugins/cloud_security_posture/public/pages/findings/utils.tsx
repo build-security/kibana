@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import type { Filter, Query } from '@kbn/es-query';
 import { useMutation, useQuery } from 'react-query';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { encode, decode, RisonValue, RisonObject } from 'rison-node';
+import { encode, decode, RisonObject } from 'rison-node';
 import { useHistory } from 'react-router-dom';
 import type {
   DataView,
