@@ -40,7 +40,8 @@
     "backport-skip-ci": "backport --prDescription \"[skip-ci]\"",
     "bazel": "bazel",
     "build": "node scripts/build --all-platforms",
-    "build-csp": "node scripts/build --docker-images --skip-docker-ubi --skip-docker-ubuntu --skip-archives --skip-os-packages --skip-node-download -v",
+//  Todo optimise build command & delete before merge to elastic/kibana
+    // "build-csp": "node scripts/build --docker-images --skip-docker-ubi --skip-docker-ubuntu --skip-archives --skip-os-packages --skip-node-download -v",
     "build:apidocs": "node scripts/build_api_docs",
     "build:types": "rm -rf ./target/types && tsc --p tsconfig.types.json",
     "checkLicenses": "node scripts/check_licenses --dev",
