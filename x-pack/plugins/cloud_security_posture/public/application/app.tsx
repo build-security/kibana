@@ -10,6 +10,7 @@ import { I18nProvider } from '@kbn/i18n-react';
 import { Router, Redirect, Switch, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { routes } from './routes';
+import { UnknownRoute } from '../components/unknown_route';
 
 import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/public';
 
@@ -35,7 +36,7 @@ export const CspApp = ({ core, deps, params }: CspAppDeps) => {
                 <Route {...route} />
               ))}
               <Route exact path="/" component={() => <Redirect to="/dashboard" />} />
-              <Route path="*" component={() => <div>not found</div>} />
+              <Route path="*" component={UnknownRoute} />
             </Switch>
           </I18nProvider>
         </Router>
