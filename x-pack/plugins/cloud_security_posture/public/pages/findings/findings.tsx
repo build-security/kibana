@@ -11,9 +11,10 @@ import { FindingsTableContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 import { useKubebeatDataView } from './utils';
 import { TEST_SUBJECTS } from './constants';
+import { FINDINGS, MISSING_KUBEBEAT } from './constants';
 
 const pageHeader: EuiPageHeaderProps = {
-  pageTitle: 'Findings',
+  pageTitle: FINDINGS,
 };
 
 export const Findings = () => {
@@ -34,8 +35,6 @@ export const Findings = () => {
 
 const LoadingPrompt = () => <EuiEmptyPrompt icon={<EuiLoadingSpinner size="xl" />} />;
 
-export const missingKubebeatErrorMessage = 'Kubebeat DataView is missing';
-
 // TODO: follow https://elastic.github.io/eui/#/display/empty-prompt/guidelines
 const ErrorPrompt = () => (
   <EuiEmptyPrompt
@@ -43,6 +42,6 @@ const ErrorPrompt = () => (
     color="danger"
     iconType="alert"
     // TODO: account for when we have a dataview without an index
-    title={<h2>{missingKubebeatErrorMessage}</h2>}
+    title={<h2>{MISSING_KUBEBEAT}</h2>}
   />
 );

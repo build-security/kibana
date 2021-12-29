@@ -25,6 +25,7 @@ import {
 import { assertNever } from '@kbn/std';
 import type { CspFinding } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
+import * as TX from './constants';
 
 const tabs = ['result', 'rule', 'resource'] as const;
 
@@ -49,7 +50,7 @@ export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) =>
       <EuiFlyoutHeader>
         <EuiTitle size="l">
           <EuiTextColor color="primary">
-            <h2>{'Findings'}</h2>
+            <h2>{TX.FINDINGS}</h2>
           </EuiTextColor>
         </EuiTitle>
         <EuiSpacer />
@@ -104,28 +105,28 @@ const FindingsTab = ({ tab, findings }: { findings: CspFinding; tab: FindingsTab
 
 const getResourceCards = ({ resource }: CspFinding): Card[] => [
   {
-    title: 'Resource',
+    title: TX.RESOURCE,
     listItems: [
-      ['Filename', <EuiCode>{resource.filename}</EuiCode>],
-      ['Mode', resource.mode],
-      ['Path', <EuiCode>{resource.path}</EuiCode>],
-      ['Type', resource.type],
-      ['UID', resource.uid],
-      ['GID', resource.gid],
+      [TX.FILENAME, <EuiCode>{resource.filename}</EuiCode>],
+      [TX.MODE, resource.mode],
+      [TX.PATH, <EuiCode>{resource.path}</EuiCode>],
+      [TX.TYPE, resource.type],
+      [TX.UID, resource.uid],
+      [TX.GID, resource.gid],
     ],
   },
 ];
 
 const getRuleCards = ({ rule }: CspFinding): Card[] => [
   {
-    title: 'Rule',
+    title: TX.RULE,
     listItems: [
-      ['Benchmark', rule.benchmark],
-      ['Name', rule.name],
-      ['Description', rule.description],
-      ['Remediation', <EuiCode>{rule.remediation}</EuiCode>],
+      [TX.BENCHMARK, rule.benchmark],
+      [TX.NAME, rule.name],
+      [TX.DESCRIPTION, rule.description],
+      [TX.REMEDIATION, <EuiCode>{rule.remediation}</EuiCode>],
       [
-        'Tags',
+        TX.TAGS,
         rule.tags.map((t) => (
           <EuiBadge key={t} color="default">
             {t}
@@ -138,45 +139,45 @@ const getRuleCards = ({ rule }: CspFinding): Card[] => [
 
 const getResultCards = ({ result, agent, host, ...rest }: CspFinding): Card[] => [
   {
-    title: 'Result',
+    title: TX.RESULT,
     listItems: [
-      ['Evaluation', <CSPEvaluationBadge type={result.evaluation} />],
-      ['Evidence', <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
-      ['Timestamp', rest['@timestamp']],
-      result.evaluation === 'failed' && ['Remediation', rest.rule.remediation],
+      [TX.EVALUATION, <CSPEvaluationBadge type={result.evaluation} />],
+      [TX.EVIDENCE, <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
+      [TX.TIMESTAMP, rest['@timestamp']],
+      result.evaluation === 'failed' && [TX.REMEDIATION, rest.rule.remediation],
     ].filter(Boolean) as Card['listItems'],
   },
   {
-    title: 'Agent',
+    title: TX.AGENT,
     listItems: [
-      ['Name', agent.name],
-      ['ID', agent.id],
-      ['Type', agent.type],
-      ['Version', agent.version],
+      [TX.NAME, agent.name],
+      [TX.ID, agent.id],
+      [TX.TYPE, agent.type],
+      [TX.VERSION, agent.version],
     ],
   },
   {
-    title: 'Host',
+    title: TX.HOST,
     listItems: [
-      ['Architecture', host.architecture],
-      ['Containerized', host.containerized ? 'true' : 'false'],
-      ['Hostname', host.hostname],
-      ['ID', host.id],
-      ['IP', host.ip.join(',')],
-      ['Mac', host.mac.join(',')],
-      ['Name', host.name],
+      [TX.ARCHITECTURE, host.architecture],
+      [TX.CONTAINERIZED, host.containerized ? 'true' : 'false'],
+      [TX.HOSTNAME, host.hostname],
+      [TX.ID, host.id],
+      [TX.IP, host.ip.join(',')],
+      [TX.MAC, host.mac.join(',')],
+      [TX.NAME, host.name],
     ],
   },
   {
-    title: 'OS',
+    title: TX.OS,
     listItems: [
-      ['Codename', host.os.codename],
-      ['Family', host.os.family],
-      ['Kernel', host.os.kernel],
-      ['Name', host.os.name],
-      ['Platform', host.os.platform],
-      ['Type', host.os.type],
-      ['Version', host.os.version],
+      [TX.CODENAME, host.os.codename],
+      [TX.FAMILY, host.os.family],
+      [TX.KERNEL, host.os.kernel],
+      [TX.NAME, host.os.name],
+      [TX.PLATFORM, host.os.platform],
+      [TX.TYPE, host.os.type],
+      [TX.VERSION, host.os.version],
     ],
   },
 ];
