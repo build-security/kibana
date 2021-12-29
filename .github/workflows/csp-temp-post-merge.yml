@@ -18,7 +18,7 @@ jobs:
   publish_image_kibana:
     name: Push KIBANA Docker image to ECR
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 55
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
