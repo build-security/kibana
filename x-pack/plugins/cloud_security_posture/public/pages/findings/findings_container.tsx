@@ -37,7 +37,7 @@ type FindingsEsSearchMutation = UseMutationResult<
 
 export interface URLState {
   dateRange: TimeRange;
-  query?: Query | undefined;
+  query?: Query;
   filters: Filter[];
 }
 
