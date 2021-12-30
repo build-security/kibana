@@ -1,4 +1,3 @@
-//  Todo optimise build command & delete before merge to elastic/kibana
 {
   "name": "kibana",
   "description": "Kibana is a browser based analytics and search dashboard for Elasticsearch. Kibana is a snap to setup and start using. Kibana strives to be easy to get started with, while also being flexible and powerful, just like Elasticsearch.",
@@ -41,7 +40,6 @@
     "backport-skip-ci": "backport --prDescription \"[skip-ci]\"",
     "bazel": "bazel",
     "build": "node scripts/build --all-platforms",
-    // "build-csp": "node scripts/build --docker-images --skip-docker-ubi --skip-docker-ubuntu --skip-archives --skip-os-packages --skip-node-download -v",
     "build:apidocs": "node scripts/build_api_docs",
     "build:types": "rm -rf ./target/types && tsc --p tsconfig.types.json",
     "checkLicenses": "node scripts/check_licenses --dev",
