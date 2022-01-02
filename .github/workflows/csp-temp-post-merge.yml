@@ -59,7 +59,7 @@ jobs:
       
       - name: Build Kibana Docker
         run: |
-          node scripts/build --docker-images --skip-docker-ubi --skip-archives --skip-os-packages -v 
+          node scripts/build --docker-images --skip-docker-ubi --skip-docker-cloud -v
 # TODO Add cache for node & bootstrap actions to try speed things up. https://www.jonathan-wilkinson.com/github-actions-cache-everything
 # https://docs.github.com/en/actions/advanced-guides/caching-dependencies-to-speed-up-workflows 
 
