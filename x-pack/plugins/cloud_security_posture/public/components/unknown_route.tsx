@@ -7,10 +7,11 @@
 
 import React from 'react';
 import { FormattedMessage } from '@kbn/i18n-react';
-import { EuiEmptyPrompt, EuiPageTemplate } from '@elastic/eui';
+import { EuiEmptyPrompt } from '@elastic/eui';
+import { CspPageTemplate } from './page_template';
 
 export const UnknownRoute = React.memo(() => (
-  <EuiPageTemplate template="centeredContent">
+  <CspPageTemplate template="centeredContent">
     <EuiEmptyPrompt
       data-test-subj="unknownRoute"
       iconColor="default"
@@ -21,5 +22,5 @@ export const UnknownRoute = React.memo(() => (
         </p>
       }
     />
-  </EuiPageTemplate>
+  </CspPageTemplate>
 ));
