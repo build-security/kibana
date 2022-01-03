@@ -7,7 +7,15 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { EuiStat, EuiFlexItem, EuiPanel, EuiIcon, EuiFlexGrid } from '@elastic/eui';
+import {
+  EuiStat,
+  EuiFlexItem,
+  EuiPanel,
+  EuiIcon,
+  EuiFlexGrid,
+  EuiText,
+  EuiFlexGroup,
+} from '@elastic/eui';
 import { Chart, Settings, LineSeries } from '@elastic/charts';
 import { useCloudPostureStatsApi } from '../../../common/api';
 import { statusColors } from '../../../common/constants';
@@ -38,6 +46,12 @@ const getScoreTrendPercentage = (scoreTrend: Trend) => {
   return Number((last - beforeLast).toFixed(1));
 };
 
+const placeholder = (
+  <EuiText size="xs" color="subdued">
+    {'No data to display'}
+  </EuiText>
+);
+
 export const ComplianceStats = () => {
   const getStats = useCloudPostureStatsApi();
   const postureScore = getStats.isSuccess && getStats.data.postureScore;
@@ -66,7 +80,7 @@ export const ComplianceStats = () => {
     },
     {
       // TODO: remove placeholder for the commented out component, needs BE
-      title: 'No Data Yet',
+      title: placeholder,
       description: 'Posture Score Trend',
     },
     // {
@@ -110,7 +124,7 @@ export const ComplianceStats = () => {
     },
     {
       // TODO: should be relatively simple to return from BE. needs BE
-      title: 'No Data Yet',
+      title: placeholder,
       description: 'Total Resources',
     },
   ];
