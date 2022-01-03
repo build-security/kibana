@@ -15,7 +15,7 @@ export const AGENT_LOGS_INDEX = 'logs-k8s_cis*';
 export const CSP_KUBEBEAT_INDEX_PATTERN = 'kubebeat*';
 export const CSP_KUBEBEAT_INDEX_NAME = 'findings';
 export const STATS_ROUTE_PATH = '/api/csp/stats';
-export const FINDINGS_ROUTE_PATH = '/api/csp/finding';
+export const FINDINGS_ROUTE_PATH = '/api/csp/findings';
 export const AGENT_LOGS_INDEX = 'kubebeat*';
 >>>>>>> 589797a5e4b... fix TS error
 export const RULE_PASSED = `passed`;
