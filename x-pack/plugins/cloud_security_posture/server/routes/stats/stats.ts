@@ -23,8 +23,8 @@ import {
   getBenchmarksQuery,
   getLatestFindingQuery,
 } from './stats_queries';
-import { STATS_ROUTE_PATH } from '../../../common/constants';
 import { RULE_PASSED, RULE_FAILED } from '../../constants';
+import { STATS_ROUTE_PATH } from '../../../common/constants';
 interface LastCycle {
   run_id: string;
 }

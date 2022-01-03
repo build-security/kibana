@@ -16,7 +16,7 @@ import {
   findingsInputSchema,
   DEFAULT_FINDINGS_PER_PAGE,
 } from './findings';
-import { getMockContext, getMockResponseFactory } from '../test_utils';
+import { getMockCspContext, getMockCspResponseFactory } from '../test_utils';
 
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
 
@@ -57,20 +57,23 @@ describe('findings API', () => {
   const router = httpServiceMock.createRouter();
   defineFindingsIndexRoute(router);
   const [config, handler] = router.get.mock.calls[0];
-  const mockContext = getMockContext(mockEsClient);
+  const mockContext = getMockCspContext(mockEsClient);
   it('validate API routh', async () => {
     expect(config.path).toMatchInlineSnapshot(`"/api/csp/findings"`);
   });
 
   it('test query building', async () => {
-    mockEsClient.search.mockResolvedValueOnce(getMockCycleIdsResponse(['randomId1']));
+    mockEsClient.search.mockResolvedValueOnce(
+      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+      getMockCycleIdsResponse(['randomId1'])
+    );
 
     const [context, req, res] = [
       mockContext,
       {
         query: { latest_cycle: true },
       } as KibanaRequest,
-      getMockResponseFactory(['noContent']),
+      getMockCspResponseFactory(['noContent']),
     ];
 
     await handler(context, req, res);
@@ -82,7 +85,10 @@ describe('findings API', () => {
   });
 
   it('test sort by field', async () => {
-    mockEsClient.search.mockResolvedValueOnce(getMockCycleIdsResponse(['randomId1']));
+    mockEsClient.search.mockResolvedValueOnce(
+      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+      getMockCycleIdsResponse(['randomId1'])
+    );
 
     const [context, req, res] = [
       mockContext,
@@ -92,7 +98,7 @@ describe('findings API', () => {
           sort_order: 'asc',
         },
       } as KibanaRequest,
-      getMockResponseFactory(['noContent']),
+      getMockCspResponseFactory(['noContent']),
     ];
 
     await handler(context, req, res);
@@ -105,7 +111,10 @@ describe('findings API', () => {
   });
 
   it('test pagination', async () => {
-    mockEsClient.search.mockResolvedValueOnce(getMockCycleIdsResponse(['randomId1']));
+    mockEsClient.search.mockResolvedValueOnce(
+      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+      getMockCycleIdsResponse(['randomId1'])
+    );
 
     const [context, req, res] = [
       mockContext,
@@ -115,7 +124,7 @@ describe('findings API', () => {
           page: 3,
         },
       } as KibanaRequest,
-      getMockResponseFactory(['noContent']),
+      getMockCspResponseFactory(['noContent']),
     ];
 
     await handler(context, req, res);
@@ -129,7 +138,10 @@ describe('findings API', () => {
   });
 
   it('test getting speific fields from findings index', async () => {
-    mockEsClient.search.mockResolvedValueOnce(getMockCycleIdsResponse(['randomId1']));
+    mockEsClient.search.mockResolvedValueOnce(
+      // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+      getMockCycleIdsResponse(['randomId1'])
+    );
 
     const [context, req, res] = [
       mockContext,
@@ -138,7 +150,7 @@ describe('findings API', () => {
           fields: 'field1, field2, field3',
         },
       } as KibanaRequest,
-      getMockResponseFactory(['noContent']),
+      getMockCspResponseFactory(['noContent']),
     ];
 
     await handler(context, req, res);
