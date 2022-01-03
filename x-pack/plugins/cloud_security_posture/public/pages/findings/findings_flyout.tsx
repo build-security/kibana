@@ -25,7 +25,7 @@ import {
 import { assertNever } from '@kbn/std';
 import type { CspFinding } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
-import * as TX from './constants';
+import * as TEXT from './constants';
 
 const tabs = ['result', 'rule', 'resource'] as const;
 
@@ -50,7 +50,7 @@ export const FindingsRuleFlyout = ({ onClose, findings }: FindingFlyoutProps) =>
       <EuiFlyoutHeader>
         <EuiTitle size="l">
           <EuiTextColor color="primary">
-            <h2>{TX.FINDINGS}</h2>
+            <h2>{TEXT.FINDINGS}</h2>
           </EuiTextColor>
         </EuiTitle>
         <EuiSpacer />
@@ -105,28 +105,28 @@ const FindingsTab = ({ tab, findings }: { findings: CspFinding; tab: FindingsTab
 
 const getResourceCards = ({ resource }: CspFinding): Card[] => [
   {
-    title: TX.RESOURCE,
+    title: TEXT.RESOURCE,
     listItems: [
-      [TX.FILENAME, <EuiCode>{resource.filename}</EuiCode>],
-      [TX.MODE, resource.mode],
-      [TX.PATH, <EuiCode>{resource.path}</EuiCode>],
-      [TX.TYPE, resource.type],
-      [TX.UID, resource.uid],
-      [TX.GID, resource.gid],
+      [TEXT.FILENAME, <EuiCode>{resource.filename}</EuiCode>],
+      [TEXT.MODE, resource.mode],
+      [TEXT.PATH, <EuiCode>{resource.path}</EuiCode>],
+      [TEXT.TYPE, resource.type],
+      [TEXT.UID, resource.uid],
+      [TEXT.GID, resource.gid],
     ],
   },
 ];
 
 const getRuleCards = ({ rule }: CspFinding): Card[] => [
   {
-    title: TX.RULE,
+    title: TEXT.RULE,
     listItems: [
-      [TX.BENCHMARK, rule.benchmark],
-      [TX.NAME, rule.name],
-      [TX.DESCRIPTION, rule.description],
-      [TX.REMEDIATION, <EuiCode>{rule.remediation}</EuiCode>],
+      [TEXT.BENCHMARK, rule.benchmark],
+      [TEXT.NAME, rule.name],
+      [TEXT.DESCRIPTION, rule.description],
+      [TEXT.REMEDIATION, <EuiCode>{rule.remediation}</EuiCode>],
       [
-        TX.TAGS,
+        TEXT.TAGS,
         rule.tags.map((t) => (
           <EuiBadge key={t} color="default">
             {t}
@@ -139,45 +139,45 @@ const getRuleCards = ({ rule }: CspFinding): Card[] => [
 
 const getResultCards = ({ result, agent, host, ...rest }: CspFinding): Card[] => [
   {
-    title: TX.RESULT,
+    title: TEXT.RESULT,
     listItems: [
-      [TX.EVALUATION, <CSPEvaluationBadge type={result.evaluation} />],
-      [TX.EVIDENCE, <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
-      [TX.TIMESTAMP, rest['@timestamp']],
-      result.evaluation === 'failed' && [TX.REMEDIATION, rest.rule.remediation],
+      [TEXT.EVALUATION, <CSPEvaluationBadge type={result.evaluation} />],
+      [TEXT.EVIDENCE, <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
+      [TEXT.TIMESTAMP, rest['@timestamp']],
+      result.evaluation === 'failed' && [TEXT.REMEDIATION, rest.rule.remediation],
     ].filter(Boolean) as Card['listItems'],
   },
   {
-    title: TX.AGENT,
+    title: TEXT.AGENT,
     listItems: [
-      [TX.NAME, agent.name],
-      [TX.ID, agent.id],
-      [TX.TYPE, agent.type],
-      [TX.VERSION, agent.version],
+      [TEXT.NAME, agent.name],
+      [TEXT.ID, agent.id],
+      [TEXT.TYPE, agent.type],
+      [TEXT.VERSION, agent.version],
     ],
   },
   {
-    title: TX.HOST,
+    title: TEXT.HOST,
     listItems: [
-      [TX.ARCHITECTURE, host.architecture],
-      [TX.CONTAINERIZED, host.containerized ? 'true' : 'false'],
-      [TX.HOSTNAME, host.hostname],
-      [TX.ID, host.id],
-      [TX.IP, host.ip.join(',')],
-      [TX.MAC, host.mac.join(',')],
-      [TX.NAME, host.name],
+      [TEXT.ARCHITECTURE, host.architecture],
+      [TEXT.CONTAINERIZED, host.containerized ? 'true' : 'false'],
+      [TEXT.HOSTNAME, host.hostname],
+      [TEXT.ID, host.id],
+      [TEXT.IP, host.ip.join(',')],
+      [TEXT.MAC, host.mac.join(',')],
+      [TEXT.NAME, host.name],
     ],
   },
   {
-    title: TX.OS,
+    title: TEXT.OS,
     listItems: [
-      [TX.CODENAME, host.os.codename],
-      [TX.FAMILY, host.os.family],
-      [TX.KERNEL, host.os.kernel],
-      [TX.NAME, host.os.name],
-      [TX.PLATFORM, host.os.platform],
-      [TX.TYPE, host.os.type],
-      [TX.VERSION, host.os.version],
+      [TEXT.CODENAME, host.os.codename],
+      [TEXT.FAMILY, host.os.family],
+      [TEXT.KERNEL, host.os.kernel],
+      [TEXT.NAME, host.os.name],
+      [TEXT.PLATFORM, host.os.platform],
+      [TEXT.TYPE, host.os.type],
+      [TEXT.VERSION, host.os.version],
     ],
   },
 ];
