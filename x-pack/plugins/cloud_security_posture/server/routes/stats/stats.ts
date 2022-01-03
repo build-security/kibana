@@ -18,7 +18,7 @@ import {
   getBenchmarksQuery,
   getLatestFindingQuery,
 } from './stats_queries';
-import { STATS_ROUTH_PATH, RULE_PASSED, RULE_FAILED } from '../../../common/constants';
+import { STATS_ROUTE_PATH, RULE_PASSED, RULE_FAILED } from '../../../common/constants';
 interface LastCycle {
   run_id: string;
 }
@@ -45,11 +45,11 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
 };
 
 export const getBenchmarks = async (esClient: ElasticsearchClient) => {
-  const queryReult = await esClient.search(getBenchmarksQuery());
-  const bencmarksBuckets = queryReult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
+  const queryResult = await esClient.search(getBenchmarksQuery());
+  const benchmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
     DictionaryResponseBase<string, string>
   >;
-  return bencmarksBuckets.buckets.map((e) => e.key);
+  return benchmarksBuckets.buckets.map((e) => e.key);
 };
 
 export const getAllFindingsStats = async (
@@ -115,7 +115,7 @@ export const getResourcesEvaluation = async (
   const failedResourcesGroup = failedEvaluationsPerResourceResult.body.aggregations
     ?.group as AggregationsTermsAggregate<GroupFilename>;
   const topFailedResources = failedResourcesGroup.buckets.map((e) => e.key);
-  const failedEvaluationPerResorces = failedResourcesGroup.buckets.map((e) => {
+  const failedEvaluationPerResource = failedResourcesGroup.buckets.map((e) => {
     return {
       resource: e.key,
       value: e.doc_count,
@@ -128,7 +128,7 @@ export const getResourcesEvaluation = async (
   );
   const passedResourcesGroup = passedEvaluationsPerResourceResult.body.aggregations
     ?.group as AggregationsTermsAggregate<GroupFilename>;
-  const passedEvaluationPerResorces = passedResourcesGroup.buckets.map((e) => {
+  const passedEvaluationPerResource = passedResourcesGroup.buckets.map((e) => {
     return {
       resource: e.key,
       value: e.doc_count,
@@ -136,13 +136,13 @@ export const getResourcesEvaluation = async (
     } as const;
   });
 
-  return [...passedEvaluationPerResorces, ...failedEvaluationPerResorces];
+  return [...passedEvaluationPerResource, ...failedEvaluationPerResource];
 };
 
 export const defineGetStatsRoute = (router: IRouter): void =>
   router.get(
     {
-      path: STATS_ROUTH_PATH,
+      path: STATS_ROUTE_PATH,
       validate: false,
     },
     async (context, _, response) => {

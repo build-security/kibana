@@ -12,7 +12,7 @@ import type { ElasticsearchClient } from 'src/core/server';
 import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
-import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTH_PATH } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTE_PATH } from '../../../common/constants';
 
 type FindingsQuerySchema = TypeOf<typeof findingsInputSchema>;
 
@@ -77,7 +77,7 @@ const rewriteReqOptions = (queryParams: FindingsQuerySchema): FindingsOptions =>
 export const defineFindingsIndexRoute = (router: IRouter): void =>
   router.get(
     {
-      path: FINDINGS_ROUTH_PATH,
+      path: FINDINGS_ROUTE_PATH,
       validate: { query: findingsInputSchema },
     },
     async (context, request, response) => {
