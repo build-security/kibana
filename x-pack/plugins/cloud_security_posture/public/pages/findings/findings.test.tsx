@@ -12,8 +12,8 @@ import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks'
 import { coreMock } from '../../../../../../src/core/public/mocks';
 import { createStubDataView } from '../../../../../../src/plugins/data_views/public/data_views/data_view.stub';
 import * as utils from './utils';
-import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
-import { CSP_KUBEBEAT_INDEX_NAMEnstants';
+import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/constants';
+import { TEST_SUBJECTS } from './constants';
 import type { UseQueryResult } from 'react-query';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
@@ -59,8 +59,8 @@ describe('<Findings />', () => {
           status: 'success',
           data: createStubDataView({
             spec: {
-              id: CSP_KUBEBEAT_INDEX_PATTERN,
-            },CSP_KUBEBEAT_INDEX_NAME
+              id: CSP_KUBEBEAT_INDEX_NAME,
+            },
           }),
         } as UseQueryResult<DataView>)
     );
