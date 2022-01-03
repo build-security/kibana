@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { Findings } from './findings';
-import { MISSING_KUBEBEAT } from '../../common/translations';
+import { MISSING_KUBEBEAT } from './constants';
 import { render, screen } from '@testing-library/react';
 import { TestProvider } from '../../application/test_provider';
 import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks';
