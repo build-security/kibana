@@ -125,7 +125,7 @@ describe('score per benchmark, testing getBenchmarksStats', () => {
   });
 });
 
-describe('Evluation Per Resource', () => {
+describe('Evaluation Per Resource', () => {
   it('getResourcesEvaluation - check for one resource', async () => {
     const returnedMock = {
       aggregations: {
