@@ -11,7 +11,7 @@ import { FindingsTableContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 import { useKubebeatDataView } from './utils';
 import * as TEST_SUBJECTS from './test_subjects';
-import { FINDINGS, MISSING_KUBEBEAT } from './constants';
+import { FINDINGS, MISSING_KUBEBEAT } from './translations';
 
 const pageHeader: EuiPageHeaderProps = {
   pageTitle: FINDINGS,

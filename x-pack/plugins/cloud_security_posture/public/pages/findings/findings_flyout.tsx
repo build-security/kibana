@@ -25,7 +25,7 @@ import {
 import { assertNever } from '@kbn/std';
 import type { CspFinding } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
-import * as TEXT from './constants';
+import * as TEXT from './translations';
 
 const tabs = ['result', 'rule', 'resource'] as const;
 
