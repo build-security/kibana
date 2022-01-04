@@ -8,25 +8,34 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart, EuiFlexGroup } from '@elastic/eui';
+import { CHART_PANEL_TEST_SUBJECTS } from './constants';
 
-interface ChartPanelProps {
+interface ChartPanelProps<TData> {
   title?: string;
   description?: string;
   hasBorder?: boolean;
   isLoading: boolean;
   isError: boolean;
-  data: any;
-  chart: React.FC<{ data: any }>;
+  data: TData;
+  chart: React.FC<{ data: TData }>;
 }
 
 const Loading = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="loading">
+  <EuiFlexGroup
+    justifyContent="center"
+    alignItems="center"
+    data-test-subj={CHART_PANEL_TEST_SUBJECTS.LOADING}
+  >
     <EuiLoadingChart size="m" />
   </EuiFlexGroup>
 );
 
 const Error = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="error">
+  <EuiFlexGroup
+    justifyContent="center"
+    alignItems="center"
+    data-test-subj={CHART_PANEL_TEST_SUBJECTS.ERROR}
+  >
     <EuiText size="xs" color="subdued">
       {'Error'}
     </EuiText>
@@ -34,7 +43,11 @@ const Error = () => (
 );
 
 const Empty = () => (
-  <EuiFlexGroup justifyContent="center" alignItems="center" data-test-subj="empty">
+  <EuiFlexGroup
+    justifyContent="center"
+    alignItems="center"
+    data-test-subj={CHART_PANEL_TEST_SUBJECTS.EMPTY}
+  >
     <EuiText size="xs" color="subdued">
       {'No data to display'}
     </EuiText>
