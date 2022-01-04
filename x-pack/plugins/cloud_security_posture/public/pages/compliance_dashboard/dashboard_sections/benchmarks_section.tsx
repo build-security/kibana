@@ -19,7 +19,7 @@ import {
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
-import { CSPHealthBadge } from '../../../components/csp_health_badge';
+import { CspHealthBadge } from '../../../components/csp_health_badge';
 import { ChartPanel } from '../../../components/chart_panel';
 
 const logoMap: Record<string, IconType> = {
@@ -100,7 +100,7 @@ export const BenchmarksSection = () => {
                     title: 'Status',
                     description:
                       benchmark.postureScore !== undefined ? (
-                        <CSPHealthBadge value={benchmark.postureScore} />
+                        <CspHealthBadge value={benchmark.postureScore} />
                       ) : (
                         'error'
                       ),

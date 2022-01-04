@@ -6,11 +6,19 @@
  */
 
 import React from 'react';
-import { Chart, Datum, Partition, PartitionLayout, Settings } from '@elastic/charts';
+import {
+  Chart,
+  Datum,
+  ElementClickListener,
+  Partition,
+  PartitionLayout,
+  Settings,
+} from '@elastic/charts';
 import { EuiText } from '@elastic/eui';
+import type { PartitionElementEvent } from '@elastic/charts';
 import { useNavigateToCSPFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
-import type { BenchmarkStats } from '../../../../common/types';
 import { statusColors } from '../../../common/constants';
+import type { BenchmarkStats } from '../../../../common/types';
 
 interface CloudPostureScoreChartProps {
   data: BenchmarkStats;
@@ -22,14 +30,13 @@ export const CloudPostureScoreChart = ({
   const { navigate } = useNavigateToCSPFindings();
   if (totalPassed === undefined || totalFailed === undefined || name === undefined) return null;
 
-  // TODO: add type
-  // @ts-ignore
-  const handleElementClick = (e) => {
-    const [data] = e;
-    const [groupsData] = data;
+  const handleElementClick: ElementClickListener = (elements) => {
+    const [element] = elements as PartitionElementEvent[];
+    const [layerValue] = element;
+    const rollupValue = layerValue[0].groupByRollup as string;
 
     navigate(
-      `(language:kuery,query:'rule.benchmark : "${benchmarkName}" and result.evaluation : ${groupsData[0].groupByRollup.toLowerCase()}')`
+      `(language:kuery,query:'rule.benchmark : "${benchmarkName}" and result.evaluation : ${rollupValue.toLowerCase()}')`
     );
   };
 

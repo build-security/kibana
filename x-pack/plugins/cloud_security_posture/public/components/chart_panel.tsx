@@ -6,11 +6,11 @@
  */
 
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
+import { css } from '@emotion/react';
 import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart, EuiFlexGroup } from '@elastic/eui';
 import { CHART_PANEL_TEST_SUBJECTS } from './constants';
 
-interface ChartPanelProps<TData> {
+interface ChartPanelProps<TData = any> {
   title?: string;
   description?: string;
   hasBorder?: boolean;
@@ -74,9 +74,9 @@ export const ChartPanel = ({
     <EuiPanel hasBorder={hasBorder} hasShadow={false} data-test-subj="chart-panel">
       <EuiFlexGroup direction="column" gutterSize="xs">
         {title && (
-          <StyledEuiTitle size="s">
+          <EuiTitle size="s" css={euiTitleStyle}>
             <h3>{title}</h3>
-          </StyledEuiTitle>
+          </EuiTitle>
         )}
         {description && (
           <EuiText size="xs" color="subdued">
@@ -89,6 +89,6 @@ export const ChartPanel = ({
   );
 };
 
-const StyledEuiTitle = styled(EuiTitle)`
+const euiTitleStyle = css`
   font-weight: 400;
 `;

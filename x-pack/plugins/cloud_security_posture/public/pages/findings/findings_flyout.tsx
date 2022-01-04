@@ -24,7 +24,7 @@ import {
 } from '@elastic/eui';
 import { assertNever } from '@kbn/std';
 import type { CspFinding } from './types';
-import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
+import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
 
 const tabs = ['result', 'rule', 'resource'] as const;
 
@@ -140,7 +140,7 @@ const getResultCards = ({ result, agent, host, ...rest }: CspFinding): Card[] =>
   {
     title: 'Result',
     listItems: [
-      ['Evaluation', <CSPEvaluationBadge type={result.evaluation} />],
+      ['Evaluation', <CspEvaluationBadge type={result.evaluation} />],
       ['Evidence', <EuiCode>{JSON.stringify(result.evidence, null, 2)}</EuiCode>],
       ['Timestamp', rest['@timestamp']],
       result.evaluation === 'failed' && ['Remediation', rest.rule.remediation],
