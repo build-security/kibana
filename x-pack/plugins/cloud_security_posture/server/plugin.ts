@@ -26,14 +26,16 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
     this.logger.debug('csp: Setup');
     const router = core.http.createRouter();
     // Register server side APIs
-    defineRoutes(router);
+    defineRoutes(router, this.logger);
 
     return {};
   }
 
   public start(core: CoreStart) {
     this.logger.debug('csp: Started');
-    createFindingsIndexTemplate(core.elasticsearch.client.asInternalUser).catch(this.logger.error);
+    createFindingsIndexTemplate(core.elasticsearch.client.asInternalUser, this.logger).catch(
+      this.logger.error
+    );
     return {};
   }
   public stop() {}

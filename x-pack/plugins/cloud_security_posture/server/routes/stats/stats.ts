@@ -5,12 +5,19 @@
  * 2.0.
  */
 
-import type { ElasticsearchClient, IRouter } from 'src/core/server';
+import type { ElasticsearchClient, IRouter, Logger } from 'src/core/server';
 import type {
   AggregationsTermsAggregate,
   DictionaryResponseBase,
   AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
+import { transformError } from '@kbn/securitysolution-es-utils';
+// import {
+//   wrapError,
+//   wrapEsError,
+// } from '../../../../../plugins/transform/server/routes/api/error_utils';
+import { buildSiemResponse } from '../../../../../plugins/security_solution/server/lib/detection_engine/routes/utils';
+
 import type {
   CloudPostureStats,
   BenchmarkStats,
@@ -24,6 +31,7 @@ import {
   getLatestFindingQuery,
 } from './stats_queries';
 import { STATS_ROUTE_PATH } from '../../../common/constants';
+
 import { RULE_PASSED, RULE_FAILED } from '../../constants';
 interface LastCycle {
   run_id: string;
@@ -149,7 +157,7 @@ export const getResourcesEvaluation = async (
   return [...passedEvaluationPerResources, ...failedEvaluationPerResource];
 };
 
-export const defineGetStatsRoute = (router: IRouter): void =>
+export const defineGetStatsRoute = (router: IRouter, logger: Logger): void =>
   router.get(
     {
       path: STATS_ROUTE_PATH,
@@ -179,8 +187,34 @@ export const defineGetStatsRoute = (router: IRouter): void =>
           body,
         });
       } catch (err) {
-        // TODO - validate err object and parse
-        return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
+        logger.warn('Failed executing stats calculation');
+        logger.warn(`Error message: ${err}`);
+        const error = transformError(err);
+        logger.error(`ido: ${error.statusCode}`);
+        logger.error(`ido: ${error.message}`);
+        // const message = err instanceof Error ? err.message : 'unknown';
+        return response.badRequest({ body: error?.message });
+        // const siemResponse = buildSiemResponse(response);
+        // return siemResponse.error({
+        //   body: error.message,
+        //   statusCode: error.statusCode,
+        // });
+        // if (error instanceof Error) {
+        //   return response.customError(getKbnServerError(error))
+        // }
+        // if (error instanceof elasticSearchError.ResponseError) {
+        //   return response.customError();
+        //   });
+        // } else if (error instanceof Error) {
+        //   return response.badRequest({ body: message });
+        // }
+        // const message = err instanceof Error ? err.message : 'unknown';
+        // // // return response.customError(error);
+
+        // return siemResponse.error({
+        //   body: error.message,
+        //   statusCode: error.statusCode,
+        // });
       }
     }
   );
