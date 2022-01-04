@@ -18,7 +18,7 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 import { orderBy } from 'lodash';
-import * as TX from './constants';
+import * as TEST_SUBJECTS from './test_subjects';
 import type { CspFinding, FindingsFetchState } from './types';
 import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
 
@@ -67,7 +67,7 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
 
   return (
     <EuiBasicTable
-      data-test-subj={TX.TEST_SUBJECTS.FINDINGS_TABLE}
+      data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
       loading={status === 'loading'}
       error={error ? error : undefined}
       items={page}

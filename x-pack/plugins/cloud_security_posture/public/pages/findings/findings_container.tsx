@@ -14,7 +14,7 @@ import type { Filter, Query } from '@kbn/es-query';
 import { FindingsTable } from './findings_table';
 import { FindingsRuleFlyout } from './findings_flyout';
 import { FindingsSearchBar } from './findings_search_bar';
-import { TEST_SUBJECTS, SEARCH_FAILED } from './constants';
+import * as TEST_SUBJECTS from './test_subjects';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import {
   extractErrorMessage,
