@@ -43,7 +43,6 @@ const theme = {
   barSeriesStyle: {
     displayValue: {
       fontSize: 14,
-      fontFamily: "'Open Sans', Helvetica, Arial, sans-serif",
       fill: { color: 'white', borderColor: 'blue', borderWidth: 0 },
       offsetX: 5,
       offsetY: -5,
