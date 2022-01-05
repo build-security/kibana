@@ -15,8 +15,8 @@ import {
   Settings,
 } from '@elastic/charts';
 import { euiPaletteForStatus } from '@elastic/eui';
-import { useNavigateToCspFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
 import { CloudPostureStats, EvaluationResult } from '../../../../common/types';
+import { useNavigateToCspFindings } from '../../../common/navigation/use_navigate_to_csp_findings';
 
 interface ResourcesAtRiskChartProps {
   data: CloudPostureStats['resourcesEvaluations'];

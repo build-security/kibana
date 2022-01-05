@@ -16,9 +16,9 @@ import {
 } from '@elastic/charts';
 import { EuiText } from '@elastic/eui';
 import type { PartitionElementEvent } from '@elastic/charts';
-import { useNavigateToCspFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
 import { statusColors } from '../../../common/constants';
 import type { BenchmarkStats } from '../../../../common/types';
+import { useNavigateToCspFindings } from '../../../common/navigation/use_navigate_to_csp_findings';
 
 interface CloudPostureScoreChartProps {
   data: BenchmarkStats;
