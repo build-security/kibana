@@ -16,7 +16,7 @@ import {
 } from '@elastic/charts';
 import { EuiText } from '@elastic/eui';
 import type { PartitionElementEvent } from '@elastic/charts';
-import { useNavigateToCSPFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
+import { useNavigateToCspFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
 import { statusColors } from '../../../common/constants';
 import type { BenchmarkStats } from '../../../../common/types';
 
@@ -27,7 +27,7 @@ interface CloudPostureScoreChartProps {
 export const CloudPostureScoreChart = ({
   data: { totalPassed, totalFailed, name: benchmarkName },
 }: CloudPostureScoreChartProps) => {
-  const { navigate } = useNavigateToCSPFindings();
+  const { navigate } = useNavigateToCspFindings();
   if (totalPassed === undefined || totalFailed === undefined || name === undefined) return null;
 
   const handleElementClick: ElementClickListener = (elements) => {

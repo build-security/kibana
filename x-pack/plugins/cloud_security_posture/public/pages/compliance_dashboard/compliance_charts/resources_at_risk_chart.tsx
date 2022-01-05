@@ -15,7 +15,7 @@ import {
   Settings,
 } from '@elastic/charts';
 import { euiPaletteForStatus } from '@elastic/eui';
-import { useNavigateToCSPFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
+import { useNavigateToCspFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
 import { CloudPostureStats, EvaluationResult } from '../../../../common/types';
 
 interface ResourcesAtRiskChartProps {
@@ -23,7 +23,7 @@ interface ResourcesAtRiskChartProps {
 }
 
 export const ResourcesAtRiskChart = ({ data: resources }: ResourcesAtRiskChartProps) => {
-  const { navigate } = useNavigateToCSPFindings();
+  const { navigate } = useNavigateToCspFindings();
   if (!resources) return null;
 
   const handleElementClick: ElementClickListener = (elements) => {

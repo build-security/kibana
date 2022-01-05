@@ -16,7 +16,7 @@ import type {
   TimeRange,
 } from '../../../../../../src/plugins/data/common';
 import type { CspPluginSetup } from '../../types';
-import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/translations';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
 export const extractErrorMessage = (e: unknown): string =>
@@ -98,10 +98,6 @@ export const useSourceQueryParam = <T extends RisonObject>(getDefaultQuery: () =
   };
 };
 
-/**
- * Temp elastic search query hook
- * TODO: find known alternative
- */
 export const useEsClientMutation = <T extends unknown>({
   dataView,
   dateRange,
