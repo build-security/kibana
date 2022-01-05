@@ -24,7 +24,9 @@ export const useCspBreadcrumbs = (breadcrumbs: CspNavigationItem[]) => {
     const cspPath = getUrlForApp(PLUGIN_ID);
     const additionalBreadCrumbs: ChromeBreadcrumb[] = breadcrumbs.map((breadcrumb) => ({
       text: breadcrumb.name,
-      path: `${cspPath}${breadcrumb.path}`,
+      path: breadcrumb.path.startsWith('/')
+        ? `${cspPath}${breadcrumb.path}`
+        : `${cspPath}/${breadcrumb.path}`,
     }));
 
     setBreadcrumbs([

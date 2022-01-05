@@ -38,6 +38,7 @@ const CompliancePage = () => {
 
 export const ComplianceDashboard = () => {
   useCspBreadcrumbs([allNavigationItems.dashboard]);
+
   return (
     <CspPageTemplate
       pageHeader={{

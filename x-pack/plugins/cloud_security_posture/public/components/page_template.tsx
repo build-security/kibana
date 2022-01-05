@@ -19,7 +19,7 @@ const activeItemStyle = { fontWeight: 700 };
 const navItems: NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] = Object.values(
   allNavigationItems
 ).map((route) => ({
-  id: route.name,
+  id: route.path,
   ...route,
   renderItem: () => (
     <NavLink to={route.path} activeStyle={activeItemStyle}>
