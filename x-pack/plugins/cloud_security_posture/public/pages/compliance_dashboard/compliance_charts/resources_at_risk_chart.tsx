@@ -6,21 +6,17 @@
  */
 
 import React from 'react';
-import { Axis, BarSeries, Chart, Settings } from '@elastic/charts';
+import {
+  Axis,
+  BarSeries,
+  Chart,
+  ElementClickListener,
+  XYChartElementEvent,
+  Settings,
+} from '@elastic/charts';
 import { euiPaletteForStatus } from '@elastic/eui';
 import { useNavigateToCSPFindings } from '../../../common/hooks/use_navigate_to_csp_findings';
-import { CloudPostureStats } from '../../../../common/types';
-
-export function sortAscending<T>(getter: (x: T) => number | string) {
-  return (a: T, b: T) => {
-    const v1 = getter(a);
-    const v2 = getter(b);
-    if (v1 > v2) return -1;
-    if (v2 > v1) return 1;
-
-    return 0;
-  };
-}
+import { CloudPostureStats, EvaluationResult } from '../../../../common/types';
 
 interface ResourcesAtRiskChartProps {
   data: CloudPostureStats['resourcesEvaluations'];
@@ -30,16 +26,13 @@ export const ResourcesAtRiskChart = ({ data: resources }: ResourcesAtRiskChartPr
   const { navigate } = useNavigateToCSPFindings();
   if (!resources) return null;
 
-  // TODO: add type
-  // @ts-ignore
-  const handleElementClick = (e) => {
-    const [data] = e;
-    const [groupsData] = data;
+  const handleElementClick: ElementClickListener = (elements) => {
+    const [element] = elements as XYChartElementEvent[];
+    const [geometryValue] = element;
+    const { resource, evaluation } = geometryValue.datum as EvaluationResult;
 
     navigate(
-      `(language:kuery,query:'resource.filename : "${
-        groupsData.datum.name
-      }" and result.evaluation : ${groupsData.datum.evaluation.toLowerCase()}')`
+      `(language:kuery,query:'resource.filename : "${resource}" and result.evaluation : ${evaluation.toLowerCase()}')`
     );
   };
 

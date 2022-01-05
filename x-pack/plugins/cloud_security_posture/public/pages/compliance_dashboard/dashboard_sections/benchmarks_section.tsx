@@ -12,18 +12,23 @@ import {
   EuiPanel,
   EuiIcon,
   EuiTitle,
-  IconType,
   EuiSpacer,
   EuiDescriptionList,
 } from '@elastic/eui';
+import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
 import { CspHealthBadge } from '../../../components/csp_health_badge';
 import { ChartPanel } from '../../../components/chart_panel';
 
-const logoMap: Record<string, IconType> = {
+const logoMap: Record<string, EuiIconType> = {
   'CIS Kubernetes': 'logoKubernetes',
+};
+
+const getLogo = (logoName: string): EuiIconType => {
+  if (logoName in logoMap) return logoMap[logoName];
+  return 'logoElastic';
 };
 
 export const BenchmarksSection = () => {
@@ -44,7 +49,7 @@ export const BenchmarksSection = () => {
                 borderRight: `1px solid lightgray`,
               }}
             >
-              <EuiIcon type={logoMap[benchmark.name]} size="xxl" />
+              <EuiIcon type={getLogo(benchmark.name)} size="xxl" />
               <EuiSpacer />
               <EuiTitle size={'s'}>
                 <h3>{benchmark.name}</h3>

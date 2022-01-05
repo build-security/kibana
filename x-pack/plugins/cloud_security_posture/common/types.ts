@@ -20,7 +20,7 @@ export interface BenchmarkStats extends Stats {
   name: string;
 }
 
-export interface EvaluationStats {
+export interface EvaluationResult {
   resource: string;
   value: number;
   evaluation: Evaluation;
@@ -28,5 +28,5 @@ export interface EvaluationStats {
 
 export interface CloudPostureStats extends Stats {
   benchmarksStats: BenchmarkStats[];
-  resourcesEvaluations: EvaluationStats[];
+  resourcesEvaluations: EvaluationResult[];
 }
