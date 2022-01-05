@@ -27,6 +27,20 @@ const navItems: NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] = O
   ),
 }));
 
+const noDataConfig: KibanaPageTemplateProps['noDataConfig'] = {
+  solution: 'Cloud Security Posture',
+  logo: 'logoKibana', // TODO: add custom logo
+  docsLink: '#', // TODO: add link
+  actions: {
+    beats: {
+      href: '#', // TODO: add link
+    },
+    elasticAgent: {
+      href: '#', // TODO: add link
+    },
+  },
+};
+
 const defaultProps: KibanaPageTemplateProps = {
   solutionNav: {
     name: CLOUD_SECURITY_POSTURE,
@@ -34,6 +48,7 @@ const defaultProps: KibanaPageTemplateProps = {
   },
   restrictWidth: false,
   template: 'default',
+  noDataConfig,
 };
 
 export const CspPageTemplate: React.FC<KibanaPageTemplateProps> = ({ children, ...props }) => {
