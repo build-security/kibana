@@ -9,19 +9,19 @@ import type {
   // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 } from 'src/core/server/elasticsearch/client/mocks';
 
-export const mockCountResultOnce = async (mockEsClient: ElasticsearchClientMock, count: number) => {
-  mockEsClient.count.mockReturnValueOnce(
-    // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-    elasticsearchClientMock.createSuccessTransportRequestPromise({ count })
-  );
-};
+// export const mockCountResultOnce = async (mockEsClient: ElasticsearchClientMock, count: number) => {
+//   mockEsClient.count.mockReturnValueOnce(
+//     // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+//     elasticsearchClientMock.createSuccessTransportRequestPromise({ count })
+//   );
+// };
 
-export const mockSearchResultOnce = async (
-  mockEsClient: ElasticsearchClientMock,
-  returnedMock: object
-) => {
-  mockEsClient.search.mockReturnValueOnce(
-    // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-    elasticsearchClientMock.createSuccessTransportRequestPromise(returnedMock)
-  );
-};
+// export const mockSearchResultOnce = async (
+//   mockEsClient: ElasticsearchClientMock,
+//   returnedMock: object
+// ) => {
+//   mockEsClient.search.mockReturnValueOnce(
+//     // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+//     elasticsearchClientMock.createSuccessTransportRequestPromise(returnedMock)
+//   );
+// };
