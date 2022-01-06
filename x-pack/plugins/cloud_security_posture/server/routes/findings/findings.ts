@@ -46,7 +46,7 @@ const getFindingsEsQuery = (
   };
 };
 
-const rewriteReqQuery = (latestCycleIds?: string[]): QueryDslQueryContainer => {
+const buildQueryRequest = (latestCycleIds?: string[]): QueryDslQueryContainer => {
   let filterPart: QueryDslQueryContainer = { match_all: {} };
   if (!!latestCycleIds) {
     const filter = latestCycleIds.map((latestCycleId) => ({
@@ -60,7 +60,7 @@ const rewriteReqQuery = (latestCycleIds?: string[]): QueryDslQueryContainer => {
   };
 };
 
-const rewriteReqOptions = (queryParams: FindingsQuerySchema): FindingsOptions => ({
+const buildOptionsRequest = (queryParams: FindingsQuerySchema): FindingsOptions => ({
   size: queryParams.per_page,
   from: getPointerForFirstDoc(queryParams.page, queryParams.per_page),
   ...getSort(queryParams.sort_field, queryParams.sort_order),
@@ -76,11 +76,11 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
     async (context, request, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
-        const options = rewriteReqOptions(request.query);
+        const options = buildOptionsRequest(request.query);
 
         const latestCycleIds =
           request.query.latest_cycle === true ? await getLatestCycleIds(esClient) : undefined;
-        const query = rewriteReqQuery(latestCycleIds);
+        const query = buildQueryRequest(latestCycleIds);
         const esQuery = getFindingsEsQuery(query, options);
         const findings = await esClient.search(esQuery);
         const hits = findings.body.hits.hits;
