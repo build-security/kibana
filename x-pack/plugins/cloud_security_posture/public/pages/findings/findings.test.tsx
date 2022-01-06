@@ -6,14 +6,15 @@
  */
 import React from 'react';
 import { Findings } from './findings';
+import { MISSING_KUBEBEAT } from './translations';
 import { render, screen } from '@testing-library/react';
 import { TestProvider } from '../../application/test_provider';
 import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks';
 import { coreMock } from '../../../../../../src/core/public/mocks';
 import { createStubDataView } from '../../../../../../src/plugins/data_views/public/data_views/data_view.stub';
 import * as utils from './utils';
-import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
-import { TEST_SUBJECTS } from './constants';
+import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/constants';
+import * as TEST_SUBJECTS from './test_subjects';
 import type { UseQueryResult } from 'react-query';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
@@ -35,13 +36,13 @@ const FindingsComponentWithTestProvider = () => {
   );
 };
 
-describe('Test findings page conditional rendering', () => {
+describe('<Findings />', () => {
   it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
-    spy.mockImplementation(() => ({ status: 'success', data: undefined } as any));
+    spy.mockImplementation(() => ({ status: 'success' } as UseQueryResult<DataView>));
 
     render(<FindingsComponentWithTestProvider />);
 
-    expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
+    expect(await screen.findByText(MISSING_KUBEBEAT)).toBeInTheDocument();
   });
 
   it("renders the error state component when 'kubebeat' request status is 'error'", async () => {
@@ -49,7 +50,7 @@ describe('Test findings page conditional rendering', () => {
 
     render(<FindingsComponentWithTestProvider />);
 
-    expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_MISSING_INDEX)).toBeInTheDocument();
+    expect(await screen.findByText(MISSING_KUBEBEAT)).toBeInTheDocument();
   });
 
   it("renders the success state component when 'kubebeat' DataView exists and request status is 'success'", async () => {
@@ -59,7 +60,7 @@ describe('Test findings page conditional rendering', () => {
           status: 'success',
           data: createStubDataView({
             spec: {
-              id: CSP_KUBEBEAT_INDEX_PATTERN,
+              id: CSP_KUBEBEAT_INDEX_NAME,
             },
           }),
         } as UseQueryResult<DataView>)

@@ -10,31 +10,37 @@ import { css } from '@emotion/react';
 import { EuiSpacer } from '@elastic/eui';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import type { UseMutationResult } from 'react-query';
-import type { Filter } from '@kbn/es-query';
+import type { Filter, Query } from '@kbn/es-query';
 import { FindingsTable } from './findings_table';
 import { FindingsRuleFlyout } from './findings_flyout';
 import { FindingsSearchBar } from './findings_search_bar';
-import { TEST_SUBJECTS } from './constants';
+import * as TEST_SUBJECTS from './test_subjects';
+import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import {
   extractErrorMessage,
   useSourceQueryParam,
   useEsClientMutation,
   isNonNullable,
 } from './utils';
-import type { CSPFinding, FindingsFetchState } from './types';
-import type { DataView, IKibanaSearchResponse } from '../../../../../../src/plugins/data/common';
-import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
-import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
+import type { CspFinding, FindingsFetchState } from './types';
+import type {
+  DataView,
+  IKibanaSearchResponse,
+  TimeRange,
+} from '../../../../../../src/plugins/data/common';
+import { SEARCH_FAILED } from './translations';
 
 type FindingsEsSearchMutation = UseMutationResult<
-  IKibanaSearchResponse<SearchResponse<CSPFinding>>,
+  IKibanaSearchResponse<SearchResponse<CspFinding>>,
   unknown,
   void
 >;
 
-export type URLState = Parameters<NonNullable<SearchBarProps['onQuerySubmit']>>[0] & {
+export interface URLState {
+  dateRange: TimeRange;
+  query?: Query;
   filters: Filter[];
-};
+}
 
 const getDefaultQuery = (): Required<URLState> => ({
   query: { language: 'kuery', query: '' },
@@ -45,8 +51,8 @@ const getDefaultQuery = (): Required<URLState> => ({
   },
 });
 
-// with https://github.com/microsoft/TypeScript/pull/46266
-// destructuring would make this more concise and won't leak props
+// TODO(TS 4.6): destructure {status, error, data} to make this more concise without losing types
+// see with https://github.com/microsoft/TypeScript/pull/46266
 export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): FindingsFetchState => {
   switch (v.status) {
     case 'error':
@@ -66,9 +72,9 @@ export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): Finding
  */
 export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => {
   const { notifications } = useKibana().services;
-  const [selectedFinding, setSelectedFinding] = useState<CSPFinding | undefined>();
+  const [selectedFinding, setSelectedFinding] = useState<CspFinding | undefined>();
   const { source: searchState, setSource: setSearchSource } = useSourceQueryParam(getDefaultQuery);
-  const mutation = useEsClientMutation<CSPFinding>({
+  const mutation = useEsClientMutation<CspFinding>({
     ...searchState,
     dataView,
   });
@@ -77,10 +83,10 @@ export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => 
   // This sends a new search request to ES
   // it's called whenever we have a new searchState from the URL
   useEffect(() => {
-    mutation.mutate(void 0, {
+    mutation.mutate(undefined, {
       onError: (e) => {
         notifications?.toasts.addError(e instanceof Error ? e : new Error(), {
-          title: 'Search failed',
+          title: SEARCH_FAILED,
         });
       },
     });

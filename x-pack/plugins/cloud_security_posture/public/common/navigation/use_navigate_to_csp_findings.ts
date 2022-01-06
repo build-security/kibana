@@ -6,14 +6,15 @@
  */
 
 import { useHistory } from 'react-router-dom';
+import { CSP_FINDINGS_PATH } from './constants';
 
-export const useNavigateToCSPFindings = () => {
+export const useNavigateToCspFindings = () => {
   const history = useHistory();
 
   return {
     navigate: (query: string) =>
       history.push({
-        pathname: '/findings',
+        pathname: CSP_FINDINGS_PATH,
         search: new URLSearchParams([['query', query]].filter((p) => !!p[1])).toString(),
       }),
   };

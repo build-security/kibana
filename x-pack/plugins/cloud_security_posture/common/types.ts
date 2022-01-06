@@ -9,27 +9,24 @@ export type Evaluation = 'passed' | 'failed' | 'NA';
 /** number between 1-100 */
 export type Score = number;
 
-export interface BenchmarkStats {
-  name: string;
+export interface Stats {
   postureScore?: Score;
   totalFindings?: number;
   totalPassed?: number;
   totalFailed?: number;
 }
 
-export interface EvaluationStats {
+export interface BenchmarkStats extends Stats {
+  name: string;
+}
+
+export interface EvaluationResult {
   resource: string;
   value: number;
   evaluation: Evaluation;
 }
 
-export interface CloudPostureStats extends BenchmarkStats {
+export interface CloudPostureStats extends Stats {
   benchmarksStats: BenchmarkStats[];
-  resourcesEvaluations: EvaluationStats[];
+  resourcesEvaluations: EvaluationResult[];
 }
-
-// This is needed when we want to pick some types without losing their relations to their union type (tagged unions)
-// source: https://github.com/microsoft/TypeScript/issues/28339#issuecomment-463577347
-export type DistributivePick<T, K extends keyof T> = T extends any
-  ? Pick<T, Extract<keyof T, K>>
-  : never;

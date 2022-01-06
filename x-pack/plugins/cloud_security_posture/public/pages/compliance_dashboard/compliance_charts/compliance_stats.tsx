@@ -6,55 +6,73 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
-import { EuiStat, EuiFlexItem, EuiPanel, EuiIcon, EuiFlexGrid } from '@elastic/eui';
-import { Chart, Settings, LineSeries } from '@elastic/charts';
+import {
+  EuiStat,
+  EuiFlexItem,
+  EuiPanel,
+  EuiIcon,
+  EuiFlexGrid,
+  EuiText,
+  // EuiFlexGroup,
+} from '@elastic/eui';
+// import { Chart, Settings, LineSeries } from '@elastic/charts';
+import type { IconType, EuiStatProps } from '@elastic/eui';
 import { useCloudPostureStatsApi } from '../../../common/api';
 import { statusColors } from '../../../common/constants';
+import { Score } from '../../../../common/types';
 
-type Trend = Array<[time: number, value: number]>;
+// type Trend = Array<[time: number, value: number]>;
 
 // TODO: this is the warning color hash listen in EUI's docs. need to find where to import it from.
-const warningColor = '#F5A700';
 
-const getTitleColor = (value: number) => {
+const getTitleColor = (value: Score): EuiStatProps['titleColor'] => {
   if (value <= 65) return 'danger';
-  if (value <= 95) return warningColor;
+  if (value <= 95) return statusColors.warning;
   if (value <= 100) return 'success';
   return 'default';
 };
 
-const getScoreIcon = (value: number) => {
+const getScoreIcon = (value: Score): IconType => {
   if (value <= 65) return 'alert';
   if (value <= 86) return 'alert';
   if (value <= 100) return 'check';
   return 'error';
 };
 
-const getScoreTrendPercentage = (scoreTrend: Trend) => {
-  const beforeLast = scoreTrend[scoreTrend.length - 2][1];
-  const last = scoreTrend[scoreTrend.length - 1][1];
+// TODO: make score trend check for length, cases for less than 2 or more than 5 should be handled
+// const getScoreTrendPercentage = (scoreTrend: Trend) => {
+//   const beforeLast = scoreTrend[scoreTrend.length - 2][1];
+//   const last = scoreTrend[scoreTrend.length - 1][1];
+//
+//   return Number((last - beforeLast).toFixed(1));
+// };
 
-  return Number((last - beforeLast).toFixed(1));
-};
+const placeholder = (
+  <EuiText size="xs" color="subdued">
+    {'No data to display'}
+  </EuiText>
+);
 
 export const ComplianceStats = () => {
   const getStats = useCloudPostureStatsApi();
-  const postureScore = getStats.isSuccess && getStats.data.postureScore;
-
-  const scoreTrend = [
-    [0, 0],
-    [1, 10],
-    [2, 100],
-    [3, 50],
-    [4, postureScore],
-  ] as Trend;
+  // TODO: add error/loading state
+  if (!getStats.isSuccess) return null;
+  const { postureScore, benchmarksStats: benchmarks } = getStats.data;
 
   // TODO: in case we dont have a full length trend we will need to handle the sparkline chart alone. not rendering anything is just a temporary solution
-  if (!postureScore || scoreTrend.length < 2) return null;
+  if (!benchmarks || !postureScore) return null;
 
-  const scoreChange = getScoreTrendPercentage(scoreTrend);
-  const isPositiveChange = scoreChange > 0;
+  // TODO: mock data, needs BE
+  // const scoreTrend = [
+  //   [0, 0],
+  //   [1, 10],
+  //   [2, 100],
+  //   [3, 50],
+  //   [4, postureScore],
+  // ] as Trend;
+  //
+  // const scoreChange = getScoreTrendPercentage(scoreTrend);
+  // const isPositiveChange = scoreChange > 0;
 
   const stats = [
     {
@@ -64,45 +82,52 @@ export const ComplianceStats = () => {
       iconType: getScoreIcon(postureScore),
     },
     {
-      title: (
-        <span>
-          <EuiIcon size="xl" type={isPositiveChange ? 'sortUp' : 'sortDown'} />
-          {`${scoreChange}%`}
-        </span>
-      ),
+      // TODO: remove placeholder for the commented out component, needs BE
+      title: placeholder,
       description: 'Posture Score Trend',
-      titleColor: isPositiveChange ? 'success' : 'danger',
-      renderBody: (
-        <>
-          <Chart size={{ height: 30 }}>
-            <Settings
-              showLegend={false}
-              tooltip="none"
-              theme={{
-                lineSeriesStyle: {
-                  point: {
-                    visible: false,
-                  },
-                },
-              }}
-            />
-            <LineSeries
-              id="posture-score-trend-sparkline"
-              data={scoreTrend}
-              xAccessor={0}
-              yAccessors={[1]}
-              color={isPositiveChange ? statusColors.success : statusColors.danger}
-            />
-          </Chart>
-        </>
-      ),
     },
+    // {
+    //   title: (
+    //     <span>
+    //       <EuiIcon size="xl" type={isPositiveChange ? 'sortUp' : 'sortDown'} />
+    //       {`${scoreChange}%`}
+    //     </span>
+    //   ),
+    //   description: 'Posture Score Trend',
+    //   titleColor: isPositiveChange ? 'success' : 'danger',
+    //   renderBody: (
+    //     <>
+    //       <Chart size={{ height: 30 }}>
+    //         <Settings
+    //           showLegend={false}
+    //           tooltip="none"
+    //           theme={{
+    //             lineSeriesStyle: {
+    //               point: {
+    //                 visible: false,
+    //               },
+    //             },
+    //           }}
+    //         />
+    //         <LineSeries
+    //           id="posture-score-trend-sparkline"
+    //           data={scoreTrend}
+    //           xAccessor={0}
+    //           yAccessors={[1]}
+    //           color={isPositiveChange ? statusColors.success : statusColors.danger}
+    //         />
+    //       </Chart>
+    //     </>
+    //   ),
+    // },
     {
-      title: '1',
+      // TODO: this should count only ACTIVE benchmarks. needs BE
+      title: benchmarks.length,
       description: 'Active Frameworks',
     },
     {
-      title: '1,369',
+      // TODO: should be relatively simple to return from BE. needs BE
+      title: placeholder,
       description: 'Total Resources',
     },
   ];
@@ -112,23 +137,20 @@ export const ComplianceStats = () => {
       {stats.map((s) => (
         <EuiFlexItem style={{ height: '45%' }}>
           <EuiPanel hasShadow={false} hasBorder>
-            <StyledEuiStat
+            <EuiStat
               title={s.title}
               description={s.description}
               textAlign="left"
               titleColor={s.titleColor}
             >
-              {s.renderBody || <EuiIcon type={s.iconType || 'empty'} color={s.titleColor} />}
-            </StyledEuiStat>
+              {
+                // s.renderBody ||
+                <EuiIcon type={s.iconType || 'empty'} color={s.titleColor} />
+              }
+            </EuiStat>
           </EuiPanel>
         </EuiFlexItem>
       ))}
     </EuiFlexGrid>
   );
 };
-
-const StyledEuiStat = styled(EuiStat)`
-  .euiTitle {
-    font-weight: 300;
-  }
-`;

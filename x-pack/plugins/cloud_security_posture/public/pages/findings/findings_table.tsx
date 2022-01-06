@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Criteria,
   EuiLink,
@@ -18,29 +18,26 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 import { orderBy } from 'lodash';
-import { TEST_SUBJECTS } from './constants';
-import type { CSPFinding, FindingsFetchState } from './types';
-import { CSPEvaluationBadge } from '../../components/csp_evaluation_badge';
+import * as TEST_SUBJECTS from './test_subjects';
+import * as TEXT from './translations';
+import type { CspFinding, FindingsFetchState } from './types';
+import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
 
 interface BaseFindingsTableProps {
-  selectItem(v: CSPFinding | undefined): void;
+  selectItem(v: CspFinding | undefined): void;
 }
 
 type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
-/**
- * Temporary findings table
- */
 export const FindingsTable = ({ data, status, error, selectItem }: FindingsTableProps) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-  const columns = useMemo(getColumns, []);
 
-  const getCellProps = (item: CSPFinding, column: EuiTableFieldDataColumnType<CSPFinding>) => ({
+  const getCellProps = (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
     onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
   });
 
-  const onTableChange = ({ page }: Criteria<CSPFinding>) => {
+  const onTableChange = ({ page }: Criteria<CspFinding>) => {
     if (!page) return;
     const { index, size } = page;
 
@@ -48,20 +45,26 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
     setPageSize(size);
   };
 
+  const page = useMemo(
+    () =>
+      orderBy(data, ['@timestamp'], ['desc']).slice(
+        pageIndex * pageSize,
+        pageSize * pageIndex + pageSize
+      ),
+    [data, pageSize, pageIndex]
+  );
+
   // TODO: add empty/error/loading views
   if (!data) return null;
 
   // TODO: async pagination
-  const pagination: EuiBasicTableProps<CSPFinding>['pagination'] = {
+  const pagination: EuiBasicTableProps<CspFinding>['pagination'] = {
     pageIndex,
     pageSize,
     totalItemCount: data.length,
     pageSizeOptions: [5, 10, 25],
     hidePerPageOptions: false,
   };
-
-  const sortedData = orderBy(data, ['@timestamp'], ['desc']);
-  const page = sortedData.slice(pageIndex * pageSize, pageSize * pageIndex + pageSize);
 
   return (
     <EuiBasicTable
@@ -78,8 +81,8 @@ export const FindingsTable = ({ data, status, error, selectItem }: FindingsTable
   );
 };
 
-const RuleName = (name: string) => <EuiLink>{name}</EuiLink>;
-const RuleTags = (tags: string[]) => (
+const ruleNameRenderer = (name: string) => <EuiLink>{name}</EuiLink>;
+const ruleTagsRenderer = (tags: string[]) => (
   <EuiFlexGroup>
     <EuiFlexItem>
       <EuiBadgeGroup>
@@ -92,37 +95,37 @@ const RuleTags = (tags: string[]) => (
     </EuiFlexItem>
   </EuiFlexGroup>
 );
-const ResultEvaluation = (type: PropsOf<typeof CSPEvaluationBadge>['type']) => (
-  <CSPEvaluationBadge type={type} />
+const resultEvaluationRenderer = (type: PropsOf<typeof CspEvaluationBadge>['type']) => (
+  <CspEvaluationBadge type={type} />
 );
 
-const getColumns = (): Array<EuiTableFieldDataColumnType<CSPFinding>> => [
+const columns: Array<EuiTableFieldDataColumnType<CspFinding>> = [
   {
     field: 'resource.filename',
-    name: 'Resource',
+    name: TEXT.RESOURCE,
     truncateText: true,
   },
   {
     field: 'rule.name',
-    name: 'Rule Name',
+    name: TEXT.RULE_NAME,
     width: '50%',
     truncateText: true,
-    render: RuleName,
+    render: ruleNameRenderer,
   },
   {
     field: 'result.evaluation',
-    name: 'Evaluation',
+    name: TEXT.EVALUATION,
     width: '80px',
-    render: ResultEvaluation,
+    render: resultEvaluationRenderer,
   },
   {
     field: 'rule.tags',
-    name: 'Tags',
-    render: RuleTags,
+    name: TEXT.TAGS,
+    render: ruleTagsRenderer,
   },
   {
     field: '@timestamp',
-    name: 'Timestamp',
+    name: TEXT.TIMESTAMP,
     truncateText: true,
   },
 ];

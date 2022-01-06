@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import type { Filter, Query } from '@kbn/es-query';
 import { useMutation, useQuery } from 'react-query';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { encode, decode, RisonValue } from 'rison-node';
+import { encode, decode, RisonObject } from 'rison-node';
 import { useHistory } from 'react-router-dom';
 import type {
   DataView,
@@ -16,20 +16,17 @@ import type {
   TimeRange,
 } from '../../../../../../src/plugins/data/common';
 import type { CspPluginSetup } from '../../types';
-import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
-// TODO: find similar/existing function
-export const extractErrorMessage = (e: unknown) =>
+export const extractErrorMessage = (e: unknown): string =>
   typeof e === 'string' ? e : (e as Error)?.message || 'Unknown Error';
 
-// TODO: find kibanas' equivalent fn
 export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
 
 /**
- *  Temp DataView Utility
- *  registers a kibana data view for kubebeat* index
+ *  registers a kibana data view for kubebeat* index and fetches it
  *  TODO: use perfected kibana data views
  */
 
@@ -40,7 +37,7 @@ export const useKubebeatDataView = () => {
 
   const createDataView = () =>
     dataViews.createAndSave({
-      title: CSP_KUBEBEAT_INDEX_PATTERN,
+      title: CSP_KUBEBEAT_INDEX_NAME,
       allowNoIndex: false,
     });
 
@@ -48,21 +45,18 @@ export const useKubebeatDataView = () => {
   // if not, no point in creating a data view
   // const check = () => http?.get(`/kubebeat`);
 
-  const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_INDEX_PATTERN))?.[0];
+  const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_INDEX_NAME))?.[0];
 
   const getKubebeatDataView = () => findDataView().then((v) => (v ? v : createDataView()));
 
   return useQuery(['kubebeat_dataview'], getKubebeatDataView);
 };
 
-/**
- * Temp URL state utility
- */
-export const useSourceQueryParam = <T extends object>(getDefaultQuery: () => T) => {
+export const useSourceQueryParam = <T extends RisonObject>(getDefaultQuery: () => T) => {
   const history = useHistory();
   const [state, set] = useState<T>(getDefaultQuery());
 
-  const setSource = (v: RisonValue) => {
+  const setSource = (v: T) => {
     try {
       const next = `source=${encode(v)}`;
       const current = history.location.search.slice(1);
@@ -104,10 +98,6 @@ export const useSourceQueryParam = <T extends object>(getDefaultQuery: () => T) 
   };
 };
 
-/**
- * Temp elastic search query hook
- * TODO: find known alternative
- */
 export const useEsClientMutation = <T extends unknown>({
   dataView,
   dateRange,

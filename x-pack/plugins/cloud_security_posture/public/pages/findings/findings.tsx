@@ -7,17 +7,21 @@
 import React from 'react';
 import { EuiEmptyPrompt, EuiLoadingSpinner } from '@elastic/eui';
 import type { EuiPageHeaderProps } from '@elastic/eui';
+import { allNavigationItems } from '../../common/navigation/constants';
+import { useCspBreadcrumbs } from '../../common/navigation/use_csp_breadcrumbs';
 import { FindingsTableContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 import { useKubebeatDataView } from './utils';
-import { TEST_SUBJECTS } from './constants';
+import * as TEST_SUBJECTS from './test_subjects';
+import { FINDINGS, MISSING_KUBEBEAT } from './translations';
 
 const pageHeader: EuiPageHeaderProps = {
-  pageTitle: 'Findings',
+  pageTitle: FINDINGS,
 };
 
 export const Findings = () => {
   const dataView = useKubebeatDataView();
+  useCspBreadcrumbs([allNavigationItems.findings]);
 
   return (
     <CspPageTemplate pageHeader={pageHeader}>
@@ -41,6 +45,6 @@ const ErrorPrompt = () => (
     color="danger"
     iconType="alert"
     // TODO: account for when we have a dataview without an index
-    title={<h2>Kubebeat DataView is missing</h2>}
+    title={<h2>{MISSING_KUBEBEAT}</h2>}
   />
 );

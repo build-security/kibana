@@ -5,9 +5,8 @@
  * 2.0.
  */
 
-export const TEST_SUBJECTS = {
-  FINDINGS_SEARCH_BAR: 'findings_search_bar',
-  FINDINGS_TABLE: 'findings_table',
-  FINDINGS_CONTAINER: 'findings_container',
-  FINDINGS_MISSING_INDEX: 'findings_page_missing_dataview',
-};
+import { i18n } from '@kbn/i18n';
+
+export const CLOUD_SECURITY_POSTURE = i18n.translate('xpack.csp.cloudSecurityPosture', {
+  defaultMessage: 'Cloud Security Posture',
+});

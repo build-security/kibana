@@ -5,10 +5,9 @@
  * 2.0.
  */
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
-
-export interface CspSetup {}
-export interface CspStart {}
-export interface CspPluginSetup {}
-export interface CspPluginStart {}
-/* eslint-enable @typescript-eslint/no-empty-interface */
+export const CHART_PANEL_TEST_SUBJECTS = {
+  LOADING: 'chart_is_loading',
+  EMPTY: 'chart_is_empty',
+  ERROR: 'chart_is_error',
+  TEST_CHART: 'testing_chart',
+};

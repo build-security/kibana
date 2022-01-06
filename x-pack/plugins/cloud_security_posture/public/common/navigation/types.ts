@@ -5,10 +5,7 @@
  * 2.0.
  */
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
-
-export interface CspSetup {}
-export interface CspStart {}
-export interface CspPluginSetup {}
-export interface CspPluginStart {}
-/* eslint-enable @typescript-eslint/no-empty-interface */
+export interface CspNavigationItem {
+  name: string;
+  path: string;
+}
