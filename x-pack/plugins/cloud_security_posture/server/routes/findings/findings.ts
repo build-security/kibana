@@ -10,8 +10,10 @@ import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/li
 import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { ElasticsearchClient } from 'src/core/server';
 import type { IRouter, Logger } from 'src/core/server';
+import { transformError } from '@kbn/securitysolution-es-utils';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTE_PATH } from '../../../common/constants';
+
 export const DEFAULT_FINDINGS_PER_PAGE = 20;
 type FindingsQuerySchema = TypeOf<typeof schema>;
 
@@ -67,13 +69,17 @@ export const defineFindingsIndexRoute = (router: IRouter, logger: Logger): void 
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
       } catch (err) {
-        return response.customError({ body: { message: err }, statusCode: 500 }); // TODO: research error handling
+        const error = transformError(err);
+        return response.customError({
+          body: { message: error.message },
+          statusCode: error.statusCode,
+        });
       }
     }
   );
 
 const schema = rt.object({
   latest_cycle: rt.maybe(rt.boolean()),
-  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagintaion best practice
+  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagination best practice
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
 });
