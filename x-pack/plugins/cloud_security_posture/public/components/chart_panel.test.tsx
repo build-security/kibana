@@ -14,7 +14,7 @@ import Chance from 'chance';
 const chance = new Chance();
 const testData = chance.word();
 
-const TestingChart = ({ data }: { data: any }) => {
+const TestingChart = ({ data }: { data: string | undefined }) => {
   return <div data-test-subj={CHART_PANEL_TEST_SUBJECTS.TEST_CHART}>{data}</div>;
 };
 
