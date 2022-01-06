@@ -30,7 +30,7 @@ describe('testing round score', () => {
 });
 
 describe('general cloud posture score', () => {
-  it('expect to valid score from getAllFindingsStats ', async () => {
+  it('expect to valid score from getAllFindingsStats', async () => {
     mockCountResultOnce(mockEsClient, 10); // total findings
     mockCountResultOnce(mockEsClient, 3); // pass findings
     mockCountResultOnce(mockEsClient, 7); // fail findings
@@ -45,7 +45,7 @@ describe('general cloud posture score', () => {
     });
   });
 
-  it('mocking without finding index - expect to undefined from getAllFindingsStats ', async () => {
+  it('mocking without finding index - expect to undefined from getAllFindingsStats', async () => {
     const generalScore = await getAllFindingsStats(mockEsClient, 'randomCycleId');
     expect(generalScore).toEqual({
       name: 'general',
@@ -58,7 +58,7 @@ describe('general cloud posture score', () => {
 });
 
 describe('get benchmarks list', () => {
-  it('getBenchmarks - takes aggregated data and expect unique benchmarks array ', async () => {
+  it('getBenchmarks - takes aggregated data and expect unique benchmarks array', async () => {
     const returnedMock = {
       aggregations: {
         benchmarks: {

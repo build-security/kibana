@@ -5,7 +5,6 @@
  * 2.0.
  */
 
-import { TransportResult } from '@elastic/elasticsearch';
 import {
   elasticsearchClientMock,
   // eslint-disable-next-line @kbn/eslint/no-restricted-paths
@@ -43,38 +42,60 @@ describe('get latest cycle ids', () => {
   it('expect to find 1 cycle id', async () => {
     mockEsClient.search.mockResolvedValueOnce(
       // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-      getMockCycleIdsResponse(['randomId1'])
+      elasticsearchClientMock.createSuccessTransportRequestPromise({
+        aggregations: {
+          group: {
+            buckets: [
+              {
+                group_docs: {
+                  hits: {
+                    hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      })
     );
     const response = await getLatestCycleIds(mockEsClient);
     expect(response).toEqual(expect.arrayContaining(['randomId1']));
   });
 
-  it('expect to find mutiple cycle ids', async () => {
+  it('expect to find multiple cycle ids', async () => {
     mockEsClient.search.mockResolvedValueOnce(
       // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
-      getMockCycleIdsResponse(['randomId1', 'randomId2', 'randomId3'])
+      elasticsearchClientMock.createSuccessTransportRequestPromise({
+        aggregations: {
+          group: {
+            buckets: [
+              {
+                group_docs: {
+                  hits: {
+                    hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }],
+                  },
+                },
+              },
+              {
+                group_docs: {
+                  hits: {
+                    hits: [{ fields: { 'run_id.keyword': ['randomId2'] } }],
+                  },
+                },
+              },
+              {
+                group_docs: {
+                  hits: {
+                    hits: [{ fields: { 'run_id.keyword': ['randomId3'] } }],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      })
     );
     const response = await getLatestCycleIds(mockEsClient);
     expect(response).toEqual(expect.arrayContaining(['randomId1', 'randomId2', 'randomId3']));
   });
 });
-
-export const getMockCycleIdsResponse = (
-  cycleIds: string[]
-): Promise<TransportResult<{}, unknown>> => {
-  const filter = cycleIds.map((e) => ({
-    group_docs: {
-      hits: {
-        hits: [{ fields: { 'run_id.keyword': [e] } }],
-      },
-    },
-  }));
-  const searchMock = elasticsearchClientMock.createSuccessTransportRequestPromise({
-    aggregations: {
-      group: {
-        buckets: filter,
-      },
-    },
-  });
-  return searchMock;
-};

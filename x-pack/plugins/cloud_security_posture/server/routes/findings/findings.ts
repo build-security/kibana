@@ -8,7 +8,6 @@
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
-import type { ElasticsearchClient } from 'src/core/server';
 import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
@@ -41,29 +40,17 @@ const getFindingsEsQuery = (
   };
 };
 
-const rewriteReqQuery = async (
-  queryParams: FindingsQuerySchema,
-  esClient: ElasticsearchClient
-): Promise<QueryDslQueryContainer> => {
-  if (queryParams.latest_cycle) {
-    const latestCycleIds = await getLatestCycleIds(esClient);
-    if (!!latestCycleIds) {
-      const filter = latestCycleIds.map((latestCycleId) => ({
-        term: { 'run_id.keyword': latestCycleId },
-      }));
-      return {
-        ...(queryParams.query_string
-          ? { simple_query_string: { query: queryParams.query_string } }
-          : {}),
-        ...{ bool: { filter } },
-      };
-    }
+const rewriteReqQuery = (latestCycleIds?: string[]): QueryDslQueryContainer => {
+  let filterPart: QueryDslQueryContainer = { match_all: {} };
+  if (!!latestCycleIds) {
+    const filter = latestCycleIds.map((latestCycleId) => ({
+      term: { 'run_id.keyword': latestCycleId },
+    }));
+    filterPart = { bool: { filter } };
   }
+
   return {
-    ...(queryParams.query_string
-      ? { simple_query_string: { query: queryParams.query_string } }
-      : {}),
-    ...{ match_all: {} },
+    ...filterPart,
   };
 };
 
@@ -97,8 +84,11 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const options = rewriteReqOptions(request.query);
-        const query = await rewriteReqQuery(request.query, esClient);
-        const esQuery = await getFindingsEsQuery(query, options);
+
+        const latestCycleIds =
+          request.query.latest_cycle === true ? await getLatestCycleIds(esClient) : undefined;
+        const query = rewriteReqQuery(latestCycleIds);
+        const esQuery = getFindingsEsQuery(query, options);
         const findings = await esClient.search(esQuery);
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
@@ -116,5 +106,4 @@ export const findingsInputSchema = rt.object({
   sort_field: rt.maybe(rt.string()),
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
   fields: rt.maybe(rt.string()),
-  query_string: rt.maybe(rt.string()), // TODO: placeholder, not working for now
 });
