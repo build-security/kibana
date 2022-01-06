@@ -14,15 +14,8 @@ import {
   niceTimeFormatByDay,
   AreaSeries,
 } from '@elastic/charts';
-import type { BenchmarkStats } from '../../../../common/types';
 
-interface ComplianceTrendChartProps {
-  data: BenchmarkStats;
-}
-
-export const dateValueToTuple = ({ date, value }: { date: number; value: number }) => [date, value];
-
-export const ComplianceTrendChart = ({ data }: ComplianceTrendChartProps) => {
+export const ComplianceTrendChart = () => {
   return (
     <Chart size={{ height: 200 }}>
       <Settings showLegend={false} legendPosition="right" />

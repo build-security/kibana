@@ -22,12 +22,17 @@ import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_s
 import { CspHealthBadge } from '../../../components/csp_health_badge';
 import { ChartPanel } from '../../../components/chart_panel';
 
-const logoMap: Record<string, EuiIconType> = {
+type BenchmarksWithIcons = 'CIS Kubernetes';
+
+const logoMap: Record<BenchmarksWithIcons, EuiIconType> = {
   'CIS Kubernetes': 'logoKubernetes',
 };
 
-const getLogo = (logoName: string): EuiIconType => {
-  if (logoName in logoMap) return logoMap[logoName];
+const isBenchmarkWithIcon = (benchmark: string): benchmark is BenchmarksWithIcons =>
+  benchmark in logoMap;
+
+const getBenchmarkLogo = (benchmarkName: BenchmarksWithIcons | string): EuiIconType => {
+  if (isBenchmarkWithIcon(benchmarkName)) return logoMap[benchmarkName];
   return 'logoElastic';
 };
 
@@ -49,7 +54,7 @@ export const BenchmarksSection = () => {
                 borderRight: `1px solid lightgray`,
               }}
             >
-              <EuiIcon type={getLogo(benchmark.name)} size="xxl" />
+              <EuiIcon type={getBenchmarkLogo(benchmark.name)} size="xxl" />
               <EuiSpacer />
               <EuiTitle size={'s'}>
                 <h3>{benchmark.name}</h3>
