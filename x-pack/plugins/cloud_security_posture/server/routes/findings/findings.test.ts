@@ -49,32 +49,33 @@ describe('findings API', () => {
   describe('test input schema', () => {
     it('expect to find default values', async () => {
       const validatedQuery = findingsInputSchema.validate({});
+
       expect(validatedQuery).toMatchObject({
         page: 1,
         per_page: DEFAULT_FINDINGS_PER_PAGE,
-        sort_order: expect.stringMatching('desc' || 'asc'),
+        sort_order: expect.stringMatching('desc'),
       });
     });
+
     it('should throw when page field is not a positive integer', async () => {
       expect(() => {
         findingsInputSchema.validate({ page: -2 });
       }).toThrow();
     });
+
     it('should throw when per_page field is not a positive integer', async () => {
       expect(() => {
         findingsInputSchema.validate({ per_page: -2 });
       }).toThrow();
     });
+
     it('should throw when latest_run is not a boolean', async () => {
       expect(() => {
         findingsInputSchema.validate({ latest_cycle: 'some string' }); // expects to get boolean
       }).toThrow();
-
-      expect(() => {
-        findingsInputSchema.validate({ latest_cycle: true });
-      }).toBeDefined();
     });
-    it('boolean should be valid input', async () => {
+
+    it('should not throw when latest_run is a boolean', async () => {
       expect(() => {
         findingsInputSchema.validate({ latest_cycle: true });
       }).toBeDefined();
@@ -128,6 +129,31 @@ describe('findings API', () => {
             filter: [{ term: { 'run_id.keyword': 'randomId1' } }],
           },
         },
+      });
+    });
+
+    it('validate that default sort is timestamp desc', async () => {
+      const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
+      const router = httpServiceMock.createRouter();
+      defineFindingsIndexRoute(router);
+      const [_, handler] = router.get.mock.calls[0];
+      const mockContext = getMockCspContext(mockEsClient);
+      const mockResponse = httpServerMock.createResponseFactory();
+      const mockRequest = httpServerMock.createKibanaRequest({
+        query: {
+          sort_order: 'desc',
+        },
+      });
+
+      const [context, req, res] = [mockContext, mockRequest, mockResponse];
+
+      await handler(context, req, res);
+
+      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
+      const handlerArgs = mockEsClient.search.mock.calls[0][0];
+
+      expect(handlerArgs).toMatchObject({
+        sort: [{ '@timestamp': { order: 'desc' } }],
       });
     });
 
