@@ -114,7 +114,6 @@ describe('score per benchmark, testing getBenchmarksStats', () => {
     ]);
   });
 
-  // TODO Solve async
   it('get data two benchmarks and check', async () => {
     mockCountResultOnce(mockEsClient, 10); // total findings
     mockCountResultOnce(mockEsClient, 3); // pass findings
