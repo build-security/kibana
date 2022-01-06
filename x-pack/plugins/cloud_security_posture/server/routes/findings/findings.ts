@@ -25,6 +25,16 @@ export interface FindingsOptions {
   fields?: string[];
 }
 
+const getPointerForFirstDoc = (page: number, perPage: number): number =>
+  page <= 1 ? 0 : page * perPage - perPage + 1;
+
+const getSort = (sortField: string | undefined, sortOrder: string) =>
+  sortField
+    ? { sort: [{ [sortField]: sortOrder }] }
+    : { sort: [{ '@timestamp': { order: sortOrder } }] };
+
+const getSearchFields = (fields: string | undefined) => (fields ? { _source: [fields] } : {});
+
 const getFindingsEsQuery = (
   query: QueryDslQueryContainer,
   options: FindingsOptions
@@ -52,12 +62,9 @@ const rewriteReqQuery = (latestCycleIds?: string[]): QueryDslQueryContainer => {
 
 const rewriteReqOptions = (queryParams: FindingsQuerySchema): FindingsOptions => ({
   size: queryParams.per_page,
-  from:
-    queryParams.page <= 1 ? 0 : queryParams.page * queryParams.per_page - queryParams.per_page + 1,
-  ...(queryParams.sort_field
-    ? { sort: [{ [queryParams.sort_field]: queryParams.sort_order }] }
-    : {}),
-  ...(queryParams.fields ? { _source: [queryParams.fields] } : {}),
+  from: getPointerForFirstDoc(queryParams.page, queryParams.per_page),
+  ...getSort(queryParams.sort_field, queryParams.sort_order),
+  ...getSearchFields(queryParams.fields),
 });
 
 export const defineFindingsIndexRoute = (router: IRouter): void =>
