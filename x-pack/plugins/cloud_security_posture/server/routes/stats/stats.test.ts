@@ -4,8 +4,12 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-// eslint-disable-next-line @kbn/eslint/no-restricted-paths
-import { elasticsearchClientMock } from 'src/core/server/elasticsearch/client/mocks';
+import {
+  elasticsearchClientMock,
+  ElasticsearchClientMock,
+  // eslint-disable-next-line @kbn/eslint/no-restricted-paths
+} from 'src/core/server/elasticsearch/client/mocks';
+
 import {
   getBenchmarks,
   getAllFindingsStats,
@@ -13,8 +17,24 @@ import {
   getBenchmarksStats,
   getResourcesEvaluation,
 } from './stats';
-import { mockCountResultOnce, mockSearchResultOnce } from './stats_mock_query_response';
-// TODO  figure out the right permissions we need to ESClient to run with
+
+export const mockCountResultOnce = async (mockEsClient: ElasticsearchClientMock, count: number) => {
+  mockEsClient.count.mockReturnValueOnce(
+    // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+    elasticsearchClientMock.createSuccessTransportRequestPromise({ count })
+  );
+};
+
+export const mockSearchResultOnce = async (
+  mockEsClient: ElasticsearchClientMock,
+  returnedMock: object
+) => {
+  mockEsClient.search.mockReturnValueOnce(
+    // @ts-expect-error @elastic/elasticsearch Aggregate only allows unknown values
+    elasticsearchClientMock.createSuccessTransportRequestPromise(returnedMock)
+  );
+};
+
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
 
 afterEach(() => {
