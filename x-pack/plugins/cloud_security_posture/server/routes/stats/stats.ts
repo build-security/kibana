@@ -49,6 +49,9 @@ const calculatePostureScore = (total: number, passed: number, failed: number): S
 const getLatestCycleId = async (esClient: ElasticsearchClient) => {
   const latestFinding = await esClient.search<LastCycle>(getLatestFindingQuery());
   const lastCycle = latestFinding.body.hits.hits[0];
+  if (lastCycle?._source?.run_id === undefined) {
+    throw new Error('cycle id is missing');
+  }
   return lastCycle?._source?.run_id;
 };
 
@@ -57,7 +60,10 @@ export const getBenchmarks = async (esClient: ElasticsearchClient) => {
   const benchmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
     DictionaryResponseBase<string, string>
   >;
-  return benchmarksBuckets.buckets.map((e) => e.key);
+  if (benchmarksBuckets?.buckets === undefined) {
+    throw new Error('Benchmarks not found');
+  }
+  return benchmarksBuckets?.buckets.map((e) => e.key);
 };
 
 export const getAllFindingsStats = async (
@@ -163,9 +169,7 @@ export const defineGetStatsRoute = (router: IRouter, logger: Logger): void =>
           getBenchmarks(esClient),
           getLatestCycleId(esClient),
         ]);
-        if (latestCycleID === undefined) {
-          throw new Error('cycle id is missing');
-        }
+
         const [allFindingsStats, benchmarksStats, resourcesEvaluations] = await Promise.all([
           getAllFindingsStats(esClient, latestCycleID),
           getBenchmarksStats(esClient, latestCycleID, benchmarks),
