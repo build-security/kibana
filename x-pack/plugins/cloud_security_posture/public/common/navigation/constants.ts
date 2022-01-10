@@ -8,12 +8,20 @@
 import * as TEXT from './translations';
 import type { CspNavigationItem } from './types';
 
-export const CSP_FINDINGS_PATH = '/findings';
-export const CSP_DASHBOARD_PATH = '/dashboard';
+// This makes sure our routes are constrained by CspNavigationItem
+// By doing this we get to do a type-check on `v` but keep the readonly properties
+const createRoutes = <T extends readonly CspNavigationItem[]>(v: T) => v;
 
-type NavigableScreens = 'dashboard' | 'findings';
+// This is the source-of-truth of the routes. links/types are derived
+const ROUTES = createRoutes([
+  { name: TEXT.DASHBOARD, path: '/dashboard', id: 'dashboard' },
+  { name: TEXT.FINDINGS, path: '/findings', id: 'findings' },
+] as const);
 
-export const allNavigationItems: Record<NavigableScreens, CspNavigationItem> = {
-  dashboard: { name: TEXT.DASHBOARD, path: CSP_DASHBOARD_PATH },
-  findings: { name: TEXT.FINDINGS, path: CSP_FINDINGS_PATH },
-};
+type Routes = typeof ROUTES;
+
+export type CspNavigationItemsMap = { [Page in Routes[number] as Page['id']]: Page };
+
+export const allNavigationItems = Object.fromEntries(
+  ROUTES.map((v) => [v.id, v])
+) as CspNavigationItemsMap;
