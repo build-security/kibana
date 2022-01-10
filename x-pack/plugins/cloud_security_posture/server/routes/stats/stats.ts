@@ -5,12 +5,13 @@
  * 2.0.
  */
 
-import type { ElasticsearchClient, IRouter } from 'src/core/server';
+import type { ElasticsearchClient, IRouter, Logger } from 'src/core/server';
 import type {
   AggregationsTermsAggregate,
   DictionaryResponseBase,
   AggregationsKeyedBucketKeys,
 } from '@elastic/elasticsearch/lib/api/types';
+import { transformError } from '@kbn/securitysolution-es-utils';
 import type {
   CloudPostureStats,
   BenchmarkStats,
@@ -149,7 +150,7 @@ export const getResourcesEvaluation = async (
   return [...passedEvaluationPerResources, ...failedEvaluationPerResource];
 };
 
-export const defineGetStatsRoute = (router: IRouter): void =>
+export const defineGetStatsRoute = (router: IRouter, logger: Logger): void =>
   router.get(
     {
       path: STATS_ROUTE_PATH,
@@ -179,8 +180,12 @@ export const defineGetStatsRoute = (router: IRouter): void =>
           body,
         });
       } catch (err) {
-        // TODO - validate err object and parse
-        return response.customError({ body: { message: 'Unknown error' }, statusCode: 500 });
+        const error = transformError(err);
+
+        return response.customError({
+          body: { message: error.message },
+          statusCode: error.statusCode,
+        });
       }
     }
   );

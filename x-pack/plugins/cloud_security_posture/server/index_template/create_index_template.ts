@@ -5,7 +5,7 @@
  * 2.0.
  */
 import type { MappingTypeMapping } from '@elastic/elasticsearch/lib/api/types';
-import type { ElasticsearchClient } from 'src/core/server';
+import type { ElasticsearchClient, Logger } from 'src/core/server';
 import { CSP_KUBEBEAT_INDEX_NAME, CSP_FINDINGS_INDEX_NAME } from '../../common/constants';
 import { mapping as findingsIndexMapping } from './findings_mapping';
 
@@ -24,7 +24,8 @@ const createIndexTemplate = async (
   esClient: ElasticsearchClient,
   indexName: string,
   indexPattern: string,
-  properties: MappingTypeMapping
+  properties: MappingTypeMapping,
+  logger: Logger
 ): Promise<Status> => {
   try {
     const response = await esClient.indices.putIndexTemplate({
@@ -43,12 +44,14 @@ const createIndexTemplate = async (
     });
     return response.body.acknowledged;
   } catch (err) {
+    logger.error(`Invalid usage in putIndexTemplate for index ${indexName}`);
     return false;
   }
 };
 
 export const createFindingsIndexTemplate = async (
-  esClient: ElasticsearchClient
+  esClient: ElasticsearchClient,
+  logger: Logger
 ): Promise<Status> => {
   try {
     const indexTemplateExists = await doesIndexTemplateExist(esClient, CSP_FINDINGS_INDEX_NAME);
@@ -57,11 +60,11 @@ export const createFindingsIndexTemplate = async (
       esClient,
       CSP_FINDINGS_INDEX_NAME,
       CSP_KUBEBEAT_INDEX_NAME,
-      // TODO: check why this cast is required
-      findingsIndexMapping
+      findingsIndexMapping,
+      logger
     );
   } catch (err) {
-    // TODO: add logger
+    logger.error(`Failed to create index template ${CSP_FINDINGS_INDEX_NAME}`);
     return false;
   }
 };
