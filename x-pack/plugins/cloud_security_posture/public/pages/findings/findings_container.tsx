@@ -5,69 +5,116 @@
  * 2.0.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { css } from '@emotion/react';
 import { EuiSpacer } from '@elastic/eui';
-import styled from 'styled-components';
-import { DataView } from '../../../../../../src/plugins/data/common';
+import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import type { UseMutationResult } from 'react-query';
+import type { Filter, Query } from '@kbn/es-query';
 import { FindingsTable } from './findings_table';
-import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
-
-import type { CSPFinding, FetchState } from './types';
-import type { CspPluginSetup } from '../../types';
-
+import { FindingsRuleFlyout } from './findings_flyout';
 import { FindingsSearchBar } from './findings_search_bar';
+import * as TEST_SUBJECTS from './test_subjects';
+import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
+import {
+  extractErrorMessage,
+  useSourceQueryParam,
+  useEsClientMutation,
+  isNonNullable,
+} from './utils';
+import type { CspFinding, FindingsFetchState } from './types';
+import type {
+  DataView,
+  IKibanaSearchResponse,
+  TimeRange,
+} from '../../../../../../src/plugins/data/common';
+import { SEARCH_FAILED } from './translations';
 
-import { CSP_KUBEBEAT_INDEX } from '../../../common/constants';
+type FindingsEsSearchMutation = UseMutationResult<
+  IKibanaSearchResponse<SearchResponse<CspFinding>>,
+  unknown,
+  void
+>;
+
+export interface URLState {
+  dateRange: TimeRange;
+  query?: Query;
+  filters: Filter[];
+}
+
+const getDefaultQuery = (): Required<URLState> => ({
+  query: { language: 'kuery', query: '' },
+  filters: [],
+  dateRange: {
+    from: 'now-15m',
+    to: 'now',
+  },
+});
+
+// TODO(TS 4.6): destructure {status, error, data} to make this more concise without losing types
+// see with https://github.com/microsoft/TypeScript/pull/46266
+export const getFetchState = <T extends FindingsEsSearchMutation>(v: T): FindingsFetchState => {
+  switch (v.status) {
+    case 'error':
+      return { ...v, error: extractErrorMessage(v.error) };
+    case 'success':
+      return {
+        ...v,
+        data: v.data?.rawResponse?.hits?.hits?.map((h) => h._source).filter(isNonNullable),
+      };
+    default:
+      return v;
+  }
+};
 
 /**
  * This component syncs the FindingsTable with FindingsSearchBar
  */
-export const FindingsTableContainer = () => {
-  const { kubebeatDataView } = useKubebeatDataView();
-  const [state, set] = useState<FetchState<CSPFinding[]>>({
-    loading: false,
-    error: false,
-    data: [],
+export const FindingsTableContainer = ({ dataView }: { dataView: DataView }) => {
+  const { notifications } = useKibana().services;
+  const [selectedFinding, setSelectedFinding] = useState<CspFinding | undefined>();
+  const { source: searchState, setSource: setSearchSource } = useSourceQueryParam(getDefaultQuery);
+  const mutation = useEsClientMutation<CspFinding>({
+    ...searchState,
+    dataView,
   });
+  const fetchState = getFetchState(mutation);
 
-  const onError = useCallback((v) => set({ error: v, loading: false, data: undefined }), []);
-  const onSuccess = useCallback((v) => set({ error: false, loading: false, data: v }), []);
-  const onLoading = useCallback(() => set({ error: false, loading: true, data: undefined }), []);
-
-  if (!kubebeatDataView) return null;
+  // This sends a new search request to ES
+  // it's called whenever we have a new searchState from the URL
+  useEffect(() => {
+    mutation.mutate(undefined, {
+      onError: (e) => {
+        notifications?.toasts.addError(e instanceof Error ? e : new Error(), {
+          title: SEARCH_FAILED,
+        });
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchState, mutation.mutate]);
 
   return (
-    <Wrapper>
+    <div
+      data-test-subj={TEST_SUBJECTS.FINDINGS_CONTAINER}
+      css={css`
+        width: 100%;
+        height: 100%;
+      `}
+    >
       <FindingsSearchBar
-        dataView={kubebeatDataView}
-        onError={onError}
-        onSuccess={onSuccess}
-        onLoading={onLoading}
-        {...state}
+        {...searchState}
+        {...fetchState}
+        dataView={dataView}
+        setSource={setSearchSource}
       />
       <EuiSpacer />
-      <FindingsTable {...state} />
-    </Wrapper>
+      <FindingsTable {...fetchState} selectItem={setSelectedFinding} />
+      {selectedFinding && (
+        <FindingsRuleFlyout
+          findings={selectedFinding}
+          onClose={() => setSelectedFinding(undefined)}
+        />
+      )}
+    </div>
   );
-};
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-/**
- *  Temp DataView Utility
- *  TODO: use perfected kibana data views
- */
-const useKubebeatDataView = () => {
-  const [kubebeatDataView, setKubebeatDataView] = useState<DataView>();
-  const {
-    data: { dataViews },
-  } = useKibana<CspPluginSetup>().services; // TODO: is this the right generic?
-  useEffect(() => {
-    if (!dataViews) return;
-    (async () => setKubebeatDataView((await dataViews.find(CSP_KUBEBEAT_INDEX))?.[0]))();
-  }, [dataViews]);
-  return { kubebeatDataView };
 };

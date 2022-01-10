@@ -7,14 +7,18 @@
 
 import type { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../../src/core/public';
 import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
-import { PLUGIN_NAME } from '../common';
+import { AppNavLinkStatus, AppStatus } from '../../../../src/core/public';
+import { PLUGIN_NAME, PLUGIN_ID } from '../common';
 
 export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {
-  public setup(core: CoreSetup, plugins: CspPluginSetup): CspSetup {
+  public setup(core: CoreSetup<CspPluginStart, CspStart>, plugins: CspPluginSetup): CspSetup {
     // Register an application into the side navigation menu
+
     core.application.register({
-      id: 'csp_root',
+      id: PLUGIN_ID,
       title: PLUGIN_NAME,
+      status: AppStatus.accessible,
+      navLinkStatus: AppNavLinkStatus.hidden,
       async mount(params: AppMountParameters) {
         // Load application bundle
         const { renderApp } = await import('./application/index');
@@ -29,6 +33,7 @@ export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, Csp
     return {};
   }
   public start(core: CoreStart, plugins: CspPluginStart): CspStart {
+    console.log({ coreStart: core, startPlugins: plugins });
     return {};
   }
 

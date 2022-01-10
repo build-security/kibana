@@ -4,186 +4,83 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useEffect, useState, useCallback } from 'react';
-import { decode, encode } from 'rison-node';
-import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { useLocation, useHistory } from 'react-router-dom';
-import type {
-  DataView,
-  IKibanaSearchResponse,
-  Filter,
-} from '../../../../../../src/plugins/data/common';
-import type { SearchBarProps } from '../../../../../../src/plugins/data/public';
+import React, { useEffect } from 'react';
+import type { Query } from '@kbn/es-query';
+import type { Filter } from '@kbn/es-query';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
-import type { CSPFinding, FetchState } from './types';
+import * as TEST_SUBJECTS from './test_subjects';
+import type { DataView, TimeRange } from '../../../../../../src/plugins/data/common';
+import type { FindingsFetchState } from './types';
 import type { CspPluginSetup } from '../../types';
-
-// TODO: find kibanas' equivalent fn
-const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
-  v !== null && v !== undefined;
+import type { URLState } from './findings_container';
+import { PLUGIN_NAME } from '../../../common';
 
 interface BaseFindingsSearchBarProps {
   dataView: DataView;
-  onError(v: string): void;
-  onSuccess(v: CSPFinding[]): void;
-  onLoading(): void;
+  dateRange: TimeRange;
+  query: Query;
+  filters: Filter[];
+  setSource(v: URLState): void;
 }
 
-type FindingsSearchBarProps = BaseFindingsSearchBarProps & FetchState<CSPFinding[]>;
+type FindingsSearchBarProps = FindingsFetchState & BaseFindingsSearchBarProps;
 
-type URLState = Parameters<NonNullable<SearchBarProps['onQuerySubmit']>>[0];
-
-const getDefaultQuery = (): Required<URLState> => ({
-  query: { language: 'kuery', query: '' },
-  dateRange: {
-    from: 'now-15m',
-    to: 'now',
-  },
-});
-
-/**
- * Temporary Search Bar using x-pack/plugins/data
- *
- * TODO:
- *  - use SiemSearchBar / QueryBar or something else ?
- */
 export const FindingsSearchBar = ({
   dataView,
-  loading,
-  onError,
-  onLoading,
-  onSuccess,
+  dateRange,
+  query,
+  filters,
+  status,
+  setSource,
 }: FindingsSearchBarProps) => {
-  const { data: dataService } = useKibana<CspPluginSetup>().services;
-  const [filters, setFilters] = useState<Filter[]>([]);
-  const searchState = useSearchState();
-  const history = useHistory();
-
   const {
-    ui: { SearchBar },
-    query,
-    search,
-  } = dataService;
-
-  /*
-   * This sends a query using esClient
-   * TODO:
-   * - AbortController
-   */
-  const runSearch = useCallback(async () => {
-    if (!dataView) return;
-
-    onLoading();
-
-    query.queryString.setQuery(searchState.query || getDefaultQuery().query);
-
-    const timefilter = query.timefilter.timefilter.createFilter(dataView, searchState.dateRange);
-
-    query.filterManager.setFilters([...filters, timefilter].filter(isNonNullable));
-
-    try {
-      const findingsSearchSource = await search.searchSource.create({
-        filter: query.filterManager.getFilters(),
-        query: query.queryString.getQuery(),
-        index: dataView.id,
-        size: 1000, // TODO: async pagination
-      });
-
-      const findingsResponse: IKibanaSearchResponse<SearchResponse<CSPFinding>> =
-        await findingsSearchSource.fetch$().toPromise();
-      onSuccess(findingsResponse.rawResponse.hits.hits.map((v) => v._source).filter(isNonNullable));
-    } catch (e) {
-      onError(e);
-    }
-  }, [
-    dataView,
-    onLoading,
-    query.queryString,
-    query.timefilter.timefilter,
-    query.filterManager,
-    searchState.query,
-    searchState.dateRange,
-    filters,
-    search.searchSource,
-    onSuccess,
-    onError,
-  ]);
-
-  /**
-   * This changes the URL which triggers a new search
-   * TODO:
-   * - make filters part of the query
-   */
-  const handleQuerySubmit = useCallback(
-    (v: URLState) => {
-      // TODO: use util fn to build query (not with URLSearchParams as it escapes 'rison')
-      const next = `source=${encode(v)}`;
-      const current = history.location.search.slice(1);
-
-      if (next === current) {
-        // React Router won't trigger a component re-render if navigated to same path
-        // so we call it directly
-        runSearch();
-      } else {
-        history.push({ search: next });
-      }
+    data: {
+      query: queryService,
+      ui: { SearchBar },
     },
-    // TODO: verify history is memoed or make this a plain fn
-    [history, runSearch]
-  );
+  } = useKibana<CspPluginSetup>().services;
 
   useEffect(() => {
-    runSearch();
-  }, [runSearch]);
+    const subscription = queryService.filterManager.getUpdates$().subscribe(() =>
+      // TODO: add a condition to check if component is mounted
+      setSource({
+        filters: queryService.filterManager.getFilters(),
+        query,
+        dateRange,
+      })
+    );
 
-  if (!dataView) return null;
+    return () => subscription.unsubscribe();
+  }, [dateRange, query, queryService.filterManager, setSource]);
 
   return (
     <SearchBar
+      appName={PLUGIN_NAME}
+      dataTestSubj={TEST_SUBJECTS.FINDINGS_SEARCH_BAR}
       showFilterBar={true}
       showDatePicker={true}
       showQueryBar={true}
       showQueryInput={true}
-      showSaveQuery={true}
-      isLoading={loading}
+      showSaveQuery={false}
+      isLoading={status === 'loading'}
       indexPatterns={[dataView]}
-      dateRangeFrom={searchState?.dateRange?.from}
-      dateRangeTo={searchState?.dateRange?.to}
-      query={searchState.query}
-      onRefresh={runSearch}
-      // 'onFiltersUpdated' is not on StatefulSearchBarProps
-      // but needed to make timerange work
-      // will be fixed once a search bar is picked
-      // @ts-ignore
-      onFiltersUpdated={setFilters}
-      onQuerySubmit={handleQuerySubmit}
+      dateRangeFrom={dateRange?.from}
+      dateRangeTo={dateRange?.to}
+      query={query}
+      filters={filters}
+      onRefresh={(v) =>
+        setSource({
+          query,
+          filters,
+          ...v,
+        })
+      }
+      onQuerySubmit={(v) =>
+        setSource({
+          ...v,
+          filters,
+        })
+      }
     />
   );
-};
-
-/**
- * Temp URL state utility
- * TODO: use x-pack/plugins/security_solution/public/common/components/url_state/index.tsx ?
- */
-const useSearchState = () => {
-  const loc = useLocation();
-  const [state, set] = useState<URLState>(getDefaultQuery());
-
-  useEffect(() => {
-    const params = new URLSearchParams(loc.search);
-    const source = params.get('source');
-    if (!source) return;
-
-    try {
-      set(decode(source) as URLState);
-    } catch (e) {
-      set(getDefaultQuery());
-
-      // TODO: use real logger
-      // eslint-disable-next-line no-console
-      console.log('Unable to decode URL');
-    }
-  }, [loc.search]);
-
-  return state;
 };

@@ -7,9 +7,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import type { AppMountParameters, CoreStart } from 'kibana/public';
 import { CspApp } from './app';
 
+import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
 import type { CspStart } from '../types';
 
 export const renderApp = (core: CoreStart, deps: CspStart, params: AppMountParameters) => {

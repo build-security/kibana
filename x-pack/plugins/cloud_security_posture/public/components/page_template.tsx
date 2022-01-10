@@ -11,35 +11,35 @@ import {
   KibanaPageTemplate,
   KibanaPageTemplateProps,
 } from '../../../../../src/plugins/kibana_react/public';
-import { navigationLinks } from '../application/navigation';
+import { allNavigationItems } from '../common/navigation/constants';
+import { CLOUD_SECURITY_POSTURE } from '../common/translations';
 
 const activeItemStyle = { fontWeight: 700 };
 
-const navItems: NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] = navigationLinks.map(
-  (route) => ({
-    id: route.name,
-    ...route,
-    renderItem: () => (
-      <NavLink to={route.path as string} activeStyle={activeItemStyle}>
-        {route.name}
-      </NavLink>
-    ),
-  })
-);
+const navItems: NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] = Object.values(
+  allNavigationItems
+).map((route) => ({
+  id: route.path,
+  ...route,
+  renderItem: () => (
+    <NavLink to={route.path} activeStyle={activeItemStyle}>
+      {route.name}
+    </NavLink>
+  ),
+}));
 
-type Props = Pick<KibanaPageTemplateProps, 'pageHeader'>;
+const defaultProps: KibanaPageTemplateProps = {
+  solutionNav: {
+    name: CLOUD_SECURITY_POSTURE,
+    items: navItems,
+  },
+  restrictWidth: false,
+  template: 'default',
+};
 
-export const CspPageTemplate: React.FC<Props> = ({ children, pageHeader }) => {
+export const CspPageTemplate: React.FC<KibanaPageTemplateProps> = ({ children, ...props }) => {
   return (
-    <KibanaPageTemplate
-      pageHeader={pageHeader}
-      solutionNav={{
-        name: 'Cloud Security Posture',
-        items: navItems,
-      }}
-      restrictWidth={false}
-      template="default"
-    >
+    <KibanaPageTemplate {...defaultProps} {...props}>
       {children}
     </KibanaPageTemplate>
   );

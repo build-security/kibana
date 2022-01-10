@@ -5,13 +5,11 @@
  * 2.0.
  */
 
-import type { IRouter } from 'kibana/server';
-import { defineGetScoreRoute } from './stats/stats';
-import { findRulesRoute } from './rules/find_rules_route';
-import { loadRulesRoute } from './rules/load_rules_route';
+import { defineGetStatsRoute } from './stats/stats';
+import { defineFindingsIndexRoute as defineGetFindingsIndexRoute } from './findings/findings';
+import type { IRouter } from '../../../../../src/core/server';
 
 export function defineRoutes(router: IRouter) {
-  defineGetScoreRoute(router);
-  findRulesRoute(router);
-  loadRulesRoute(router);
+  defineGetStatsRoute(router);
+  defineGetFindingsIndexRoute(router);
 }

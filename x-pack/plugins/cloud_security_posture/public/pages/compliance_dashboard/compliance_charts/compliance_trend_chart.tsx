@@ -14,54 +14,22 @@ import {
   niceTimeFormatByDay,
   AreaSeries,
 } from '@elastic/charts';
-import { dateValueToTuple } from '../index';
-import type { BenchmarkStats } from '../../../../common/types';
 
-export const ComplianceTrendChart = ({ postureScore }: BenchmarkStats) => {
-  if (postureScore === undefined) return null;
-
-  const complianceScoreTrend = [
-    { date: Date.now(), value: postureScore },
-    { date: Date.now() - 10000, value: 53 },
-    { date: Date.now() - 30000, value: 91 },
-    { date: Date.now() - 60000, value: 34 },
-    { date: Date.now() - 90000, value: 10 },
-  ];
-
+export const ComplianceTrendChart = () => {
   return (
     <Chart size={{ height: 200 }}>
-      <Settings
-        // theme={isDarkTheme ? EUI_CHARTS_THEME_DARK.theme : EUI_CHARTS_THEME_LIGHT.theme}
-        showLegend={false}
-        legendPosition="right"
-        onElementClick={(d) => {
-          // eslint-disable-next-line no-console
-          console.log(d);
-        }}
-      />
+      <Settings showLegend={false} legendPosition="right" />
       <AreaSeries
         id="compliance_score"
         name="Compliance Score"
-        data={complianceScoreTrend.map(dateValueToTuple)}
+        // TODO: no api for this chart yet, using empty state for now. needs BE
+        data={[]}
         xScaleType="time"
         xAccessor={0}
         yAccessors={[1]}
       />
-      <Axis
-        // title={formatDate(Date.now(), dateFormatAliases.date)}
-        id="bottom-axis"
-        position="bottom"
-        tickFormat={timeFormatter(niceTimeFormatByDay(1))}
-        // showGridLines
-      />
-      <Axis
-        ticks={4}
-        id="left-axis"
-        position="left"
-        showGridLines
-        // tickFormat={(d) => Number(d).toFixed(2)}
-        domain={{ min: 0, max: 100 }}
-      />
+      <Axis id="bottom-axis" position="bottom" tickFormat={timeFormatter(niceTimeFormatByDay(1))} />
+      <Axis ticks={4} id="left-axis" position="left" showGridLines domain={{ min: 0, max: 100 }} />
     </Chart>
   );
 };
