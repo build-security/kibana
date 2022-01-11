@@ -35,6 +35,7 @@ export const AssetsFacetGroup = ({ width }: Args) => {
             map: [],
             lens: [],
             security_rule: [],
+            csp_rule: [],
             ml_module: [],
             tag: [],
           },

@@ -62,6 +62,9 @@ export const AssetTitleMap: Record<DisplayedAssetType, string> = {
   security_rule: i18n.translate('xpack.fleet.epm.assetTitles.securityRules', {
     defaultMessage: 'Security rules',
   }),
+  csp_rule: i18n.translate('xpack.fleet.epm.assetTitles.cspRules', {
+    defaultMessage: 'CSP rules',
+  }),
   ml_module: i18n.translate('xpack.fleet.epm.assetTitles.mlModules', {
     defaultMessage: 'ML modules',
   }),
@@ -89,6 +92,7 @@ export const AssetIcons: Record<KibanaAssetType, IconType> = {
   map: 'emsApp',
   lens: 'lensApp',
   security_rule: 'securityApp',
+  csp_rule: 'securityApp', // TODO ICON
   ml_module: 'mlApp',
   tag: 'tagApp',
 };

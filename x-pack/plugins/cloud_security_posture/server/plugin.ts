@@ -13,12 +13,17 @@ import type {
   Logger,
 } from '../../../../src/core/server';
 import { createFindingsIndexTemplate } from './index_template/create_index_template';
+<<<<<<< HEAD
 import type {
   CspServerPluginSetup,
   CspServerPluginStart,
   CspServerPluginSetupDeps,
   CspServerPluginStartDeps,
 } from './types';
+=======
+import { ruleAssetType } from './saved_objects';
+import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
+>>>>>>> b350c816a15 (csp-rule asset type works)
 import { defineRoutes } from './routes';
 
 export class CspPlugin
@@ -40,6 +45,8 @@ export class CspPlugin
     plugins: CspServerPluginSetupDeps
   ): CspServerPluginSetup {
     this.logger.debug('csp: Setup');
+    core.savedObjects.registerType(ruleAssetType);
+
     const router = core.http.createRouter();
 
     defineRoutes(router);
