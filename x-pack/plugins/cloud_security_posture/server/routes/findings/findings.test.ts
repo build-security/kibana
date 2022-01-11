@@ -235,7 +235,7 @@ describe('findings API', () => {
       });
     });
 
-    it('takes specific fields and validating the request for getting them', async () => {
+    it('takes specific fields names as `fields` input and validate that the request is for get only them', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
       defineFindingsIndexRoute(router);
