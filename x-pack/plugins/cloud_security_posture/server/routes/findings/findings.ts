@@ -70,7 +70,7 @@ const buildQueryRequest = (
   latestCycleIds?: string[]
 ): QueryDslQueryContainer => {
   const dateFilter = getTimeRangeFilter(queryParams.from, queryParams.to);
-  const filter = convertKqueryToElasticsearchQuery(queryParams.query);
+  const filter = convertKqueryToElasticsearchQuery(queryParams.dsl_query);
   const latestCycleIdsFilter = buildLatestCycleFilter(latestCycleIds);
   filter.push(...latestCycleIdsFilter, ...dateFilter);
   const query = {
@@ -136,7 +136,7 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
 export const findingsInputSchema = rt.object({
   page: rt.number({ defaultValue: 1, min: 0 }),
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
-  query: rt.maybe(rt.string()),
+  dsl_query: rt.maybe(rt.string()),
   from: rt.maybe(rt.string()),
   to: rt.maybe(rt.string()),
   latest_cycle: rt.maybe(rt.boolean()),
