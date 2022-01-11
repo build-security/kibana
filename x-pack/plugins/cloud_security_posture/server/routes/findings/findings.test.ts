@@ -120,7 +120,6 @@ describe('findings API', () => {
 
       expect(mockEsClient.search.mock.calls).toHaveLength(2);
 
-      // "1" for the second call argument "0" is the first
       const handlerArgs = mockEsClient.search.mock.calls[1][0];
 
       expect(handlerArgs).toMatchObject({
@@ -149,7 +148,6 @@ describe('findings API', () => {
 
       await handler(context, req, res);
 
-      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
@@ -175,7 +173,6 @@ describe('findings API', () => {
 
       await handler(context, req, res);
 
-      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
@@ -201,7 +198,6 @@ describe('findings API', () => {
 
       await handler(context, req, res);
 
-      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
@@ -226,7 +222,6 @@ describe('findings API', () => {
       const [context, req, res] = [mockContext, mockRequest, mockResponse];
       await handler(context, req, res);
 
-      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
@@ -253,7 +248,6 @@ describe('findings API', () => {
 
       await handler(context, req, res);
 
-      // "0" the first call (getLatestCycleIds()) in the api not in use, so the second become first
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
