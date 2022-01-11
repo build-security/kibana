@@ -8,7 +8,7 @@
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
-import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
+import type { SortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
 import { QueryDslBoolQuery } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
@@ -23,16 +23,9 @@ export interface FindingsOptions {
   from?: number;
   page?: number;
   sortField?: string;
-  sortOrder?: SearchSortOrder;
+  sortOrder?: SortOrder;
   fields?: string[];
 }
-
-const getTimeRangeFilter = (start?: string, end?: string): QueryDslQueryContainer[] => {
-  if (!!start && !!end) {
-    return [{ range: { '@timestamp': { gte: start } } }, { range: { '@timestamp': { lte: end } } }];
-  }
-  return [];
-};
 
 const buildLatestCycleFilter = (latestCycleIds?: string[]): QueryDslQueryContainer[] => {
   if (!!latestCycleIds) {
@@ -69,10 +62,9 @@ const buildQueryRequest = (
   queryParams: FindingsQuerySchema,
   latestCycleIds?: string[]
 ): QueryDslQueryContainer => {
-  const dateFilter = getTimeRangeFilter(queryParams.from, queryParams.to);
   const filter = convertKqueryToElasticsearchQuery(queryParams.dsl_query);
   const latestCycleIdsFilter = buildLatestCycleFilter(latestCycleIds);
-  filter.push(...latestCycleIdsFilter, ...dateFilter);
+  filter.push(...latestCycleIdsFilter);
   const query = {
     bool: {
       filter,
@@ -137,8 +129,6 @@ export const findingsInputSchema = rt.object({
   page: rt.number({ defaultValue: 1, min: 0 }),
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
   dsl_query: rt.maybe(rt.string()),
-  from: rt.maybe(rt.string()),
-  to: rt.maybe(rt.string()),
   latest_cycle: rt.maybe(rt.boolean()),
   sort_field: rt.maybe(rt.string()),
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
