@@ -8,7 +8,7 @@
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
-import type { SearchSortOrder } from '@elastic/elasticsearch/lib/api/types';
+import type { SortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_NAME, FINDINGS_ROUTE_PATH } from '../../../common/constants';
@@ -21,7 +21,7 @@ export interface FindingsOptions {
   from?: number;
   page?: number;
   sortField?: string;
-  sortOrder?: SearchSortOrder;
+  sortOrder?: SortOrder;
   fields?: string[];
 }
 
