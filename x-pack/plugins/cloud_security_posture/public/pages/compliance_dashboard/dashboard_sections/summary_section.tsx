@@ -27,7 +27,7 @@ export const SummarySection = () => {
         <ChartPanel
           chart={ResourcesAtRiskChart}
           title={TEXT.TOP_5_CHART_TITLE}
-          description={TEXT.TOP_5_CHART_DESCRIPTION}
+          description={TEXT.NON_COMPLIANT_FIRST}
           data={getStats.data?.resourcesEvaluations}
           isLoading={getStats.isLoading}
           isError={getStats.isError}
@@ -37,7 +37,7 @@ export const SummarySection = () => {
         <ChartPanel
           chart={ScorePerAccountChart}
           title={TEXT.SCORE_PER_CLUSTER_CHART_TITLE}
-          description={TEXT.SCORE_PER_CLUSTER_CHART_DESCRIPTION}
+          description={TEXT.NON_COMPLIANT_FIRST}
           // TODO: no api for this chart yet, using empty state for now. needs BE
           data={[]}
           isLoading={getStats.isLoading}

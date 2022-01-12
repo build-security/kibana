@@ -15,10 +15,6 @@ export const TOP_5_CHART_TITLE = i18n.translate('xpack.csp.top_5_chart_title', {
   defaultMessage: 'Top 5 Resources Types At Risk',
 });
 
-export const TOP_5_CHART_DESCRIPTION = i18n.translate('xpack.csp.top_5_chart_description', {
-  defaultMessage: 'Non compliant first',
-});
-
 export const SCORE_PER_CLUSTER_CHART_TITLE = i18n.translate(
   'xpack.csp.score_per_cluster_chart_title',
   {
@@ -26,12 +22,9 @@ export const SCORE_PER_CLUSTER_CHART_TITLE = i18n.translate(
   }
 );
 
-export const SCORE_PER_CLUSTER_CHART_DESCRIPTION = i18n.translate(
-  'xpack.csp.score_per_cluster_chart_title',
-  {
-    defaultMessage: 'Non compliant first',
-  }
-);
+export const NON_COMPLIANT_FIRST = i18n.translate('xpack.csp.non_compliant_first', {
+  defaultMessage: 'Non compliant first',
+});
 
 export const COMPLIANCE_SCORE = i18n.translate('xpack.csp.compliance_score', {
   defaultMessage: 'Compliance Score',
