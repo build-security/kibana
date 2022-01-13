@@ -20,7 +20,7 @@ const ROUTES = createRoutes([
 
 type Routes = typeof ROUTES;
 
-export type CspNavigationItemsMap = { [Page in Routes[number] as Page['id']]: Page };
+type CspNavigationItemsMap = { [Page in Routes[number] as Page['id']]: Page };
 
 export const allNavigationItems = Object.fromEntries(
   ROUTES.map((v) => [v.id, v])
