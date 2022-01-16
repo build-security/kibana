@@ -14,6 +14,8 @@ import type {
 } from './types';
 import { AppNavLinkStatus, AppStatus } from '../../../../src/core/public';
 import { PLUGIN_NAME, PLUGIN_ID } from '../common';
+import { DEFAULT_APP_CATEGORIES } from '../../../../src/core/public';
+import { ENABLE_CSP } from '../../security_solution/common/constants';
 
 export class CspPlugin
   implements
@@ -29,21 +31,23 @@ export class CspPlugin
     plugins: CspClientPluginSetup
   ): CspClientPluginSetup {
     // Register an application into the side navigation menu
+    const cspEnabled: boolean = core.uiSettings.get(ENABLE_CSP);
 
-    core.application.register({
-      id: PLUGIN_ID,
-      title: PLUGIN_NAME,
-      status: AppStatus.accessible,
-      navLinkStatus: AppNavLinkStatus.hidden,
-      async mount(params: AppMountParameters) {
-        // Load application bundle
-        const { renderApp } = await import('./application/index');
-        // Get start services as specified in kibana.json
-        const [coreStart, depsStart] = await core.getStartServices();
-        // Render the application
-        return renderApp(coreStart, depsStart, params);
-      },
-    });
+    if (cspEnabled) {
+      core.application.register({
+        id: PLUGIN_ID,
+        title: PLUGIN_NAME,
+        category: DEFAULT_APP_CATEGORIES.security,
+        async mount(params: AppMountParameters) {
+          // Load application bundle
+          const { renderApp } = await import('./application/index');
+          // Get start services as specified in kibana.json
+          const [coreStart, depsStart] = await core.getStartServices();
+          // Render the application
+          return renderApp(coreStart, depsStart as CspStart, params);
+        },
+      });
+    }
 
     // Return methods that should be available to other plugins
     return {};

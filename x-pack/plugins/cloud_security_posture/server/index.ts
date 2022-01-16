@@ -6,8 +6,12 @@
  */
 import type { PluginInitializerContext } from '../../../../src/core/server';
 import { CspPlugin } from './plugin';
+<<<<<<< HEAD
 
 export { CspServerPluginSetup, CspServerPluginStart } from './types';
+=======
+export { CspPluginSetup, CspPluginStart } from './types';
+>>>>>>> 95855fa7343... finishing
 
 export const plugin = (initializerContext: PluginInitializerContext) =>
   new CspPlugin(initializerContext);
