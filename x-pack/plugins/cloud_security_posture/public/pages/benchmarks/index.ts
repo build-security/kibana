@@ -5,9 +5,4 @@
  * 2.0.
  */
 
-export interface CspNavigationItem {
-  readonly name: string;
-  readonly path: string;
-  readonly id: string;
-  readonly disabled?: boolean;
-}
+export { Benchmarks } from './benchmarks';

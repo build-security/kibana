@@ -4,10 +4,6 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
+import React from 'react';
 
-export interface CspNavigationItem {
-  readonly name: string;
-  readonly path: string;
-  readonly id: string;
-  readonly disabled?: boolean;
-}
+export const Benchmarks = () => <div>Hello world</div>;

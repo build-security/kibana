@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { EuiSpacer } from '@elastic/eui';
-import { allNavigationItems } from '../../common/navigation/constants';
+import { getAllNavigationItems } from '../../common/navigation/constants';
 import { useCspBreadcrumbs } from '../../common/navigation/use_csp_breadcrumbs';
 import { SummarySection } from './dashboard_sections/summary_section';
 import { BenchmarksSection } from './dashboard_sections/benchmarks_section';
@@ -30,7 +30,7 @@ const CompliancePage = () => {
 };
 
 export const ComplianceDashboard = () => {
-  useCspBreadcrumbs([allNavigationItems.dashboard]);
+  useCspBreadcrumbs([getAllNavigationItems().dashboard]);
 
   return (
     <CspPageTemplate

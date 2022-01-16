@@ -22,7 +22,7 @@ import { statusColors } from '../../../common/constants';
 import type { BenchmarkStats } from '../../../../common/types';
 import * as TEXT from '../translations';
 import { encodeQuery } from '../../../common/navigation/query_utils';
-import { allNavigationItems } from '../../../common/navigation/constants';
+import { getAllNavigationItems } from '../../../common/navigation/constants';
 
 interface CloudPostureScoreChartProps {
   data: BenchmarkStats;
@@ -49,7 +49,7 @@ export const CloudPostureScoreChart = ({
     const rollupValue = layerValue[0].groupByRollup as string;
 
     history.push({
-      pathname: allNavigationItems.findings.path,
+      pathname: getAllNavigationItems().findings.path,
       search: encodeQuery(
         getBenchmarkAndResultEvaluationQuery(benchmarkName, rollupValue.toLowerCase())
       ),
