@@ -7,6 +7,7 @@
 
 import { i18n } from '@kbn/i18n';
 import { schema } from '@kbn/config-schema';
+import { EuiBetaBadge } from '@elastic/eui';
 
 import { CoreSetup } from '../../../../src/core/server';
 import {
@@ -152,15 +153,15 @@ export const initUiSettings = (
     },
     [ENABLE_CSP]: {
       name: i18n.translate('xpack.securitySolution.uiSettings.enableCloudSecurityPosture', {
-        defaultMessage: 'Cloud Security Posture',
+        defaultMessage: 'Cloud Security',
       }),
       value: false,
-      description: i18n.translate(
+      description: `${i18n.translate(
         'xpack.securitySolution.uiSettings.enableCloudSecurityPostureDescription',
         {
-          defaultMessage: '<p>Enables the Cloud Security Posture feature</p>',
+          defaultMessage: '<p>Enables the Cloud Security Posture feature (beta)</p>',
         }
-      ),
+      )}`,
       type: 'boolean',
       category: [APP_ID],
       requiresPageReload: true,
