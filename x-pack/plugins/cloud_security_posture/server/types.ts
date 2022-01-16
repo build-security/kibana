@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+<<<<<<< HEAD
 import type {
   PluginSetup as DataPluginSetup,
   PluginStart as DataPluginStart,
@@ -28,3 +29,12 @@ export interface CspServerPluginStartDeps {
 
   // optional
 }
+=======
+/* eslint-disable @typescript-eslint/no-empty-interface */
+
+export interface CspSetup {}
+export interface CspStart {}
+export interface CspPluginSetup {}
+export interface CspPluginStart {}
+/* eslint-enable @typescript-eslint/no-empty-interface */
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164

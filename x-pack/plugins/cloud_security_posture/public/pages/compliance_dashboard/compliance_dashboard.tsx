@@ -6,7 +6,11 @@
  */
 
 import React from 'react';
+<<<<<<< HEAD
 import { EuiSpacer } from '@elastic/eui';
+=======
+import { EuiSpacer, EuiTitle } from '@elastic/eui';
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 import { allNavigationItems } from '../../common/navigation/constants';
 import { useCspBreadcrumbs } from '../../common/navigation/use_csp_breadcrumbs';
 import { SummarySection } from './dashboard_sections/summary_section';

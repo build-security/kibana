@@ -8,5 +8,8 @@
 export interface CspNavigationItem {
   name: string;
   path: string;
+<<<<<<< HEAD
   id: string;
+=======
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 }

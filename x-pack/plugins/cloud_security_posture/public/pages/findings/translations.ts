@@ -145,7 +145,10 @@ export const KERNEL = i18n.translate('xpack.csp.kernel', {
 export const PLATFORM = i18n.translate('xpack.csp.platform', {
   defaultMessage: 'Platform',
 });
+<<<<<<< HEAD
 
 export const NO_FINDINGS = i18n.translate('xpack.csp.platform', {
   defaultMessage: 'There are no Findings',
 });
+=======
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164

@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom';
 import { CspApp } from './app';
 
 import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
+<<<<<<< HEAD
 import type { CspClientPluginStartDeps } from '../types';
 
 export const renderApp = (
@@ -17,6 +18,11 @@ export const renderApp = (
   deps: CspClientPluginStartDeps,
   params: AppMountParameters
 ) => {
+=======
+import type { CspStart } from '../types';
+
+export const renderApp = (core: CoreStart, deps: CspStart, params: AppMountParameters) => {
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   ReactDOM.render(<CspApp core={core} params={params} deps={deps} />, params.element);
 
   return () => ReactDOM.unmountComponentAtNode(params.element);

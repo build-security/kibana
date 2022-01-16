@@ -13,6 +13,7 @@ import type {
   Logger,
 } from '../../../../src/core/server';
 import { createFindingsIndexTemplate } from './index_template/create_index_template';
+<<<<<<< HEAD
 import type {
   CspServerPluginSetup,
   CspServerPluginStart,
@@ -30,11 +31,18 @@ export class CspPlugin
       CspServerPluginStartDeps
     >
 {
+=======
+import type { CspSetup, CspStart, CspPluginSetup, CspPluginStart } from './types';
+import { defineRoutes } from './routes';
+
+export class CspPlugin implements Plugin<CspSetup, CspStart, CspPluginSetup, CspPluginStart> {
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   private readonly logger: Logger;
   constructor(initializerContext: PluginInitializerContext) {
     this.logger = initializerContext.logger.get();
   }
 
+<<<<<<< HEAD
   public setup(
     core: CoreSetup<CspServerPluginSetup>,
     plugins: CspServerPluginSetupDeps
@@ -42,12 +50,22 @@ export class CspPlugin
     this.logger.debug('csp: Setup');
     const router = core.http.createRouter();
 
+=======
+  public setup(core: CoreSetup<CspPluginStart>) {
+    this.logger.debug('csp: Setup');
+    const router = core.http.createRouter();
+    // Register server side APIs
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
     defineRoutes(router);
 
     return {};
   }
 
+<<<<<<< HEAD
   public start(core: CoreStart, plugins: CspServerPluginStartDeps): CspServerPluginStart {
+=======
+  public start(core: CoreStart) {
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
     this.logger.debug('csp: Started');
     createFindingsIndexTemplate(core.elasticsearch.client.asInternalUser).catch(this.logger.error);
     return {};

@@ -4,15 +4,28 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
+<<<<<<< HEAD
 import type { Filter, Query } from '@kbn/es-query';
 import { useMutation, useQuery } from 'react-query';
 import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+=======
+import { useState, useEffect } from 'react';
+import type { Filter, Query } from '@kbn/es-query';
+import { useMutation, useQuery } from 'react-query';
+import type { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { encode, decode, RisonObject } from 'rison-node';
+import { useHistory } from 'react-router-dom';
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 import type {
   DataView,
   IKibanaSearchResponse,
   TimeRange,
 } from '../../../../../../src/plugins/data/common';
+<<<<<<< HEAD
 import type { CspClientPluginStartDeps } from '../../types';
+=======
+import type { CspPluginSetup } from '../../types';
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 import { CSP_KUBEBEAT_INDEX_NAME } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
@@ -30,7 +43,11 @@ export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
 export const useKubebeatDataView = () => {
   const {
     data: { dataViews },
+<<<<<<< HEAD
   } = useKibana<CspClientPluginStartDeps>().services;
+=======
+  } = useKibana<CspPluginSetup>().services;
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 
   const createDataView = () =>
     dataViews.createAndSave({
@@ -49,6 +66,55 @@ export const useKubebeatDataView = () => {
   return useQuery(['kubebeat_dataview'], getKubebeatDataView);
 };
 
+<<<<<<< HEAD
+=======
+export const useSourceQueryParam = <T extends RisonObject>(getDefaultQuery: () => T) => {
+  const history = useHistory();
+  const [state, set] = useState<T>(getDefaultQuery());
+
+  const setSource = (v: T) => {
+    try {
+      const next = `source=${encode(v)}`;
+      const current = history.location.search.slice(1);
+
+      // React-Router won't trigger a new component render if the query is the same
+      // so we trigger it manually
+      // use case is re-fetching same query
+      if (next === current) {
+        set(() => ({ ...state }));
+      } else {
+        history.push({ search: next });
+      }
+    } catch (e) {
+      // TODO: use real logger
+      // eslint-disable-next-line no-console
+      console.error('Unable to encode source');
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(history.location.search);
+    const source = params.get('source');
+    if (!source) return;
+
+    try {
+      set(decode(source) as T);
+    } catch (e) {
+      set(getDefaultQuery());
+
+      // TODO: use real logger
+      // eslint-disable-next-line no-console
+      console.error('Unable to decode URL');
+    }
+  }, [history.location.search, getDefaultQuery]);
+
+  return {
+    source: state,
+    setSource,
+  };
+};
+
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 export const useEsClientMutation = <T extends unknown>({
   dataView,
   dateRange,
@@ -60,7 +126,11 @@ export const useEsClientMutation = <T extends unknown>({
   dateRange: TimeRange;
   filters: Filter[];
 }) => {
+<<<<<<< HEAD
   const { data: dataService } = useKibana<CspClientPluginStartDeps>().services;
+=======
+  const { data: dataService } = useKibana<CspPluginSetup>().services;
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   const { query: queryService, search: searchService } = dataService;
   return useMutation(async () => {
     queryService.queryString.setQuery(query);

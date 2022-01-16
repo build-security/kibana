@@ -6,4 +6,8 @@
  */
 
 export const PLUGIN_ID = 'csp';
+<<<<<<< HEAD
 export const PLUGIN_NAME = 'csp';
+=======
+export const PLUGIN_NAME = 'Cloud Security';
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164

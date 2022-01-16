@@ -31,6 +31,7 @@ import {
   DEFAULT_TRANSFORMS,
   DEFAULT_TRANSFORMS_SETTING,
   ENABLE_NEWS_FEED_SETTING,
+  ENABLE_CSP,
   IP_REPUTATION_LINKS_SETTING,
   IP_REPUTATION_LINKS_SETTING_DEFAULT,
   NEWS_FEED_URL_SETTING,
@@ -151,7 +152,10 @@ export const initUiSettings = (
       schema: schema.boolean(),
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
     [ENABLE_CSP]: {
       name: i18n.translate('xpack.securitySolution.uiSettings.enableCloudSecurityPosture', {
         defaultMessage: 'Cloud Security',
@@ -168,7 +172,10 @@ export const initUiSettings = (
       requiresPageReload: true,
       schema: schema.boolean(),
     },
+<<<<<<< HEAD
 >>>>>>> 95855fa7343... finishing
+=======
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
     [DEFAULT_RULES_TABLE_REFRESH_SETTING]: {
       name: i18n.translate('xpack.securitySolution.uiSettings.rulesTableRefresh', {
         defaultMessage: 'Rules auto refresh',

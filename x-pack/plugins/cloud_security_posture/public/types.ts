@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+<<<<<<< HEAD
 import type {
   DataPublicPluginSetup,
   DataPublicPluginStart,
@@ -27,4 +28,20 @@ export interface CspClientPluginStartDeps {
   data: DataPublicPluginStart;
 
   // optional
+=======
+import type { DataPublicPluginStart } from '../../../../src/plugins/data/public';
+import type { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface CspSetup {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface CspStart {}
+
+export interface CspPluginSetup {
+  data: DataPublicPluginStart;
+}
+export interface CspPluginStart {
+  data: DataPublicPluginStart;
+  navigation: NavigationPublicPluginStart;
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 }

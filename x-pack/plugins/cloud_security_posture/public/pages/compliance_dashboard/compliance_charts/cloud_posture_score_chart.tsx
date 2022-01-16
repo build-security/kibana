@@ -16,6 +16,7 @@ import {
 } from '@elastic/charts';
 import { EuiText } from '@elastic/eui';
 import type { PartitionElementEvent } from '@elastic/charts';
+<<<<<<< HEAD
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { statusColors } from '../../../common/constants';
@@ -23,11 +24,18 @@ import type { BenchmarkStats } from '../../../../common/types';
 import * as TEXT from '../translations';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { allNavigationItems } from '../../../common/navigation/constants';
+=======
+import { statusColors } from '../../../common/constants';
+import type { BenchmarkStats } from '../../../../common/types';
+import { useNavigateToCspFindings } from '../../../common/navigation/use_navigate_to_csp_findings';
+import * as TEXT from '../translations';
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
 
 interface CloudPostureScoreChartProps {
   data: BenchmarkStats;
 }
 
+<<<<<<< HEAD
 const getBenchmarkAndResultEvaluationQuery = (
   benchmarkName: string,
   evaluation: string
@@ -41,6 +49,12 @@ export const CloudPostureScoreChart = ({
 }: CloudPostureScoreChartProps) => {
   const history = useHistory();
 
+=======
+export const CloudPostureScoreChart = ({
+  data: { totalPassed, totalFailed, name: benchmarkName },
+}: CloudPostureScoreChartProps) => {
+  const { navigate } = useNavigateToCspFindings();
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   if (totalPassed === undefined || totalFailed === undefined || name === undefined) return null;
 
   const handleElementClick: ElementClickListener = (elements) => {
@@ -48,12 +62,18 @@ export const CloudPostureScoreChart = ({
     const [layerValue] = element;
     const rollupValue = layerValue[0].groupByRollup as string;
 
+<<<<<<< HEAD
     history.push({
       pathname: allNavigationItems.findings.path,
       search: encodeQuery(
         getBenchmarkAndResultEvaluationQuery(benchmarkName, rollupValue.toLowerCase())
       ),
     });
+=======
+    navigate(
+      `(language:kuery,query:'rule.benchmark : "${benchmarkName}" and result.evaluation : ${rollupValue.toLowerCase()}')`
+    );
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   };
 
   const total = totalPassed + totalFailed;
@@ -61,7 +81,11 @@ export const CloudPostureScoreChart = ({
 
   const data = [
     { label: TEXT.PASSED, value: totalPassed },
+<<<<<<< HEAD
     { label: TEXT.FAILED, value: totalFailed },
+=======
+    { label: TEXT.FAILEd, value: totalFailed },
+>>>>>>> 95855fa7343125d097f00abedc1b9b6ed4cf1164
   ];
 
   return (
