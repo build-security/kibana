@@ -170,6 +170,9 @@ export const DEFAULT_INDEX_PATTERN_EXPERIMENTAL = [
   'ml_host_risk_score_*',
 ];
 
+/** This Kibana Advanced Setting enables the `Cloud Security Posture` beta feature */
+export const ENABLE_CSP = 'securitySolution:enableCloudSecurityPosture' as const;
+
 /** This Kibana Advanced Setting enables the `Security news` feed widget */
 export const ENABLE_NEWS_FEED_SETTING = 'securitySolution:enableNewsFeed' as const;
 
