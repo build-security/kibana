@@ -171,6 +171,9 @@ export const DEFAULT_INDEX_PATTERN_EXPERIMENTAL = [
 /** This Kibana Advanced Setting enables the `Security news` feed widget */
 export const ENABLE_NEWS_FEED_SETTING = 'securitySolution:enableNewsFeed' as const;
 
+/** This Kibana Advanced Setting enables the `Cloud Security Posture` beta feature */
+export const ENABLE_CSP = 'securitySolution:enableCloudSecurityPosture' as const;
+
 /** This Kibana Advanced Setting sets the auto refresh interval for the detections all rules table */
 export const DEFAULT_RULES_TABLE_REFRESH_SETTING = 'securitySolution:rulesTableRefresh' as const;
 

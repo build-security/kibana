@@ -30,6 +30,7 @@ import {
   DEFAULT_TRANSFORMS,
   DEFAULT_TRANSFORMS_SETTING,
   ENABLE_NEWS_FEED_SETTING,
+  ENABLE_CSP,
   IP_REPUTATION_LINKS_SETTING,
   IP_REPUTATION_LINKS_SETTING_DEFAULT,
   NEWS_FEED_URL_SETTING,
@@ -144,6 +145,22 @@ export const initUiSettings = (
       description: i18n.translate('xpack.securitySolution.uiSettings.enableNewsFeedDescription', {
         defaultMessage: '<p>Enables the News feed</p>',
       }),
+      type: 'boolean',
+      category: [APP_ID],
+      requiresPageReload: true,
+      schema: schema.boolean(),
+    },
+    [ENABLE_CSP]: {
+      name: i18n.translate('xpack.securitySolution.uiSettings.enableCloudSecurityPosture', {
+        defaultMessage: 'Cloud Security Posture',
+      }),
+      value: false,
+      description: i18n.translate(
+        'xpack.securitySolution.uiSettings.enableCloudSecurityPostureDescription',
+        {
+          defaultMessage: '<p>Enables the Cloud Security Posture feature</p>',
+        }
+      ),
       type: 'boolean',
       category: [APP_ID],
       requiresPageReload: true,
