@@ -6,11 +6,8 @@
  */
 
 import type { ElasticsearchClient, IRouter } from 'src/core/server';
-import type {
-  AggregationsTermsAggregate,
-  DictionaryResponseBase,
-  AggregationsKeyedBucketKeys,
-} from '@elastic/elasticsearch/lib/api/types';
+import type { AggregationsMultiBucketAggregateBase } from '@elastic/elasticsearch/lib/api/types';
+import { number, UnknownRecord } from 'io-ts';
 import type {
   CloudPostureStats,
   BenchmarkStats,
@@ -25,6 +22,20 @@ import {
 } from './stats_queries';
 import { STATS_ROUTE_PATH } from '../../../common/constants';
 import { RULE_PASSED, RULE_FAILED } from '../../constants';
+
+// TODO: use a schema decoder
+function assertBenchmarkStats(v: unknown): asserts v is BenchmarkStats {
+  if (
+    !UnknownRecord.is(v) ||
+    !number.is(v.totalFindings) ||
+    !number.is(v.totalPassed) ||
+    !number.is(v.totalFailed) ||
+    !number.is(v.postureScore)
+  ) {
+    throw new Error('missing stats');
+  }
+}
+
 interface LastCycle {
   run_id: string;
 }
@@ -72,14 +83,18 @@ export const getAllFindingsStats = async (
   const totalFindings = findings.body.count;
   const totalPassed = passedFindings.body.count;
   const totalFailed = failedFindings.body.count;
-
-  return {
+  const postureScore = calculatePostureScore(totalFindings, totalPassed, totalFailed);
+  const stats = {
     name: 'general',
-    postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
+    postureScore,
     totalFindings,
     totalPassed,
     totalFailed,
   };
+
+  assertBenchmarkStats(stats);
+
+  return stats;
 };
 
 export const getBenchmarksStats = async (
@@ -101,16 +116,21 @@ export const getBenchmarksStats = async (
         const totalFindings = benchmarkFindingsResult.body.count;
         const totalPassed = benchmarkPassedFindingsResult.body.count;
         const totalFailed = benchmarkFailedFindingsResult.body.count;
-        return {
+        const postureScore = calculatePostureScore(totalFindings, totalPassed, totalFailed);
+        const stats = {
           name: benchmark,
-          postureScore: calculatePostureScore(totalFindings, totalPassed, totalFailed),
+          postureScore,
           totalFindings,
           totalPassed,
           totalFailed,
         };
+
+        assertBenchmarkStats(stats);
+        return stats;
       }
     );
   });
+
   return Promise.all(benchmarkPromises);
 };
 
