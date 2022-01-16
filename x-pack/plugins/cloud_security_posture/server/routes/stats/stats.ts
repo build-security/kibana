@@ -44,8 +44,12 @@ interface GroupFilename {
   // TODO find the 'key', 'doc_count' interface
   key: string;
   doc_count: number;
-  group_docs: AggregationsTermsAggregate<AggregationsKeyedBucketKeys>;
 }
+
+interface ResourcesEvaluationEsAgg {
+  group: AggregationsMultiBucketAggregateBase<GroupFilename>;
+}
+
 const numOfResource = 5;
 
 /**
@@ -63,10 +67,15 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
 };
 
 export const getBenchmarks = async (esClient: ElasticsearchClient) => {
-  const queryResult = await esClient.search(getBenchmarksQuery());
-  const benchmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
-    DictionaryResponseBase<string, string>
-  >;
+  const queryResult = await esClient.search<
+    {},
+    { benchmarks: AggregationsMultiBucketAggregateBase<Pick<GroupFilename, 'key'>> }
+  >(getBenchmarksQuery());
+  const benchmarksBuckets = queryResult.body.aggregations?.benchmarks;
+  if (!benchmarksBuckets || !Array.isArray(benchmarksBuckets?.buckets)) {
+    throw new Error('missing buckets');
+  }
+
   return benchmarksBuckets.buckets.map((e) => e.key);
 };
 
@@ -103,7 +112,7 @@ export const getBenchmarksStats = async (
   benchmarks: string[]
 ): Promise<BenchmarkStats[]> => {
   const benchmarkPromises = benchmarks.map((benchmark) => {
-    const benchmarkFindings = esClient.count(getFindingsEsQuery(benchmark, cycleId));
+    const benchmarkFindings = esClient.count(getFindingsEsQuery(cycleId, undefined, benchmark));
     const benchmarkPassedFindings = esClient.count(
       getFindingsEsQuery(cycleId, RULE_PASSED, benchmark)
     );
@@ -138,12 +147,15 @@ export const getResourcesEvaluation = async (
   esClient: ElasticsearchClient,
   cycleId: string
 ): Promise<EvaluationResult[]> => {
-  const failedEvaluationsPerResourceResult = await esClient.search(
-    getResourcesEvaluationEsQuery(cycleId, RULE_FAILED, numOfResource)
-  );
+  const failedEvaluationsPerResourceResult = await esClient.search<
+    GroupFilename,
+    ResourcesEvaluationEsAgg
+  >(getResourcesEvaluationEsQuery(cycleId, RULE_FAILED, numOfResource));
 
-  const failedResourcesGroup = failedEvaluationsPerResourceResult.body.aggregations
-    ?.group as AggregationsTermsAggregate<GroupFilename>;
+  const failedResourcesGroup = failedEvaluationsPerResourceResult.body.aggregations?.group!;
+  if (!Array.isArray(failedResourcesGroup.buckets)) {
+    throw new Error('missing buckets array');
+  }
   const topFailedResources = failedResourcesGroup.buckets.map((e) => e.key);
   const failedEvaluationPerResource = failedResourcesGroup.buckets.map((e) => {
     return {
@@ -153,11 +165,16 @@ export const getResourcesEvaluation = async (
     } as const;
   });
 
-  const passedEvaluationsPerResourceResult = await esClient.search(
-    getResourcesEvaluationEsQuery(cycleId, RULE_PASSED, 5, topFailedResources)
-  );
-  const passedResourcesGroup = passedEvaluationsPerResourceResult.body.aggregations
-    ?.group as AggregationsTermsAggregate<GroupFilename>;
+  const passedEvaluationsPerResourceResult = await esClient.search<
+    GroupFilename,
+    ResourcesEvaluationEsAgg
+  >(getResourcesEvaluationEsQuery(cycleId, RULE_PASSED, 5, topFailedResources));
+  const passedResourcesGroup = passedEvaluationsPerResourceResult.body.aggregations?.group!;
+
+  if (!Array.isArray(passedResourcesGroup.buckets)) {
+    throw new Error('missing buckets array');
+  }
+
   const passedEvaluationPerResources = passedResourcesGroup.buckets.map((e) => {
     return {
       resource: e.key,
