@@ -44,7 +44,7 @@ const createIndexTemplate = async (
     });
     return response.body.acknowledged;
   } catch (err) {
-    logger.error(`Invalid usage in putIndexTemplate for index ${indexName}`);
+    logger.error(`putIndexTemplate ${indexName} failed, ${err}`);
     return false;
   }
 };
@@ -64,7 +64,7 @@ export const createFindingsIndexTemplate = async (
       logger
     );
   } catch (err) {
-    logger.error(`Failed to create index template ${CSP_FINDINGS_INDEX_NAME}`);
+    logger.error(`Failed to create index template ${CSP_FINDINGS_INDEX_NAME}, ${err}`);
     return false;
   }
 };
