@@ -10,15 +10,11 @@ import type { CspNavigationItem } from '../../common/navigation/types';
 type CreateNavigationItemFixtureInput = { chance?: Chance.Chance } & Partial<CspNavigationItem>;
 export const createNavigationItemFixture = ({
   chance = new Chance(),
-  id = chance.word(),
   name = chance.word(),
   path = `/${chance.word()}`,
   disabled = undefined,
-}: CreateNavigationItemFixtureInput = {}): Record<string, CspNavigationItem> => ({
-  [id]: {
-    id,
-    name,
-    path,
-    disabled,
-  },
+}: CreateNavigationItemFixtureInput = {}): CspNavigationItem => ({
+  name,
+  path,
+  disabled,
 });

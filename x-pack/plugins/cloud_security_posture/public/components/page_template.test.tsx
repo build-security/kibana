@@ -4,50 +4,30 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-jest.mock('../common/navigation/constants');
-
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { createNavigationItemFixture } from '../test/fixtures/navigationItem';
 import Chance from 'chance';
-import { getAllNavigationItems } from '../common/navigation/constants';
-import { CspPageTemplate } from './page_template';
-import { TestProvider } from '../test/test_provider';
+import { createNavigationItemFixture } from '../test/fixtures/navigationItem';
+import { getSideNavItems } from './page_template';
 
 const chance = new Chance();
 
-describe('<CspPageTemplate />', () => {
-  const renderCspPageTemplate = () =>
-    render(
-      <TestProvider>
-        <CspPageTemplate />
-      </TestProvider>
-    );
+describe('getSideNavItems', () => {
+  it('maps navigation items to side navigation items', () => {
+    const navigationItem = createNavigationItemFixture();
+    const id = chance.word();
+    const sideNavItems = getSideNavItems({ [id]: navigationItem });
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  it('renders navigation items', () => {
-    const navigationItemName = chance.word();
-    const navigationItem = createNavigationItemFixture({ name: navigationItemName });
-    (getAllNavigationItems as jest.Mock).mockReturnValue({ ...navigationItem });
-
-    renderCspPageTemplate();
-
-    expect(screen.getByText(navigationItemName)).toBeInTheDocument();
-  });
-
-  it('does not render disabled navigation items', () => {
-    const navigationItemName = chance.word();
-    const navigationItem = createNavigationItemFixture({
-      name: navigationItemName,
-      disabled: true,
+    expect(sideNavItems).toHaveLength(1);
+    expect(sideNavItems[0]).toMatchObject({
+      id,
+      name: navigationItem.name,
+      renderItem: expect.any(Function),
     });
-    (getAllNavigationItems as jest.Mock).mockReturnValue({ ...navigationItem });
+  });
 
-    renderCspPageTemplate();
-
-    expect(screen.queryByText(navigationItemName)).not.toBeInTheDocument();
+  it('does not map disabled navigation items to side navigation items', () => {
+    const navigationItem = createNavigationItemFixture({ disabled: true });
+    const id = chance.word();
+    const sideNavItems = getSideNavItems({ [id]: navigationItem });
+    expect(sideNavItems).toHaveLength(0);
   });
 });

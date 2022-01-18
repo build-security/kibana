@@ -19,7 +19,7 @@ import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { CloudPostureStats, EvaluationResult } from '../../../../common/types';
 import { encodeQuery } from '../../../common/navigation/query_utils';
-import { getAllNavigationItems } from '../../../common/navigation/constants';
+import { allNavigationItems } from '../../../common/navigation/constants';
 
 interface ResourcesAtRiskChartProps {
   data: CloudPostureStats['resourcesEvaluations'];
@@ -41,7 +41,7 @@ export const ResourcesAtRiskChart = ({ data: resources }: ResourcesAtRiskChartPr
     const { resource, evaluation } = geometryValue.datum as EvaluationResult;
 
     history.push({
-      pathname: getAllNavigationItems().findings.path,
+      pathname: allNavigationItems.findings.path,
       search: encodeQuery(getResourceQuery(resource, evaluation)),
     });
   };

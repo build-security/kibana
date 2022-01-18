@@ -11,16 +11,19 @@ import {
   KibanaPageTemplate,
   KibanaPageTemplateProps,
 } from '../../../../../src/plugins/kibana_react/public';
-import { getAllNavigationItems } from '../common/navigation/constants';
+import { allNavigationItems } from '../common/navigation/constants';
+import type { CspNavigationItem } from '../common/navigation/types';
 import { CLOUD_SECURITY_POSTURE } from '../common/translations';
 
 const activeItemStyle = { fontWeight: 700 };
 
-const getSideNavItems = (): NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] =>
-  Object.values(getAllNavigationItems())
-    .filter((navigationItem) => !navigationItem.disabled)
-    .map((navigationItem) => ({
-      id: navigationItem.id,
+export const getSideNavItems = (
+  navigationItems: Record<string, CspNavigationItem>
+): NonNullable<KibanaPageTemplateProps['solutionNav']>['items'] =>
+  Object.entries(navigationItems)
+    .filter(([_, navigationItem]) => !navigationItem.disabled)
+    .map(([id, navigationItem]) => ({
+      id,
       name: navigationItem.name,
       renderItem: () => (
         <NavLink to={navigationItem.path} activeStyle={activeItemStyle}>
@@ -29,18 +32,18 @@ const getSideNavItems = (): NonNullable<KibanaPageTemplateProps['solutionNav']>[
       ),
     }));
 
-const getDefaultProps = (): KibanaPageTemplateProps => ({
+const defaultProps: KibanaPageTemplateProps = {
   solutionNav: {
     name: CLOUD_SECURITY_POSTURE,
-    items: getSideNavItems(),
+    items: getSideNavItems(allNavigationItems),
   },
   restrictWidth: false,
   template: 'default',
-});
+};
 
 export const CspPageTemplate: React.FC<KibanaPageTemplateProps> = ({ children, ...props }) => {
   return (
-    <KibanaPageTemplate {...getDefaultProps()} {...props}>
+    <KibanaPageTemplate {...defaultProps} {...props}>
       {children}
     </KibanaPageTemplate>
   );
