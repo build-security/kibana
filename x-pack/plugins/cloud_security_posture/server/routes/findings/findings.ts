@@ -11,7 +11,7 @@ import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { SortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
-import { CSP_KUBEBEAT_INDEX_NAME, FINDINGS_ROUTE_PATH } from '../../../common/constants';
+import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTE_PATH } from '../../../common/constants';
 
 type FindingsQuerySchema = TypeOf<typeof findingsInputSchema>;
 
@@ -41,7 +41,7 @@ const getFindingsEsQuery = (
   options: FindingsOptions
 ): SearchRequest => {
   return {
-    index: CSP_KUBEBEAT_INDEX_NAME,
+    index: CSP_KUBEBEAT_INDEX_PATTERN,
     query,
     ...options,
   };
