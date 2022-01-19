@@ -31,4 +31,4 @@ jobs:
       #   run: node scripts/type_check
 
       - name: eslint
-        run: node scripts/eslint --no-cache
+        run: node scripts/eslint  x-pack/plugins/cloud_security_posture --no-cache
