@@ -66,7 +66,8 @@ export const createFindingsIndexTemplate = async (
       logger
     );
   } catch (err) {
-    logger.error(`Failed to create index template ${CSP_FINDINGS_INDEX_NAME}, ${err}`);
+    logger.error(`Failed to create index template ${CSP_FINDINGS_INDEX_NAME}`);
+    logger.error(err);
     return false;
   }
 };
