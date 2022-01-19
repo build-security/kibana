@@ -33,10 +33,6 @@ describe('findings API', () => {
     jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('validate the API route path', async () => {
     const router = httpServiceMock.createRouter();
     defineFindingsIndexRoute(router);
@@ -78,7 +74,49 @@ describe('findings API', () => {
     it('should not throw when latest_run is a boolean', async () => {
       expect(() => {
         findingsInputSchema.validate({ latest_cycle: true });
-      }).toBeDefined();
+      }).not.toThrow();
+    });
+
+    it('should throw when sort_field is not string', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_field: true });
+      }).toThrow();
+    });
+
+    it('should not throw when sort_field is a string', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_field: 'field1' });
+      }).not.toThrow();
+    });
+
+    it('should throw when sort_order is not `asc` or `desc`', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_order: 'Other Direction' });
+      }).toThrow();
+    });
+
+    it('should not throw when `asc` is input for sort_order field', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_order: 'asc' });
+      }).not.toThrow();
+    });
+
+    it('should not throw when `desc` is input for sort_order field', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_order: 'desc' });
+      }).not.toThrow();
+    });
+
+    it('should throw when fields is not string', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ fields: ['field1', 'field2'] });
+      }).toThrow();
+    });
+
+    it('should not throw when fields is a string', async () => {
+      expect(() => {
+        findingsInputSchema.validate({ sort_field: 'field1, field2' });
+      }).not.toThrow();
     });
   });
 
@@ -230,7 +268,7 @@ describe('findings API', () => {
       });
     });
 
-    it('takes specific fields names as `fields` input and validate that the request is for get only them', async () => {
+    it('should format request by fields filter', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
       defineFindingsIndexRoute(router);
@@ -240,7 +278,7 @@ describe('findings API', () => {
       const mockResponse = httpServerMock.createResponseFactory();
       const mockRequest = httpServerMock.createKibanaRequest({
         query: {
-          fields: 'field1, field2, field3',
+          fields: 'field1,field2,field3',
         },
       });
 
@@ -251,7 +289,7 @@ describe('findings API', () => {
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
-        _source: ['field1, field2, field3'],
+        _source: ['field1', 'field2', 'field3'],
       });
     });
   });

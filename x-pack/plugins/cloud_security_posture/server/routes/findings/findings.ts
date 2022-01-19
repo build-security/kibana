@@ -33,7 +33,8 @@ const getSort = (sortField: string | undefined, sortOrder: string) =>
     ? { sort: [{ [sortField]: sortOrder }] }
     : { sort: [{ '@timestamp': { order: sortOrder } }] };
 
-const getSearchFields = (fields: string | undefined) => (fields ? { _source: [fields] } : {});
+const getSearchFields = (fields: string | undefined) =>
+  fields ? { _source: fields.split(',') } : {};
 
 const getFindingsEsQuery = (
   query: QueryDslQueryContainer,
@@ -93,9 +94,9 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
   );
 
 export const findingsInputSchema = rt.object({
-  latest_cycle: rt.maybe(rt.boolean()),
   page: rt.number({ defaultValue: 1, min: 0 }),
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
+  latest_cycle: rt.maybe(rt.boolean()),
   sort_field: rt.maybe(rt.string()),
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
   fields: rt.maybe(rt.string()),
