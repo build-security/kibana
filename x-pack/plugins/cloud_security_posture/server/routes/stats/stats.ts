@@ -72,16 +72,6 @@ const getLatestCycleId = async (esClient: ElasticsearchClient) => {
 };
 
 export const getBenchmarks = async (esClient: ElasticsearchClient) => {
-<<<<<<< HEAD
-  const queryResult = await esClient.search(getBenchmarksQuery());
-  const benchmarksBuckets = queryResult.body.aggregations?.benchmarks as AggregationsTermsAggregate<
-    DictionaryResponseBase<string, string>
-  >;
-  if (benchmarksBuckets?.buckets === undefined) {
-    throw new Error('Benchmarks not found');
-  }
-  return benchmarksBuckets?.buckets.map((e) => e.key);
-=======
   const queryResult = await esClient.search<
     {},
     { benchmarks: AggregationsMultiBucketAggregateBase<Pick<GroupFilename, 'key'>> }
@@ -92,7 +82,6 @@ export const getBenchmarks = async (esClient: ElasticsearchClient) => {
   }
 
   return benchmarksBuckets.buckets.map((e) => e.key);
->>>>>>> main
 };
 
 export const getAllFindingsStats = async (
