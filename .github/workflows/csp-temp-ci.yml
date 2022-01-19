@@ -21,8 +21,14 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: kbn bootstrap
-        run: yarn kbn bootstrap
+      - name: TS
+        run: node_modules/.bin/tsc --build x-pack/plugins/cloud_security_posture/tsconfig.json
+
+      # - name: kbn bootstrap
+      #   run: yarn kbn bootstrap
+
+      # - name: check TS
+      #   run: node scripts/type_check
 
       - name: eslint
         run: node scripts/eslint --no-cache
