@@ -21,6 +21,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
+      - name: Install
+        run: yarn
+
       - name: TS
         run: node_modules/.bin/tsc --build x-pack/plugins/cloud_security_posture/tsconfig.json
 
