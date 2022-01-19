@@ -42,6 +42,7 @@ export class CspPlugin
   ): CspServerPluginSetup {
     this.logger.debug('csp: Setup');
     const router = core.http.createRouter();
+
     // Register server side APIs
     defineRoutes(router, this.logger);
     initUiSettings(core.uiSettings);

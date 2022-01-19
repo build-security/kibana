@@ -28,6 +28,7 @@ const createIndexTemplate = async (
   logger: Logger
 ): Promise<Status> => {
   try {
+    logger.debug(`Adding index template for index ${indexName}`);
     const response = await esClient.indices.putIndexTemplate({
       name: indexName,
       index_patterns: indexPattern,
@@ -44,7 +45,8 @@ const createIndexTemplate = async (
     });
     return response.body.acknowledged;
   } catch (err) {
-    logger.error(`putIndexTemplate ${indexName} failed, ${err}`);
+    logger.error(`putIndexTemplate ${indexName} failed`);
+    logger.error(err);
     return false;
   }
 };

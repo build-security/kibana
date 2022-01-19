@@ -14,8 +14,12 @@ afterEach(() => {
   mockEsClient.indices.existsIndexTemplate.mockClear();
 });
 describe('create index template for findings', () => {
-  const logger: ReturnType<typeof loggingSystemMock.createLogger> =
-    loggingSystemMock.createLogger();
+  let logger: ReturnType<typeof loggingSystemMock.createLogger>;
+
+  beforeEach(() => {
+    logger = loggingSystemMock.createLogger();
+  });
+
   it('expect to find existing template', async () => {
     mockEsClient.indices.existsIndexTemplate.mockResolvedValueOnce(
       elasticsearchClientMock.createSuccessTransportRequestPromise(true)
