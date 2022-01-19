@@ -25,7 +25,7 @@ jobs:
         run: yarn kbn bootstrap
 
       - name: TS
-        run: node_modules/.bin/tsc --build x-pack/plugins/cloud_security_posture/tsconfig.json
+        run: node_modules/.bin/tsc --build x-pack/plugins/cloud_security_posture/tsconfig.json --pretty
 
       # - name: check TS
       #   run: node scripts/type_check
