@@ -24,7 +24,6 @@ import {
 } from './stats_queries';
 import { STATS_ROUTE_PATH } from '../../../common/constants';
 import { RULE_PASSED, RULE_FAILED } from '../../constants';
-import { Benchmarks } from 'x-pack/plugins/cloud_security_posture/public/pages';
 
 // TODO: use a schema decoder
 function assertBenchmarkStats(v: unknown): asserts v is BenchmarkStats {
@@ -96,6 +95,7 @@ export const getAllFindingsStats = async (
     esClient.count(getFindingsEsQuery(cycleId, RULE_PASSED)),
     esClient.count(getFindingsEsQuery(cycleId, RULE_FAILED)),
   ]);
+
   const totalFindings = findings.body.count;
   const totalPassed = passedFindings.body.count;
   const totalFailed = failedFindings.body.count;
