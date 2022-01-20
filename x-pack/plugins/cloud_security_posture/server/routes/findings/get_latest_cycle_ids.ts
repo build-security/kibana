@@ -7,10 +7,10 @@
 
 import { AggregationsFiltersAggregate, SearchRequest } from '@elastic/elasticsearch/lib/api/types';
 import type { ElasticsearchClient } from 'src/core/server';
-import { AGENT_LOGS_INDEX_PATTERN } from '../../../common/constants';
+import { AGENT_LOGS_INDEX } from '../../../common/constants';
 
 const getAgentLogsEsQuery = (): SearchRequest => ({
-  index: AGENT_LOGS_INDEX_PATTERN,
+  index: AGENT_LOGS_INDEX,
   size: 0,
   query: {
     bool: {
