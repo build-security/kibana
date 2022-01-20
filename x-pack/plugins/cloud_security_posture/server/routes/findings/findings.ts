@@ -26,7 +26,7 @@ export interface FindingsOptions {
 }
 
 const getPointerForFirstDoc = (page: number, perPage: number): number =>
-  page <= 1 ? 0 : page * perPage - perPage + 1;
+  page <= 1 ? 0 : page * perPage - perPage;
 
 const getSort = (sortField: string | undefined, sortOrder: string) =>
   sortField

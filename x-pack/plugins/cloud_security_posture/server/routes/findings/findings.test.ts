@@ -263,7 +263,7 @@ describe('findings API', () => {
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
-        from: 21,
+        from: 20,
         size: 10,
       });
     });
