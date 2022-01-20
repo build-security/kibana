@@ -13,12 +13,11 @@ import { getLatestCycleIds } from './get_latest_cycle_ids';
 
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
 
-afterEach(() => {
-  mockEsClient.search.mockClear();
-  mockEsClient.count.mockClear();
-});
-
 describe('get latest cycle ids', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('expect for empty response from client and get undefined', async () => {
     const response = await getLatestCycleIds(mockEsClient);
     expect(response).toEqual(undefined);
