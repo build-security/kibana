@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { EuiSpacer } from '@elastic/eui';
+import { isEmpty } from 'lodash';
 import { FindingsTable } from './findings_table';
 import { FindingsRuleFlyout } from './findings_flyout';
 import { FindingsSearchBar } from './findings_search_bar';
@@ -16,7 +17,7 @@ import { extractErrorMessage } from './utils';
 import type { CspFinding, FindingsFetchState } from './types';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
-import { SEARCH_FAILED } from './translations';
+import { INVALID_RESPONE, SEARCH_FAILED } from './translations';
 import { useUrlQuery } from '../../common/navigation/query_utils';
 import {
   useSearchSource,
@@ -50,11 +51,13 @@ export const getFetchState = (v: CspSearchSourceResponse<CspFinding>): FindingsF
     case 'error':
       return { ...v, error: extractErrorMessage(v.error) };
     case 'success':
+      if (isEmpty(v.data)) return { status: 'error', error: INVALID_RESPONE, data: undefined };
+
       return {
         ...v,
-        total: v.data?.rawResponse.hits.total as number,
+        total: v.data.rawResponse.hits.total as number,
         // TODO: we may want to specify fields and not include '_source' to reduce size
-        data: v.data?.rawResponse?.hits?.hits?.map((h) => h._source).filter(isNonNullable),
+        data: v.data.rawResponse.hits.hits.map((h) => h._source).filter(isNonNullable),
       };
     default:
       return v;

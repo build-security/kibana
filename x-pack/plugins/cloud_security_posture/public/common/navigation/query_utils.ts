@@ -18,8 +18,6 @@ const encodeRison = (v: RisonObject): string | undefined => {
   }
 };
 
-// TODO: rison throws on EMPTY_QUERY,
-// maybe dont use that
 const decodeRison = <T extends unknown>(query: string): T | undefined => {
   try {
     return decode(query) as T;
@@ -30,13 +28,18 @@ const decodeRison = <T extends unknown>(query: string): T | undefined => {
 };
 
 const QUERY_PARAM_KEY = 'query';
-const EMPTY_QUERY = '';
 
-export const encodeQuery = (query: RisonObject): LocationDescriptorObject['search'] =>
-  `${QUERY_PARAM_KEY}=${encodeRison(query) || EMPTY_QUERY}`;
+export const encodeQuery = (query: RisonObject): LocationDescriptorObject['search'] => {
+  const risonQuery = encodeRison(query);
+  if (!risonQuery) return;
+  return `${QUERY_PARAM_KEY}=${risonQuery}`;
+};
 
-export const decodeQuery = <T extends unknown>(search?: string): Partial<T> | undefined =>
-  decodeRison<T>(new URLSearchParams(search).get(QUERY_PARAM_KEY) || EMPTY_QUERY);
+export const decodeQuery = <T extends unknown>(search?: string): Partial<T> | undefined => {
+  const risonQuery = new URLSearchParams(search).get(QUERY_PARAM_KEY);
+  if (!risonQuery) return;
+  return decodeRison<T>(risonQuery);
+};
 
 /**
  * @description uses 'rison' to encode/decode a url query
