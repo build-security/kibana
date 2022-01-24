@@ -18,7 +18,7 @@ import type { CspFinding, FindingsFetchState } from './types';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
 import { INVALID_RESPONE, SEARCH_FAILED } from './translations';
-import { useUrlQuery } from '../../common/navigation/query_utils';
+import { useUrlQuery } from '../../common/hooks/use_url_query';
 import {
   useSearchSource,
   type CspSearchSource,

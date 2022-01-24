@@ -4,10 +4,8 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import { useEffect, useCallback, useMemo } from 'react';
 import { encode, decode, type RisonObject } from 'rison-node';
 import type { LocationDescriptorObject } from 'history';
-import { useHistory, useLocation } from 'react-router-dom';
 
 const encodeRison = (v: RisonObject): string | undefined => {
   try {
@@ -39,35 +37,4 @@ export const decodeQuery = <T extends unknown>(search?: string): Partial<T> | un
   const risonQuery = new URLSearchParams(search).get(QUERY_PARAM_KEY);
   if (!risonQuery) return;
   return decodeRison<T>(risonQuery);
-};
-
-/**
- * @description uses 'rison' to encode/decode a url query
- */
-export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
-  const { push } = useHistory();
-  const loc = useLocation();
-
-  const urlQuery = useMemo(
-    () => ({ ...getDefaultQuery(), ...decodeQuery<T>(loc.search) }),
-    [getDefaultQuery, loc.search]
-  );
-
-  const setUrlQuery = useCallback(
-    (query: Partial<ReturnType<typeof getDefaultQuery>>) =>
-      push({
-        search: encodeQuery({ ...getDefaultQuery(), ...query }),
-      }),
-    [getDefaultQuery, push]
-  );
-
-  useEffect(() => {
-    if (loc.search) return;
-    setUrlQuery(getDefaultQuery());
-  }, [getDefaultQuery, loc.search, setUrlQuery]);
-
-  return {
-    urlQuery,
-    setUrlQuery,
-  };
 };
