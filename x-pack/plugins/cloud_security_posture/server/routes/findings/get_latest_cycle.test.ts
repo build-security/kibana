@@ -18,7 +18,7 @@ describe('get latest cycle ids', () => {
     jest.resetAllMocks();
   });
 
-  it('expect for empty response from client and get undefined', async () => {
+  it('should return undefined when there are not results', async () => {
     const response = await getLatestCycleIds(mockEsClient);
     expect(response).toEqual(undefined);
   });
