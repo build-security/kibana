@@ -5,22 +5,17 @@
  * 2.0.
  */
 import React, { useEffect } from 'react';
-import type { Query } from '@kbn/es-query';
-import type { Filter } from '@kbn/es-query';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import * as TEST_SUBJECTS from './test_subjects';
-import type { DataView, TimeRange } from '../../../../../../src/plugins/data/common';
 import type { FindingsFetchState } from './types';
 import type { FindingsUrlQuery } from './findings_container';
 import type { CspClientPluginStartDeps } from '../../types';
 import { PLUGIN_NAME } from '../../../common';
 
-interface BaseFindingsSearchBarProps {
-  dataView: DataView;
-  dateRange: TimeRange;
-  query: Query;
-  filters: Filter[];
-  setQuery(v: FindingsUrlQuery): void;
+type SearchBarProps = Pick<FindingsUrlQuery, 'query' | 'filters' | 'dateRange' | 'dataView'>;
+
+interface BaseFindingsSearchBarProps extends SearchBarProps {
+  setQuery(v: Omit<SearchBarProps, 'dataView'>): void;
 }
 
 type FindingsSearchBarProps = FindingsFetchState & BaseFindingsSearchBarProps;

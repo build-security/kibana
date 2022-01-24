@@ -4,100 +4,117 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Criteria,
   EuiLink,
   EuiTableFieldDataColumnType,
-  EuiBadgeGroup,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiEmptyPrompt,
-  EuiBadge,
   EuiBasicTable,
   PropsOf,
   EuiBasicTableProps,
 } from '@elastic/eui';
-import { orderBy } from 'lodash';
+import moment from 'moment';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
 import type { CspFinding, FindingsFetchState } from './types';
 import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
+import type { FindingsUrlQuery } from './findings_container';
+import { SortDirection } from '../../../../../../src/plugins/data/common';
 
-interface BaseFindingsTableProps {
+type TableProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size' | 'dataView'>;
+
+interface BaseFindingsTableProps extends TableProps {
+  setQuery(q: Omit<TableProps, 'dataView'>): void;
   selectItem(v: CspFinding | undefined): void;
+  totalItemCount: number;
 }
 
 type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
-export const FindingsTable = ({ data = [], status, error, selectItem }: FindingsTableProps) => {
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
+const FindingsTableComponent = ({
+  from: pageIndex,
+  size: pageSize,
+  sort = [],
+  totalItemCount,
+  data = [],
+  status,
+  error,
+  setQuery,
+  selectItem,
+}: FindingsTableProps) => {
+  const pagination: EuiBasicTableProps<CspFinding>['pagination'] = useMemo(
+    () => ({
+      pageSize,
+      pageIndex: Math.ceil(pageIndex / pageSize),
+      totalItemCount,
+      pageSizeOptions: [10, 25, 100],
+      hidePerPageOptions: false,
+    }),
+    [pageIndex, pageSize, totalItemCount]
+  );
+
+  const sorting: EuiBasicTableProps<CspFinding>['sorting'] = useMemo(
+    () => ({
+      sort: getEuiSortFromEsSearchSource(sort),
+    }),
+    [sort]
+  );
 
   const getCellProps = (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
     onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
   });
 
-  const onTableChange = ({ page }: Criteria<CspFinding>) => {
-    if (!page) return;
-    const { index, size } = page;
+  const onTableChange = ({ page, sort: _sort }: Criteria<CspFinding>) => {
+    if (!page || !_sort) return;
 
-    setPageIndex(index);
-    setPageSize(size);
+    setQuery({
+      from: page.index * page.size,
+      size: page.size,
+      sort: [{ [_sort.field]: SortDirection[_sort.direction] }],
+    });
   };
-
-  const page = useMemo(
-    () =>
-      orderBy(data, ['@timestamp'], ['desc']).slice(
-        pageIndex * pageSize,
-        pageSize * pageIndex + pageSize
-      ),
-    [data, pageSize, pageIndex]
-  );
 
   // Show "zero state"
   if (!data.length && status === 'success')
     // TODO: use our own logo
     return <EuiEmptyPrompt iconType="logoKibana" title={<h2>{TEXT.NO_FINDINGS}</h2>} />;
 
-  // TODO: async pagination
-  const pagination: EuiBasicTableProps<CspFinding>['pagination'] = {
-    pageIndex,
-    pageSize,
-    totalItemCount: data.length,
-    pageSizeOptions: [5, 10, 25],
-    hidePerPageOptions: false,
-  };
-
   return (
     <EuiBasicTable
       data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
       loading={status === 'loading'}
       error={error ? error : undefined}
-      items={page}
+      items={data}
       columns={columns}
-      tableLayout={'auto'}
       pagination={pagination}
+      sorting={sorting}
       onChange={onTableChange}
       cellProps={getCellProps}
     />
   );
 };
 
+const getEuiSortFromEsSearchSource = (
+  sort: TableProps['sort']
+): { field: any; direction: SortDirection } | undefined =>
+  sort.length
+    ? Object.fromEntries(
+        // eui supports a single sort field
+        Object.entries(sort[0])
+          .map(([k, v]) => [
+            ['field', k],
+            ['direction', v],
+          ])
+          .flat()
+      )
+    : undefined;
+
+const timestampRenderer = (timestamp: string) =>
+  moment.duration(moment().diff(timestamp)).humanize();
+
 const ruleNameRenderer = (name: string) => <EuiLink>{name}</EuiLink>;
-const ruleTagsRenderer = (tags: string[]) => (
-  <EuiFlexGroup>
-    <EuiFlexItem>
-      <EuiBadgeGroup>
-        {tags.map((tag) => (
-          <EuiBadge key={tag} color="default">
-            {tag}
-          </EuiBadge>
-        ))}
-      </EuiBadgeGroup>
-    </EuiFlexItem>
-  </EuiFlexGroup>
-);
+
 const resultEvaluationRenderer = (type: PropsOf<typeof CspEvaluationBadge>['type']) => (
   <CspEvaluationBadge type={type} />
 );
@@ -107,28 +124,31 @@ const columns: Array<EuiTableFieldDataColumnType<CspFinding>> = [
     field: 'resource.filename',
     name: TEXT.RESOURCE,
     truncateText: true,
+    width: '15%',
+    sortable: true,
   },
   {
     field: 'rule.name',
     name: TEXT.RULE_NAME,
-    width: '50%',
+    width: '45%',
     truncateText: true,
     render: ruleNameRenderer,
+    sortable: true,
   },
   {
     field: 'result.evaluation',
     name: TEXT.EVALUATION,
-    width: '80px',
+    width: '100px',
     render: resultEvaluationRenderer,
-  },
-  {
-    field: 'rule.tags',
-    name: TEXT.TAGS,
-    render: ruleTagsRenderer,
+    sortable: true,
   },
   {
     field: '@timestamp',
     name: TEXT.TIMESTAMP,
     truncateText: true,
+    render: timestampRenderer,
+    sortable: true,
   },
 ];
+
+export const FindingsTable = React.memo(FindingsTableComponent);
