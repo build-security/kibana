@@ -8,8 +8,14 @@
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 import { schema as rt, TypeOf } from '@kbn/config-schema';
+<<<<<<< HEAD
 import type { SortOrder } from '@elastic/elasticsearch/lib/api/types';
 import type { IRouter } from 'src/core/server';
+=======
+import type { ElasticsearchClient } from 'src/core/server';
+import type { IRouter, Logger } from 'src/core/server';
+import { transformError } from '@kbn/securitysolution-es-utils';
+>>>>>>> main
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTE_PATH } from '../../../common/constants';
 
@@ -61,6 +67,7 @@ const buildQueryRequest = (latestCycleIds?: string[]): QueryDslQueryContainer =>
   };
 };
 
+<<<<<<< HEAD
 const buildOptionsRequest = (queryParams: FindingsQuerySchema): FindingsOptions => ({
   size: queryParams.per_page,
   from: getPointerForFirstDoc(queryParams.page, queryParams.per_page),
@@ -69,6 +76,9 @@ const buildOptionsRequest = (queryParams: FindingsQuerySchema): FindingsOptions 
 });
 
 export const defineFindingsIndexRoute = (router: IRouter): void =>
+=======
+export const defineFindingsIndexRoute = (router: IRouter, logger: Logger): void =>
+>>>>>>> main
   router.get(
     {
       path: FINDINGS_ROUTE_PATH,
@@ -87,14 +97,28 @@ export const defineFindingsIndexRoute = (router: IRouter): void =>
         const hits = findings.body.hits.hits;
         return response.ok({ body: hits });
       } catch (err) {
+<<<<<<< HEAD
         // TODO: research error handling
         return response.customError({ body: { message: err }, statusCode: 500 });
+=======
+        const error = transformError(err);
+        return response.customError({
+          body: { message: error.message },
+          statusCode: error.statusCode,
+        });
+>>>>>>> main
       }
     }
   );
 
+<<<<<<< HEAD
 export const findingsInputSchema = rt.object({
   page: rt.number({ defaultValue: 1, min: 0 }),
+=======
+const schema = rt.object({
+  latest_cycle: rt.maybe(rt.boolean()),
+  page: rt.number({ defaultValue: 1, min: 0 }), // TODO: research for pagination best practice
+>>>>>>> main
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
   latest_cycle: rt.maybe(rt.boolean()),
   sort_field: rt.maybe(rt.string()),
