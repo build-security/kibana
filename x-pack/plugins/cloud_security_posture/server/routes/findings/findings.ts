@@ -85,10 +85,13 @@ export const defineFindingsIndexRoute = (router: IRouter, logger: Logger): void 
           request.query.latest_cycle === true
             ? await getLatestCycleIds(esClient, logger)
             : undefined;
+
         const query = buildQueryRequest(latestCycleIds);
         const esQuery = getFindingsEsQuery(query, options);
+
         const findings = await esClient.search(esQuery);
         const hits = findings.body.hits.hits;
+
         return response.ok({ body: hits });
       } catch (err) {
         const error = transformError(err);
