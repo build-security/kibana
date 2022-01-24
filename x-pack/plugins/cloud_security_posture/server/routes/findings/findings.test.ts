@@ -156,7 +156,7 @@ describe('findings API', () => {
 
       await handler(context, req, res);
 
-      expect(mockEsClient.search.mock.calls).toHaveLength(2);
+      expect(mockEsClient.search).toHaveBeenCalledTimes(2);
 
       const handlerArgs = mockEsClient.search.mock.calls[1][0];
 
@@ -260,6 +260,7 @@ describe('findings API', () => {
       const [context, req, res] = [mockContext, mockRequest, mockResponse];
       await handler(context, req, res);
 
+      expect(mockEsClient.search).toHaveBeenCalledTimes(1);
       const handlerArgs = mockEsClient.search.mock.calls[0][0];
 
       expect(handlerArgs).toMatchObject({
