@@ -104,7 +104,7 @@ export const findingsInputSchema = rt.object({
   /**
    * The page of objects to return
    */
-  page: rt.number({ defaultValue: 1, min: 0 }),
+  page: rt.number({ defaultValue: 1, min: 1 }),
   /**
    * The number of objects to include in each page
    */
