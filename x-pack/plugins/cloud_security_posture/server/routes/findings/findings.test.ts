@@ -11,7 +11,7 @@ import {
 } from 'src/core/server/elasticsearch/client/mocks';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { KibanaRequest } from 'src/core/server/http/router/request';
-import { httpServerMock, httpServiceMock } from 'src/core/server/mocks';
+import { httpServerMock, httpServiceMock, loggingSystemMock } from 'src/core/server/mocks';
 import {
   defineFindingsIndexRoute,
   findingsInputSchema,
@@ -29,13 +29,19 @@ export const getMockCspContext = (mockEsClient: ElasticsearchClientMock): Kibana
 };
 
 describe('findings API', () => {
+  let logger: ReturnType<typeof loggingSystemMock.createLogger>;
+
+  beforeEach(() => {
+    logger = loggingSystemMock.createLogger();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('validate the API route path', async () => {
     const router = httpServiceMock.createRouter();
-    defineFindingsIndexRoute(router);
+    defineFindingsIndexRoute(router, logger);
 
     const [config, _] = router.get.mock.calls[0];
 
@@ -124,7 +130,7 @@ describe('findings API', () => {
     it('takes cycle_id and validate the filter was built right', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
 
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
@@ -172,7 +178,7 @@ describe('findings API', () => {
     it('validate that default sort is timestamp desc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -196,7 +202,7 @@ describe('findings API', () => {
     it('should build sort request by `sort_field` and `sort_order` - asc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -221,7 +227,7 @@ describe('findings API', () => {
     it('should build sort request by `sort_field` and `sort_order` - desc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -246,7 +252,7 @@ describe('findings API', () => {
     it('takes `page_number` and `per_page` validate that the requested selected page was called', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -272,7 +278,7 @@ describe('findings API', () => {
     it('should format request by fields filter', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router);
+      defineFindingsIndexRoute(router, logger);
       const [_, handler] = router.get.mock.calls[0];
 
       const mockContext = getMockCspContext(mockEsClient);

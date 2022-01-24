@@ -9,18 +9,20 @@ import {
   elasticsearchClientMock,
   // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 } from 'src/core/server/elasticsearch/client/mocks';
+import { loggingSystemMock } from 'src/core/server/mocks';
 import { getLatestCycleIds } from './get_latest_cycle_ids';
 
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
 
 describe('get latest cycle ids', () => {
+  let logger: ReturnType<typeof loggingSystemMock.createLogger>;
+
   beforeEach(() => {
-    jest.resetAllMocks();
+    logger = loggingSystemMock.createLogger();
   });
 
-  it('should return undefined when there are not results', async () => {
-    const response = await getLatestCycleIds(mockEsClient);
-    expect(response).toEqual(undefined);
+  beforeEach(() => {
+    jest.resetAllMocks();
   });
 
   it('expect to find empty bucket', async () => {
@@ -34,7 +36,7 @@ describe('get latest cycle ids', () => {
         },
       })
     );
-    const response = await getLatestCycleIds(mockEsClient);
+    const response = await getLatestCycleIds(mockEsClient, logger);
     expect(response).toEqual(undefined);
   });
 
@@ -57,7 +59,7 @@ describe('get latest cycle ids', () => {
         },
       })
     );
-    const response = await getLatestCycleIds(mockEsClient);
+    const response = await getLatestCycleIds(mockEsClient, logger);
     expect(response).toEqual(expect.arrayContaining(['randomId1']));
   });
 
@@ -94,7 +96,7 @@ describe('get latest cycle ids', () => {
         },
       })
     );
-    const response = await getLatestCycleIds(mockEsClient);
+    const response = await getLatestCycleIds(mockEsClient, logger);
     expect(response).toEqual(expect.arrayContaining(['randomId1', 'randomId2', 'randomId3']));
   });
 });

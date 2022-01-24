@@ -100,10 +100,28 @@ export const defineFindingsIndexRoute = (router: IRouter, logger: Logger): void 
   );
 
 export const findingsInputSchema = rt.object({
+  /**
+   * The page of objects to return
+   */
   page: rt.number({ defaultValue: 1, min: 0 }),
+  /**
+   * The number of objects to include in each page
+   */
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
+  /**
+   * Boolean flag to indicate for receive inly the latest findings
+   */
   latest_cycle: rt.maybe(rt.boolean()),
+  /**
+   * The field to use for sorting the found objects.
+   */
   sort_field: rt.maybe(rt.string()),
+  /**
+   * The order to sort by
+   */
   sort_order: rt.oneOf([rt.literal('asc'), rt.literal('desc')], { defaultValue: 'desc' }),
+  /**
+   * The fields in the entity to return in the response
+   */
   fields: rt.maybe(rt.string()),
 });
