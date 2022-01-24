@@ -38,8 +38,7 @@ export const mockSearchResultOnce = async (
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
 
 afterEach(() => {
-  mockEsClient.search.mockClear();
-  mockEsClient.count.mockClear();
+  jest.clearAllMocks();
 });
 
 describe('testing round score', () => {

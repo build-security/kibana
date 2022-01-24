@@ -17,6 +17,7 @@ import { CSP_KUBEBEAT_INDEX_PATTERN, FINDINGS_ROUTE_PATH } from '../../../common
 type FindingsQuerySchema = TypeOf<typeof findingsInputSchema>;
 
 export const DEFAULT_FINDINGS_PER_PAGE = 20;
+
 export interface FindingsOptions {
   size: number;
   from?: number;
