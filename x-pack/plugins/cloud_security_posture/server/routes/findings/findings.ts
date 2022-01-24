@@ -113,7 +113,7 @@ export const findingsInputSchema = rt.object({
    */
   per_page: rt.number({ defaultValue: DEFAULT_FINDINGS_PER_PAGE, min: 0 }),
   /**
-   * Boolean flag to indicate for receive inly the latest findings
+   * Boolean flag to indicate for receiving only the latest findings
    */
   latest_cycle: rt.maybe(rt.boolean()),
   /**

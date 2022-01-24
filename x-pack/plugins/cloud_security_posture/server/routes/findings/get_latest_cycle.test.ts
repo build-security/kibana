@@ -19,9 +19,6 @@ describe('get latest cycle ids', () => {
 
   beforeEach(() => {
     logger = loggingSystemMock.createLogger();
-  });
-
-  beforeEach(() => {
     jest.resetAllMocks();
   });
 
