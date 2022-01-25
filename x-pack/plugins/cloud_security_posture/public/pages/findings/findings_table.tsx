@@ -22,10 +22,10 @@ import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
 import type { FindingsUrlQuery } from './findings_container';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
 
-type TableProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size' | 'dataView'>;
+type TableQueryProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size' | 'dataView'>;
 
-interface BaseFindingsTableProps extends TableProps {
-  setQuery(q: Omit<TableProps, 'dataView'>): void;
+interface BaseFindingsTableProps extends TableQueryProps {
+  setQuery(q: Omit<TableQueryProps, 'dataView'>): void;
   selectItem(v: CspFinding | undefined): void;
   totalItemCount: number;
 }
@@ -96,7 +96,7 @@ const FindingsTableComponent = ({
 };
 
 const getEuiSortFromEsSearchSource = (
-  sort: TableProps['sort']
+  sort: TableQueryProps['sort']
 ): { field: any; direction: SortDirection } | undefined =>
   sort.length
     ? Object.fromEntries(

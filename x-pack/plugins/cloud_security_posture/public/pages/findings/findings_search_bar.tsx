@@ -12,10 +12,10 @@ import type { FindingsUrlQuery } from './findings_container';
 import type { CspClientPluginStartDeps } from '../../types';
 import { PLUGIN_NAME } from '../../../common';
 
-type SearchBarProps = Pick<FindingsUrlQuery, 'query' | 'filters' | 'dateRange' | 'dataView'>;
+type SearchBarQueryProps = Pick<FindingsUrlQuery, 'query' | 'filters' | 'dateRange' | 'dataView'>;
 
-interface BaseFindingsSearchBarProps extends SearchBarProps {
-  setQuery(v: Omit<SearchBarProps, 'dataView'>): void;
+interface BaseFindingsSearchBarProps extends SearchBarQueryProps {
+  setQuery(v: Omit<SearchBarQueryProps, 'dataView'>): void;
 }
 
 type FindingsSearchBarProps = FindingsFetchState & BaseFindingsSearchBarProps;
