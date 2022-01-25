@@ -33,8 +33,8 @@ interface BaseFindingsTableProps extends TableQueryProps {
 type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
 const FindingsTableComponent = ({
-  from: pageIndex,
-  size: pageSize,
+  from,
+  size,
   sort = [],
   totalItemCount,
   data = [],
@@ -43,23 +43,12 @@ const FindingsTableComponent = ({
   setQuery,
   selectItem,
 }: FindingsTableProps) => {
-  const pagination: EuiBasicTableProps<CspFinding>['pagination'] = useMemo(
-    () => ({
-      pageSize,
-      pageIndex: Math.ceil(pageIndex / pageSize),
-      totalItemCount,
-      pageSizeOptions: [10, 25, 100],
-      hidePerPageOptions: false,
-    }),
-    [pageIndex, pageSize, totalItemCount]
+  const pagination = useMemo(
+    () => getEuiPaginationFromEsSearchSource({ from, size, totalItemCount }),
+    [from, size, totalItemCount]
   );
 
-  const sorting: EuiBasicTableProps<CspFinding>['sorting'] = useMemo(
-    () => ({
-      sort: getEuiSortFromEsSearchSource(sort),
-    }),
-    [sort]
-  );
+  const sorting = useMemo(() => getEuiSortFromEsSearchSource(sort), [sort]);
 
   const getCellProps = (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
     onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
@@ -95,20 +84,29 @@ const FindingsTableComponent = ({
   );
 };
 
+const getEuiPaginationFromEsSearchSource = ({
+  from: pageIndex,
+  size: pageSize,
+  totalItemCount,
+}: Pick<
+  FindingsTableProps,
+  'from' | 'size' | 'totalItemCount'
+>): EuiBasicTableProps<CspFinding>['pagination'] => ({
+  pageSize,
+  pageIndex: Math.ceil(pageIndex / pageSize),
+  totalItemCount,
+  pageSizeOptions: [10, 25, 100],
+  hidePerPageOptions: false,
+});
+
 const getEuiSortFromEsSearchSource = (
   sort: TableQueryProps['sort']
-): { field: any; direction: SortDirection } | undefined =>
-  sort.length
-    ? Object.fromEntries(
-        // eui supports a single sort field
-        Object.entries(sort[0])
-          .map(([k, v]) => [
-            ['field', k],
-            ['direction', v],
-          ])
-          .flat()
-      )
-    : undefined;
+): EuiBasicTableProps<CspFinding>['sorting'] => {
+  if (!sort.length) return;
+
+  const [field, direction] = Object.entries(sort[0])[0];
+  return { sort: { field: field as keyof CspFinding, direction: direction as SortDirection } };
+};
 
 const timestampRenderer = (timestamp: string) =>
   moment.duration(moment().diff(timestamp)).humanize();
