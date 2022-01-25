@@ -23,9 +23,9 @@ export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
   const setUrlQuery = useCallback(
     (query: Partial<ReturnType<typeof getDefaultQuery>>) =>
       push({
-        search: encodeQuery({ ...getDefaultQuery(), ...query }),
+        search: encodeQuery({ ...getDefaultQuery(), ...urlQuery, ...query }),
       }),
-    [getDefaultQuery, push]
+    [getDefaultQuery, urlQuery, push]
   );
 
   useEffect(() => {
