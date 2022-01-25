@@ -7,7 +7,14 @@
 
 import React, { useCallback } from 'react';
 import { css } from '@emotion/react';
-import { EuiPanel, EuiText, EuiTitle, EuiLoadingChart, EuiFlexGroup } from '@elastic/eui';
+import {
+  EuiPanel,
+  EuiText,
+  EuiTitle,
+  EuiLoadingChart,
+  EuiFlexGroup,
+  EuiSpacer,
+} from '@elastic/eui';
 import { CHART_PANEL_TEST_SUBJECTS } from './constants';
 
 interface ChartPanelProps<TData = unknown> {
@@ -56,7 +63,6 @@ const Empty = () => (
 
 export const ChartPanel = <TData extends unknown>({
   title,
-  description,
   hasBorder = true,
   chart: Chart,
   isLoading,
@@ -72,19 +78,13 @@ export const ChartPanel = <TData extends unknown>({
 
   return (
     <EuiPanel hasBorder={hasBorder} hasShadow={false} data-test-subj="chart-panel">
-      <EuiFlexGroup direction="column" gutterSize="xs">
-        {title && (
-          <EuiTitle size="s" css={euiTitleStyle}>
-            <h3>{title}</h3>
-          </EuiTitle>
-        )}
-        {description && (
-          <EuiText size="xs" color="subdued">
-            {description}
-          </EuiText>
-        )}
-        {renderChart()}
-      </EuiFlexGroup>
+      {title && (
+        <EuiTitle size="s" css={euiTitleStyle}>
+          <h3>{title}</h3>
+        </EuiTitle>
+      )}
+      <EuiSpacer />
+      {renderChart()}
     </EuiPanel>
   );
 };
