@@ -16,6 +16,7 @@ import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/p
 import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
 import type { CspClientPluginStartDeps } from '../types';
 import { pageToComponentMapping } from './constants';
+import { EuiErrorBoundary } from '@elastic/eui';
 
 const queryClient = new QueryClient();
 
@@ -42,17 +43,19 @@ const routes = getRoutesFromMapping(allNavigationItems, pageToComponentMapping);
 export const CspApp = ({ core, deps, params }: CspAppDeps) => (
   <KibanaContextProvider services={{ ...deps, ...core }}>
     <QueryClientProvider client={queryClient}>
-      <Router history={params.history}>
-        <I18nProvider>
-          <Switch>
-            {routes.map((route) => (
-              <Route key={route.path as string} {...route} />
-            ))}
-            <Route exact path="/" component={RedirectToDashboard} />
-            <Route path="*" component={UnknownRoute} />
-          </Switch>
-        </I18nProvider>
-      </Router>
+      <EuiErrorBoundary>
+        <Router history={params.history}>
+          <I18nProvider>
+            <Switch>
+              {routes.map((route) => (
+                <Route key={route.path as string} {...route} />
+              ))}
+              <Route exact path="/" component={RedirectToDashboard} />
+              <Route path="*" component={UnknownRoute} />
+            </Switch>
+          </I18nProvider>
+        </Router>
+      </EuiErrorBoundary>
     </QueryClientProvider>
   </KibanaContextProvider>
 );

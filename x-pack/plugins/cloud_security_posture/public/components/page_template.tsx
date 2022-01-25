@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { EuiErrorBoundary } from '@elastic/eui';
 import {
   KibanaPageTemplate,
   KibanaPageTemplateProps,
@@ -44,7 +45,7 @@ const defaultProps: KibanaPageTemplateProps = {
 export const CspPageTemplate: React.FC<KibanaPageTemplateProps> = ({ children, ...props }) => {
   return (
     <KibanaPageTemplate {...defaultProps} {...props}>
-      {children}
+      <EuiErrorBoundary>{children}</EuiErrorBoundary>
     </KibanaPageTemplate>
   );
 };
