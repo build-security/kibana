@@ -9,6 +9,7 @@ import { I18nProvider } from '@kbn/i18n-react';
 import { Router, Redirect, Switch, Route } from 'react-router-dom';
 import type { RouteProps } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { EuiErrorBoundary } from '@elastic/eui';
 import { allNavigationItems } from '../common/navigation/constants';
 import { CspNavigationItem } from '../common/navigation/types';
 import { UnknownRoute } from '../components/unknown_route';
@@ -16,7 +17,6 @@ import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/p
 import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
 import type { CspClientPluginStartDeps } from '../types';
 import { pageToComponentMapping } from './constants';
-import { EuiErrorBoundary } from '@elastic/eui';
 
 const queryClient = new QueryClient();
 
