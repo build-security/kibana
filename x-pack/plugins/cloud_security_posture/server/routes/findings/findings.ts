@@ -40,7 +40,7 @@ const buildLatestCycleFilter = (latestCycleIds?: string[]): QueryDslQueryContain
 };
 
 const convertKqueryToElasticsearchQuery = (
-  filter: string,
+  filter: string | undefined,
   logger: Logger
 ): QueryDslQueryContainer[] => {
   let dslFilterQuery: QueryDslBoolQuery['filter'];
