@@ -14,7 +14,7 @@ import {
   PartitionLayout,
   Settings,
 } from '@elastic/charts';
-import { EuiFlexGroup, EuiText, EuiHorizontalRule, EuiSpacer, EuiFlexItem } from '@elastic/eui';
+import { EuiFlexGroup, EuiText, EuiHorizontalRule, EuiFlexItem } from '@elastic/eui';
 import type { PartitionElementEvent } from '@elastic/charts';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
@@ -24,21 +24,21 @@ import * as TEXT from '../translations';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { allNavigationItems } from '../../../common/navigation/constants';
 
-interface CloudPostureScoreChartProps {
-  data: Stats & { name?: string };
+interface ChartName {
+  name?: string;
 }
 
-const getBenchmarkAndResultEvaluationQuery = (name: string, evaluation: string): Query => ({
+interface CloudPostureScoreChartProps {
+  data: Stats & ChartName;
+}
+
+const getQuery = (name: ChartName['name'], evaluation: string): Query => ({
   language: 'kuery',
   query: `${name ? `rule.benchmark : "${name}" and` : ''} result.evaluation : "${evaluation}"`,
 });
 
-export const CloudPostureScoreChart = ({
-  data: { postureScore, totalPassed, totalFailed, totalFindings, name = '' },
-}: CloudPostureScoreChartProps) => {
+const ScoreChart = ({ totalPassed, totalFailed, name }: CloudPostureScoreChartProps['data']) => {
   const history = useHistory();
-
-  if (totalPassed === undefined || totalFailed === undefined) return null;
 
   const handleElementClick: ElementClickListener = (elements) => {
     const [element] = elements as PartitionElementEvent[];
@@ -47,12 +47,9 @@ export const CloudPostureScoreChart = ({
 
     history.push({
       pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getBenchmarkAndResultEvaluationQuery(name, rollupValue.toLowerCase())),
+      search: encodeQuery(getQuery(name, rollupValue.toLowerCase())),
     });
   };
-
-  const total = totalPassed + totalFailed;
-  const percentage = `${Math.round((totalPassed / total) * 100)}%`;
 
   const data = [
     { label: TEXT.PASSED, value: totalPassed },
@@ -60,50 +57,70 @@ export const CloudPostureScoreChart = ({
   ];
 
   return (
+    <Chart size={{ height: 75, width: 90 }}>
+      <Settings onElementClick={handleElementClick} />
+      <Partition
+        id={name || 'score_chart'}
+        data={data}
+        valueGetter="percent"
+        valueAccessor={(d: Datum) => d.value as number}
+        layers={[
+          {
+            groupByRollup: (d: Datum) => d.label,
+            shape: {
+              fillColor: (d, index) =>
+                d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
+            },
+          },
+        ]}
+        config={{
+          partitionLayout: PartitionLayout.sunburst,
+          linkLabel: { maximumSection: Infinity, maxCount: 0 },
+          outerSizeRatio: 0.9,
+          emptySizeRatio: 0.8,
+        }}
+      />
+    </Chart>
+  );
+};
+
+const PercentageInfo = ({
+  postureScore,
+  totalPassed,
+  totalFindings,
+}: CloudPostureScoreChartProps['data']) => {
+  const percentage = `${Math.round(postureScore)}%`;
+
+  return (
+    <EuiFlexGroup direction="column" justifyContent="flexEnd">
+      <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>{percentage}</EuiText>
+      <EuiText
+        style={{ fontSize: 12 }}
+      >{`${totalPassed}/${totalFindings} Findings passed`}</EuiText>
+    </EuiFlexGroup>
+  );
+};
+
+const ComplianceTrendChart = () => <div>Trend Placeholder</div>;
+
+export const CloudPostureScoreChart = ({ data }: CloudPostureScoreChartProps) => {
+  if (data.totalPassed === undefined || data.totalFailed === undefined) return null;
+
+  return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem>
         <EuiFlexGroup direction="row" style={{ padding: '0 10px' }}>
           <EuiFlexItem grow={false} style={{ margin: 0 }}>
-            <Chart size={{ height: 75, width: 90 }}>
-              <Settings onElementClick={handleElementClick} />
-              <Partition
-                id={name || 'score_chart'}
-                data={data}
-                valueGetter="percent"
-                valueAccessor={(d: Datum) => d.value as number}
-                layers={[
-                  {
-                    groupByRollup: (d: Datum) => d.label,
-                    shape: {
-                      fillColor: (d, index) =>
-                        d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
-                    },
-                  },
-                ]}
-                config={{
-                  partitionLayout: PartitionLayout.sunburst,
-                  linkLabel: { maximumSection: Infinity, maxCount: 0 },
-                  outerSizeRatio: 0.9,
-                  emptySizeRatio: 0.8,
-                }}
-              />
-            </Chart>
+            <ScoreChart {...data} />
           </EuiFlexItem>
           <EuiFlexItem>
-            <EuiFlexGroup direction="column" justifyContent="flexEnd">
-              <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>
-                {percentage}
-              </EuiText>
-              <EuiText
-                style={{ fontSize: 12 }}
-              >{`${totalPassed}/${totalFindings} Findings passed`}</EuiText>
-            </EuiFlexGroup>
+            <PercentageInfo {...data} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>
       <EuiHorizontalRule margin="m" />
       <EuiFlexItem>
-        <div>trend</div>
+        <ComplianceTrendChart />
       </EuiFlexItem>
     </EuiFlexGroup>
   );
