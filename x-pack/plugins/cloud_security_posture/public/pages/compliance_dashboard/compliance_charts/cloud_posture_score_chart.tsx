@@ -46,7 +46,7 @@ const ScoreChart = ({
         valueAccessor={(d) => d.value as number}
         layers={[
           {
-            groupByRollup: (d: Datum) => d.label,
+            groupByRollup: (d: { label: string }) => d.label,
             shape: {
               fillColor: (d, index) =>
                 d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
