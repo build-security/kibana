@@ -61,42 +61,46 @@ export const CloudPostureScoreChart = ({
 
   return (
     <EuiFlexGroup direction="column">
-      <EuiFlexGroup direction="row" style={{ padding: '0 10px' }}>
-        <EuiFlexItem grow={false} style={{ margin: 0 }}>
-          <Chart size={{ height: 75, width: 100 }}>
-            <Settings onElementClick={handleElementClick} />
-            <Partition
-              id={name || 'score_chart'}
-              data={data}
-              valueGetter="percent"
-              valueAccessor={(d: Datum) => d.value as number}
-              layers={[
-                {
-                  groupByRollup: (d: Datum) => d.label,
-                  shape: {
-                    fillColor: (d, index) =>
-                      d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
+      <EuiFlexItem>
+        <EuiFlexGroup direction="row" style={{ padding: '0 10px' }}>
+          <EuiFlexItem grow={false} style={{ margin: 0 }}>
+            <Chart size={{ height: 75, width: 90 }}>
+              <Settings onElementClick={handleElementClick} />
+              <Partition
+                id={name || 'score_chart'}
+                data={data}
+                valueGetter="percent"
+                valueAccessor={(d: Datum) => d.value as number}
+                layers={[
+                  {
+                    groupByRollup: (d: Datum) => d.label,
+                    shape: {
+                      fillColor: (d, index) =>
+                        d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
+                    },
                   },
-                },
-              ]}
-              config={{
-                partitionLayout: PartitionLayout.sunburst,
-                linkLabel: { maximumSection: Infinity, maxCount: 0 },
-                outerSizeRatio: 0.9,
-                emptySizeRatio: 0.8,
-              }}
-            />
-          </Chart>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFlexGroup direction="column" justifyContent="flexEnd">
-            <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>
-              {percentage}
-            </EuiText>
-            <EuiText style={{ fontSize: 12, fontWeight: 'bold' }}>{'199/270 Rules passed'}</EuiText>
-          </EuiFlexGroup>
-        </EuiFlexItem>
-      </EuiFlexGroup>
+                ]}
+                config={{
+                  partitionLayout: PartitionLayout.sunburst,
+                  linkLabel: { maximumSection: Infinity, maxCount: 0 },
+                  outerSizeRatio: 0.9,
+                  emptySizeRatio: 0.8,
+                }}
+              />
+            </Chart>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiFlexGroup direction="column" justifyContent="flexEnd">
+              <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>
+                {percentage}
+              </EuiText>
+              <EuiText
+                style={{ fontSize: 12 }}
+              >{`${totalPassed}/${totalFindings} Findings passed`}</EuiText>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiFlexItem>
       <EuiHorizontalRule margin="m" />
       <EuiFlexItem>
         <div>trend</div>
