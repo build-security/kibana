@@ -8,6 +8,7 @@
 import React from 'react';
 import {
   Chart,
+  Datum,
   ElementClickListener,
   Partition,
   PartitionElementEvent,
@@ -45,7 +46,7 @@ const ScoreChart = ({
         valueAccessor={(d) => d.value as number}
         layers={[
           {
-            groupByRollup: (d) => d.label,
+            groupByRollup: (d: Datum) => d.label,
             shape: {
               fillColor: (d, index) =>
                 d.dataName === 'Passed' ? statusColors.success : statusColors.danger,
