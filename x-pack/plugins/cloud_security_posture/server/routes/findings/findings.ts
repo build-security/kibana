@@ -7,6 +7,8 @@
 
 import type { IRouter, Logger } from 'src/core/server';
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
+import { QueryDslBoolQuery } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 import { schema as rt, TypeOf } from '@kbn/config-schema';
 import type { SortOrder } from '@elastic/elasticsearch/lib/api/types';
 import { transformError } from '@kbn/securitysolution-es-utils';
@@ -26,6 +28,33 @@ export interface FindingsOptions {
   sortOrder?: SortOrder;
   fields?: string[];
 }
+
+const buildLatestCycleFilter = (latestCycleIds?: string[]): QueryDslQueryContainer[] => {
+  if (!!latestCycleIds) {
+    const latestCycleFilter = latestCycleIds.map((latestCycleId) => ({
+      term: { 'run_id.keyword': latestCycleId },
+    }));
+    return latestCycleFilter;
+  }
+  return [];
+};
+
+const convertKqueryToElasticsearchQuery = (
+  filter: string,
+  logger: Logger
+): QueryDslQueryContainer[] => {
+  let dslFilterQuery: QueryDslBoolQuery['filter'];
+  try {
+    dslFilterQuery = filter ? toElasticsearchQuery(fromKueryExpression(filter)) : [];
+    if (!Array.isArray(dslFilterQuery)) {
+      dslFilterQuery = [dslFilterQuery];
+    }
+  } catch (err) {
+    logger.warn(`Invalid kuery syntax for the filter (${filter}) error: ${err.message}`);
+    throw err;
+  }
+  return dslFilterQuery;
+};
 
 const getPointerForFirstDoc = (page: number, perPage: number): number =>
   page <= 1 ? 0 : page * perPage - perPage;
@@ -48,19 +77,20 @@ const getFindingsEsQuery = (
     ...options,
   };
 };
-
-const buildQueryRequest = (latestCycleIds?: string[]): QueryDslQueryContainer => {
-  let filterPart: QueryDslQueryContainer = { match_all: {} };
-  if (!!latestCycleIds) {
-    const filter = latestCycleIds.map((latestCycleId) => ({
-      term: { 'run_id.keyword': latestCycleId },
-    }));
-    filterPart = { bool: { filter } };
-  }
-
-  return {
-    ...filterPart,
+const buildQueryRequest = (
+  kquery: string | undefined,
+  latestCycleIds: string[] | undefined,
+  logger: Logger
+): QueryDslQueryContainer => {
+  const filter = convertKqueryToElasticsearchQuery(kquery, logger);
+  const latestCycleIdsFilter = buildLatestCycleFilter(latestCycleIds);
+  filter.push(...latestCycleIdsFilter);
+  const query = {
+    bool: {
+      filter,
+    },
   };
+  return query;
 };
 
 const buildOptionsRequest = (queryParams: FindingsQuerySchema): FindingsOptions => ({
@@ -86,7 +116,7 @@ export const defineFindingsIndexRoute = (router: IRouter, logger: Logger): void 
             ? await getLatestCycleIds(esClient, logger)
             : undefined;
 
-        const query = buildQueryRequest(latestCycleIds);
+        const query = buildQueryRequest(request.query.kquery, latestCycleIds, logger);
         const esQuery = getFindingsEsQuery(query, options);
 
         const findings = await esClient.search(esQuery);
@@ -128,4 +158,8 @@ export const findingsInputSchema = rt.object({
    * The fields in the entity to return in the response
    */
   fields: rt.maybe(rt.string()),
+  /**
+   * kql query
+   */
+  kquery: rt.maybe(rt.string()),
 });
