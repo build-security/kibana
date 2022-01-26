@@ -41,11 +41,10 @@ export const useSearchSource = <TData = unknown>({
 }: CspSearchSource): CspSearchSourceResponse<TData> => {
   const { data: dataService } = useKibana<CspClientPluginStartDeps>().services;
   const { query: queryService, search: searchService } = dataService;
+
   return useMutation(async () => {
     if (query) queryService.queryString.setQuery(query);
-
     const timefilter = queryService.timefilter.timefilter.createFilter(dataView, dateRange);
-
     queryService.filterManager.setFilters([...filters, timefilter].filter(isNonNullable));
 
     const source = await searchService.searchSource.create({
