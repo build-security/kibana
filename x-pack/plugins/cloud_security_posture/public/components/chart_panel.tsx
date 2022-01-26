@@ -17,14 +17,11 @@ import {
 } from '@elastic/eui';
 import { CHART_PANEL_TEST_SUBJECTS } from './constants';
 
-interface ChartPanelProps<TData = unknown> {
+interface ChartPanelProps {
   title?: string;
-  description?: string;
   hasBorder?: boolean;
   isLoading: boolean;
   isError: boolean;
-  data: TData;
-  chart: React.FC<{ data: TData }>;
 }
 
 const Loading = () => (
@@ -49,32 +46,18 @@ const Error = () => (
   </EuiFlexGroup>
 );
 
-const Empty = () => (
-  <EuiFlexGroup
-    justifyContent="center"
-    alignItems="center"
-    data-test-subj={CHART_PANEL_TEST_SUBJECTS.EMPTY}
-  >
-    <EuiText size="xs" color="subdued">
-      {'No data to display'}
-    </EuiText>
-  </EuiFlexGroup>
-);
-
-export const ChartPanel = <TData extends unknown>({
+export const ChartPanel: React.FC<ChartPanelProps> = ({
   title,
   hasBorder = true,
-  chart: Chart,
   isLoading,
   isError,
-  data,
-}: ChartPanelProps<TData>) => {
+  children,
+}) => {
   const renderChart = useCallback(() => {
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
-    if (!data) return <Empty />;
-    return <Chart data={data} />;
-  }, [isLoading, isError, data, Chart]);
+    return children;
+  }, [isLoading, isError, children]);
 
   return (
     <EuiPanel hasBorder={hasBorder} hasShadow={false} data-test-subj="chart-panel">
