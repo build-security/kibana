@@ -18,8 +18,9 @@ import * as TEXT from '../translations';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
+import { Evaluation } from '../../../../common/types';
 
-const getQuery = (evaluation: string): Query => ({
+const getEvaluationQuery = (evaluation: Evaluation): Query => ({
   language: 'kuery',
   query: `"result.evaluation : "${evaluation}"`,
 });
@@ -32,11 +33,11 @@ export const SummarySection = () => {
   const handleElementClick = (elements: PartitionElementEvent[]) => {
     const [element] = elements;
     const [layerValue] = element;
-    const rollupValue = layerValue[0].groupByRollup as string;
+    const rollupValue = layerValue[0].groupByRollup as Evaluation;
 
     history.push({
       pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getQuery(rollupValue.toLowerCase())),
+      search: encodeQuery(getEvaluationQuery(rollupValue)),
     });
   };
 
@@ -49,7 +50,7 @@ export const SummarySection = () => {
           isError={getStats.isError}
         >
           <CloudPostureScoreChart
-            id="cloud_posture"
+            id="cloud_posture_score_chart"
             data={getStats.data}
             partitionOnElementClick={handleElementClick}
           />

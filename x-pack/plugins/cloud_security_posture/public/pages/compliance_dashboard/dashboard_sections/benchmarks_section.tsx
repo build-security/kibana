@@ -27,6 +27,7 @@ import { ChartPanel } from '../../../components/chart_panel';
 import * as TEXT from '../translations';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
+import { Evaluation } from '../../../../common/types';
 
 type BenchmarksWithIcons = 'CIS Kubernetes';
 
@@ -42,9 +43,9 @@ const getBenchmarkLogo = (benchmarkName: BenchmarksWithIcons | string): EuiIconT
   return 'logoElastic';
 };
 
-const getQuery = (name: string, evaluation: string): Query => ({
+const getBenchmarkEvaluationQuery = (name: string, evaluation: Evaluation): Query => ({
   language: 'kuery',
-  query: `"result.evaluation : "${evaluation}"`,
+  query: `rule.benchmark : "${name}" and result.evaluation : "${evaluation}"`,
 });
 
 export const BenchmarksSection = () => {
@@ -56,11 +57,11 @@ export const BenchmarksSection = () => {
   const handleElementClick = (name: string, elements: PartitionElementEvent[]) => {
     const [element] = elements;
     const [layerValue] = element;
-    const rollupValue = layerValue[0].groupByRollup as string;
+    const rollupValue = layerValue[0].groupByRollup as Evaluation;
 
     history.push({
       pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getQuery(name, rollupValue.toLowerCase())),
+      search: encodeQuery(getBenchmarkEvaluationQuery(name, rollupValue)),
     });
   };
 
@@ -96,7 +97,7 @@ export const BenchmarksSection = () => {
                         isError={getStats.isError}
                       >
                         <CloudPostureScoreChart
-                          id={benchmark.name}
+                          id={`${benchmark.name}_score_chart`}
                           data={benchmark}
                           partitionOnElementClick={(elements) =>
                             handleElementClick(benchmark.name, elements)

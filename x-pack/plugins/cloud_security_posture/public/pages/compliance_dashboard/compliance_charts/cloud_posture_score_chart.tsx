@@ -40,7 +40,7 @@ const ScoreChart = ({
     <Chart size={{ height: 75, width: 90 }}>
       <Settings onElementClick={partitionOnElementClick as ElementClickListener} />
       <Partition
-        id={`${id}_score_chart`}
+        id={id}
         data={data}
         valueGetter="percent"
         valueAccessor={(d) => d.value as number}
