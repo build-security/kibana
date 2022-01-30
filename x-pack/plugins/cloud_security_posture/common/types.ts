@@ -27,6 +27,7 @@ export interface EvaluationResult {
 }
 
 export interface CloudPostureStats extends Stats {
+  risks: any;
   benchmarksStats: BenchmarkStats[];
   resourcesEvaluations: EvaluationResult[];
 }

@@ -19,6 +19,7 @@ import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { Evaluation } from '../../../../common/types';
+import { RisksTable } from '../compliance_charts/risks_table';
 
 const getEvaluationQuery = (evaluation: Evaluation): Query => ({
   language: 'kuery',
@@ -62,7 +63,7 @@ export const SummarySection = () => {
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         >
-          <ResourcesAtRiskChart data={getStats.data?.resourcesEvaluations} />
+          <RisksTable data={getStats.data?.risks} />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>

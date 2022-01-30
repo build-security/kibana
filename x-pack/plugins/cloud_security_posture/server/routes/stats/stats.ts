@@ -21,6 +21,7 @@ import {
   getResourcesEvaluationEsQuery,
   getBenchmarksQuery,
   getLatestFindingQuery,
+  getRisksEsQuery,
 } from './stats_queries';
 import { RULE_PASSED, RULE_FAILED } from '../../constants';
 import { STATS_ROUTE_PATH } from '../../../common/constants';
@@ -50,6 +51,10 @@ interface GroupFilename {
 
 interface ResourcesEvaluationEsAgg {
   group: AggregationsMultiBucketAggregateBase<GroupFilename>;
+}
+
+interface RisksBucketEsAgg {
+  resource_types: AggregationsMultiBucketAggregateBase<GroupFilename>;
 }
 
 const numOfResource = 5;
@@ -193,6 +198,31 @@ export const getResourcesEvaluation = async (
   return [...passedEvaluationPerResources, ...failedEvaluationPerResource];
 };
 
+export const getRisks = async (esClient: ElasticsearchClient, cycleId: string): Promise<any> => {
+  const risksQueryResult = await esClient.search<GroupFilename, RisksBucketEsAgg>(
+    getRisksEsQuery(cycleId)
+  );
+
+  const resource_types_buckets = risksQueryResult.body.aggregations?.resource_types.buckets;
+  const risks = resource_types_buckets.map((bucket) => {
+    const failedBucket = bucket.bucket_evaluation.buckets.find(
+      (evalBucket) => evalBucket.key === RULE_FAILED
+    );
+    const passedBucket = bucket.bucket_evaluation.buckets.find(
+      (evalBucket) => evalBucket.key === RULE_PASSED
+    );
+
+    return {
+      resource_type: bucket.key,
+      total_findings: bucket.doc_count,
+      total_failed: failedBucket?.doc_count || 0,
+      total_passed: passedBucket?.doc_count || 0,
+    };
+  });
+
+  return risks;
+};
+
 export const defineGetStatsRoute = (router: IRouter, logger: Logger): void =>
   router.get(
     {
@@ -207,15 +237,17 @@ export const defineGetStatsRoute = (router: IRouter, logger: Logger): void =>
           getLatestCycleId(esClient),
         ]);
 
-        const [allFindingsStats, benchmarksStats, resourcesEvaluations] = await Promise.all([
+        const [allFindingsStats, benchmarksStats, resourcesEvaluations, risks] = await Promise.all([
           getAllFindingsStats(esClient, latestCycleID),
           getBenchmarksStats(esClient, latestCycleID, benchmarks),
           getResourcesEvaluation(esClient, latestCycleID),
+          getRisks(esClient, latestCycleID, 5),
         ]);
         const body: CloudPostureStats = {
           ...allFindingsStats,
           benchmarksStats,
           resourcesEvaluations,
+          risks,
         };
         return response.ok({
           body,
