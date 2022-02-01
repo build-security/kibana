@@ -68,16 +68,11 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
   if (!resourceTypesAggs) return null;
 
   const c = resourceTypesAggs.flatMap((x) => [x, x]);
-  c.length = 5;
+  c.length = 2;
 
   return (
-    <EuiFlexGroup
-      direction="column"
-      justifyContent="spaceBetween"
-      style={{ height: '100%' }}
-      gutterSize="s"
-    >
-      <EuiFlexItem style={{ height: '100%' }}>
+    <EuiFlexGroup direction="column" justifyContent="spaceBetween" gutterSize="s">
+      <EuiFlexItem>
         <EuiBasicTable<ResourceTypeAgg>
           tableCaption="Risks Table"
           rowHeader="resourceType"

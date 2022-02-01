@@ -10,7 +10,6 @@ import { EuiFlexGrid, EuiFlexItem } from '@elastic/eui';
 import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
 import { Query } from '@kbn/es-query';
-import { ResourcesAtRiskChart } from '../compliance_charts/resources_at_risk_chart';
 import { ScorePerAccountChart } from '../compliance_charts/score_per_account_chart';
 import { ChartPanel } from '../../../components/chart_panel';
 import { useCloudPostureStatsApi } from '../../../common/api';
@@ -43,7 +42,7 @@ export const SummarySection = () => {
   };
 
   return (
-    <EuiFlexGrid columns={3}>
+    <EuiFlexGrid columns={3} style={{ height: 361 }}>
       <EuiFlexItem>
         <ChartPanel
           title={TEXT.CLOUD_POSTURE_SCORE}
