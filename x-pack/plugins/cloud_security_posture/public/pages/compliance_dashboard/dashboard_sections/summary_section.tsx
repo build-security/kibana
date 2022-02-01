@@ -58,12 +58,8 @@ export const SummarySection = () => {
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>
-        <ChartPanel
-          title={TEXT.TOP_5_CHART_TITLE}
-          isLoading={getStats.isLoading}
-          isError={getStats.isError}
-        >
-          <RisksTable data={getStats.data?.risks} />
+        <ChartPanel title={TEXT.RISKS} isLoading={getStats.isLoading} isError={getStats.isError}>
+          <RisksTable data={getStats.data?.resourceTypesAggs} />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>

@@ -5,69 +5,76 @@
  * 2.0.
  */
 
-import React from 'react';
-import {
-  Axis,
-  BarSeries,
-  Chart,
-  ElementClickListener,
-  XYChartElementEvent,
-  Settings,
-} from '@elastic/charts';
-import { EuiBasicTable, EuiLink, euiPaletteForStatus, EuiText } from '@elastic/eui';
+import React, { useMemo } from 'react';
+import { EuiBasicTable, EuiLink, EuiText } from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
-import { CloudPostureStats, EvaluationResult } from '../../../../common/types';
-import { encodeQuery } from '../../../common/navigation/query_utils';
+import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
+import { encodeQuery } from '../../../common/navigation/query_utils';
 
-interface ResourcesAtRiskChartProps {
-  data: CloudPostureStats['resourcesEvaluations'];
+export interface RisksTableProps {
+  data: CloudPostureStats['resourceTypesAggs'];
 }
 
-const getResourceQuery = (resource: string, evaluation: string): Query => ({
+const getResourceTypeQuery = (resourceType: string, evaluation: string): Query => ({
   language: 'kuery',
-  query: `resource.filename : "${resource}" and result.evaluation : "${evaluation}" `,
+  query: `resource.type : "${resourceType}" and result.evaluation : "${evaluation}" `,
 });
 
-export const RisksTable = ({ data: risks }: any) => {
+export const getFormattedNum = (num: number) =>
+  new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 1,
+    notation: 'compact',
+    compactDisplay: 'short',
+  }).format(num);
+
+export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
   const history = useHistory();
-  if (!risks) return null;
+  if (!resourceTypesAggs) return null;
 
   // const handleElementClick: ElementClickListener = (elements) => {
   //   const [element] = elements as XYChartElementEvent[];
   //   const [geometryValue] = element;
   //   const { resource, evaluation } = geometryValue.datum as EvaluationResult;
   //
-  //   history.push({
-  //     pathname: allNavigationItems.findings.path,
-  //     search: encodeQuery(getResourceQuery(resource, evaluation)),
-  //   });
+
   // };
 
-  const columns = [
-    {
-      field: 'resource_type',
-      name: 'Resource Type',
-      render: (resource_type) => <EuiLink href="#">{resource_type}</EuiLink>,
-    },
-    {
-      field: 'failed_findings',
-      name: 'Failed Findings',
-      render: (v, resource) => (
-        <>
-          <EuiText size="s" color="danger">{`${resource.total_failed}`}</EuiText>
-          <EuiText size="s">{`/${resource.total_findings}`}</EuiText>
-        </>
-      ),
-    },
-  ];
+  const handleClick = (resourceType: ResourceTypeAgg['resourceType']) =>
+    history.push({
+      pathname: allNavigationItems.findings.path,
+      search: encodeQuery(getResourceTypeQuery(resourceType, 'failed')),
+    });
+
+  const columns = useMemo(
+    () => [
+      {
+        field: 'resourceType',
+        name: 'Resource Type',
+        render: (resourceType: ResourceTypeAgg['resourceType']) => (
+          <EuiLink onClick={() => handleClick(resourceType)}>{resourceType}</EuiLink>
+        ),
+      },
+      {
+        field: 'totalFailed',
+        name: 'Failed Findings',
+        render: (totalFailed: ResourceTypeAgg['totalFailed'], resource: ResourceTypeAgg) => (
+          <>
+            <EuiText size="s" color="danger">{`${getFormattedNum(resource.totalFailed)}`}</EuiText>
+            <EuiText size="s">{`/${getFormattedNum(resource.totalFindings)}`}</EuiText>
+          </>
+        ),
+      },
+    ],
+    [handleClick]
+  );
 
   return (
-    <EuiBasicTable
+    <EuiBasicTable<ResourceTypeAgg>
       tableCaption="Risks Table"
-      rowHeader="resource_type"
-      items={risks}
+      rowHeader="resourceType"
+      items={resourceTypesAggs}
       columns={columns}
     />
   );

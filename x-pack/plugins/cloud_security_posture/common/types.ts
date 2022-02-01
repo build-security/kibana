@@ -16,18 +16,16 @@ export interface Stats {
   totalFailed: number;
 }
 
+export interface ResourceTypeAgg
+  extends Pick<Stats, 'totalFindings' | 'totalPassed' | 'totalFailed'> {
+  resourceType: string;
+}
+
 export interface BenchmarkStats extends Stats {
   name: string;
 }
 
-export interface EvaluationResult {
-  resource: string;
-  value: number;
-  evaluation: Evaluation;
-}
-
 export interface CloudPostureStats extends Stats {
-  risks: any;
   benchmarksStats: BenchmarkStats[];
-  resourcesEvaluations: EvaluationResult[];
+  resourceTypesAggs: ResourceTypeAgg[];
 }
