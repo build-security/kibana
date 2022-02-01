@@ -5,13 +5,14 @@
  * 2.0.
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { EuiBasicTable, EuiLink, EuiText } from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
+import { getFormattedNum } from '../../../common/utils/getFormattedNum';
 
 export interface RisksTableProps {
   data: CloudPostureStats['resourceTypesAggs'];
@@ -22,30 +23,17 @@ const getResourceTypeQuery = (resourceType: string, evaluation: string): Query =
   query: `resource.type : "${resourceType}" and result.evaluation : "${evaluation}" `,
 });
 
-export const getFormattedNum = (num: number) =>
-  new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 1,
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(num);
-
 export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
   const history = useHistory();
-  if (!resourceTypesAggs) return null;
 
-  // const handleElementClick: ElementClickListener = (elements) => {
-  //   const [element] = elements as XYChartElementEvent[];
-  //   const [geometryValue] = element;
-  //   const { resource, evaluation } = geometryValue.datum as EvaluationResult;
-  //
-
-  // };
-
-  const handleClick = (resourceType: ResourceTypeAgg['resourceType']) =>
-    history.push({
-      pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getResourceTypeQuery(resourceType, 'failed')),
-    });
+  const handleClick = useCallback(
+    (resourceType: ResourceTypeAgg['resourceType']) =>
+      history.push({
+        pathname: allNavigationItems.findings.path,
+        search: encodeQuery(getResourceTypeQuery(resourceType, 'failed')),
+      }),
+    [history]
+  );
 
   const columns = useMemo(
     () => [
@@ -69,6 +57,8 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
     ],
     [handleClick]
   );
+
+  if (!resourceTypesAggs) return null;
 
   return (
     <EuiBasicTable<ResourceTypeAgg>

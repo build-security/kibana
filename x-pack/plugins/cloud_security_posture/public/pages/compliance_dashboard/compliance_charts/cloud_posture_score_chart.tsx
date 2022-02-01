@@ -18,6 +18,7 @@ import { EuiFlexGroup, EuiText, EuiHorizontalRule, EuiFlexItem } from '@elastic/
 import { statusColors } from '../../../common/constants';
 import type { Stats } from '../../../../common/types';
 import * as TEXT from '../translations';
+import { getFormattedNum } from '../../../common/utils/getFormattedNum';
 
 interface CloudPostureScoreChartProps {
   data: Stats;
@@ -73,7 +74,9 @@ const PercentageInfo = ({
   return (
     <EuiFlexGroup direction="column" justifyContent="flexEnd">
       <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>{percentage}</EuiText>
-      <EuiText size="xs">{`${totalPassed}/${totalFindings} Findings passed`}</EuiText>
+      <EuiText size="xs">{`${getFormattedNum(totalPassed)}/${getFormattedNum(
+        totalFindings
+      )} Findings passed`}</EuiText>
     </EuiFlexGroup>
   );
 };
