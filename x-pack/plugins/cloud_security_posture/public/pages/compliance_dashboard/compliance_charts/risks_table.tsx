@@ -6,7 +6,14 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { EuiBasicTable, EuiLink, EuiText } from '@elastic/eui';
+import {
+  EuiBasicTable,
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiLink,
+  EuiText,
+} from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
@@ -60,12 +67,31 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
 
   if (!resourceTypesAggs) return null;
 
+  const c = resourceTypesAggs.flatMap((x) => [x, x]);
+  c.length = 5;
+
   return (
-    <EuiBasicTable<ResourceTypeAgg>
-      tableCaption="Risks Table"
-      rowHeader="resourceType"
-      items={resourceTypesAggs}
-      columns={columns}
-    />
+    <EuiFlexGroup
+      direction="column"
+      justifyContent="spaceBetween"
+      style={{ height: '100%' }}
+      gutterSize="s"
+    >
+      <EuiFlexItem style={{ height: '100%' }}>
+        <EuiBasicTable<ResourceTypeAgg>
+          tableCaption="Risks Table"
+          rowHeader="resourceType"
+          items={c}
+          columns={columns}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <EuiFlexGroup justifyContent="center" gutterSize="none">
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty iconType="search">View all failed findings</EuiButtonEmpty>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 };

@@ -14,6 +14,7 @@ import {
   EuiLoadingChart,
   EuiFlexGroup,
   EuiSpacer,
+  EuiFlexItem,
 } from '@elastic/eui';
 import { CHART_PANEL_TEST_SUBJECTS } from './constants';
 
@@ -61,13 +62,16 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({
 
   return (
     <EuiPanel hasBorder={hasBorder} hasShadow={false} data-test-subj="chart-panel">
-      {title && (
-        <EuiTitle size="s" css={euiTitleStyle}>
-          <h3>{title}</h3>
-        </EuiTitle>
-      )}
-      <EuiSpacer />
-      {renderChart()}
+      <EuiFlexGroup direction="column" style={{ height: '100%' }} gutterSize="none">
+        <EuiFlexItem grow={false}>
+          {title && (
+            <EuiTitle size="s" css={euiTitleStyle}>
+              <h3>{title}</h3>
+            </EuiTitle>
+          )}
+        </EuiFlexItem>
+        <EuiFlexItem>{renderChart()}</EuiFlexItem>
+      </EuiFlexGroup>
     </EuiPanel>
   );
 };
