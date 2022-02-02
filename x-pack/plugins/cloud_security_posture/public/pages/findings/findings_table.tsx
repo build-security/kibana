@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Criteria,
   EuiLink,
@@ -17,62 +17,71 @@ import {
 import moment from 'moment';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
-import type { CspFinding, FindingsFetchState } from './types';
+import type { CspFinding } from './types';
 import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
-import type { FindingsUrlQuery } from './findings_container';
+import type { FindingsUrlQuery, FindingsFetchState } from './findings_container';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
 
-type TableQueryProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size' | 'dataView'>;
+type TableQueryProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size'>;
 
 interface BaseFindingsTableProps extends TableQueryProps {
-  setQuery(q: Omit<TableQueryProps, 'dataView'>): void;
-  selectItem(v: CspFinding | undefined): void;
-  totalItemCount: number;
+  setQuery(query: Partial<TableQueryProps>): void;
+  selectItem(item: CspFinding | undefined): void;
 }
 
 type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
 const FindingsTableComponent = ({
+  setQuery,
+  selectItem,
   from,
   size,
   sort = [],
-  totalItemCount,
   data = [],
-  status,
   error,
-  setQuery,
-  selectItem,
+  ...props
 }: FindingsTableProps) => {
   const pagination = useMemo(
-    () => getEuiPaginationFromEsSearchSource({ from, size, totalItemCount }),
-    [from, size, totalItemCount]
+    () =>
+      getEuiPaginationFromEsSearchSource({
+        from,
+        size,
+        total: props.status === 'success' ? props.total : 0,
+      }),
+    [from, size, props]
   );
 
   const sorting = useMemo(() => getEuiSortFromEsSearchSource(sort), [sort]);
 
-  const getCellProps = (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
-    onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
-  });
+  const getCellProps = useCallback(
+    (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
+      onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
+    }),
+    [selectItem]
+  );
 
-  const onTableChange = ({ page, sort: _sort }: Criteria<CspFinding>) => {
-    if (!page || !_sort) return;
-
-    setQuery({
-      from: page.index * page.size,
-      size: page.size,
-      sort: [{ [_sort.field]: SortDirection[_sort.direction] }],
-    });
-  };
+  const onTableChange = useCallback(
+    (params: Criteria<CspFinding>) => {
+      setQuery(getEsSearchQueryFromEuiTableParams(params));
+    },
+    [setQuery]
+  );
 
   // Show "zero state"
-  if (!data.length && status === 'success')
+  if (!data.length && props.status === 'success')
     // TODO: use our own logo
-    return <EuiEmptyPrompt iconType="logoKibana" title={<h2>{TEXT.NO_FINDINGS}</h2>} />;
+    return (
+      <EuiEmptyPrompt
+        iconType="logoKibana"
+        title={<h2>{TEXT.NO_FINDINGS}</h2>}
+        data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE_ZERO_STATE}
+      />
+    );
 
   return (
     <EuiBasicTable
       data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
-      loading={status === 'loading'}
+      loading={props.status === 'loading'}
       error={error ? error : undefined}
       items={data}
       columns={columns}
@@ -87,14 +96,13 @@ const FindingsTableComponent = ({
 const getEuiPaginationFromEsSearchSource = ({
   from: pageIndex,
   size: pageSize,
-  totalItemCount,
-}: Pick<
-  FindingsTableProps,
-  'from' | 'size' | 'totalItemCount'
->): EuiBasicTableProps<CspFinding>['pagination'] => ({
+  total,
+}: Pick<FindingsTableProps, 'from' | 'size'> & {
+  total: number;
+}): EuiBasicTableProps<CspFinding>['pagination'] => ({
   pageSize,
   pageIndex: Math.ceil(pageIndex / pageSize),
-  totalItemCount,
+  totalItemCount: total,
   pageSizeOptions: [10, 25, 100],
   hidePerPageOptions: false,
 });
@@ -104,9 +112,20 @@ const getEuiSortFromEsSearchSource = (
 ): EuiBasicTableProps<CspFinding>['sorting'] => {
   if (!sort.length) return;
 
-  const [field, direction] = Object.entries(sort[0])[0];
+  const entry = Object.entries(sort[0])?.[0];
+  if (!entry) return;
+
+  const [field, direction] = entry;
   return { sort: { field: field as keyof CspFinding, direction: direction as SortDirection } };
 };
+
+const getEsSearchQueryFromEuiTableParams = ({
+  page,
+  sort,
+}: Criteria<CspFinding>): Partial<TableQueryProps> => ({
+  ...(!!page && { from: page.index * page.size, size: page.size }),
+  sort: sort ? [{ [sort.field]: SortDirection[sort.direction] }] : undefined,
+});
 
 const timestampRenderer = (timestamp: string) =>
   moment.duration(moment().diff(timestamp)).humanize();

@@ -10,6 +10,7 @@ import { decodeQuery, encodeQuery } from '../navigation/query_utils';
 
 /**
  * @description uses 'rison' to encode/decode a url query
+ * @todo replace getDefaultQuery with schema. validate after decoded from URL, use defaultValues
  */
 export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
   const { push } = useHistory();
@@ -28,12 +29,17 @@ export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
     [getDefaultQuery, urlQuery, push]
   );
 
+  // Set initial query
   useEffect(() => {
+    // TODO: condition should be if decoding failed
     if (loc.search) return;
+
     setUrlQuery(getDefaultQuery());
   }, [getDefaultQuery, loc.search, setUrlQuery]);
 
   return {
+    /** the current Location key */
+    key: loc.key,
     urlQuery,
     setUrlQuery,
   };

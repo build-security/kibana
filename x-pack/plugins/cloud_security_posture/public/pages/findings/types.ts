@@ -5,12 +5,6 @@
  * 2.0.
  */
 
-export type FindingsFetchState =
-  | { status: 'idle'; error: null; data: undefined }
-  | { status: 'loading'; error: null; data: undefined }
-  | { status: 'success'; error: null; data: CspFinding[]; total: number }
-  | { status: 'error'; error: string; data: undefined };
-
 // TODO: this needs to be defined in a versioned schema
 export interface CspFinding {
   '@timestamp': string;
@@ -26,7 +20,7 @@ export interface CspFinding {
 }
 
 interface CspRule {
-  benchmark: string;
+  benchmark: { name: string; version: string };
   description: string;
   impact: string;
   name: string;
@@ -44,7 +38,7 @@ interface CspFindingResult {
 interface CspFindingResource {
   uid: string;
   filename: string;
-  gid: string;
+  // gid: string;
   mode: string;
   path: string;
   type: string;
@@ -71,7 +65,7 @@ interface CspFindingHost {
 
 interface CspFindingAgent {
   version: string;
-  ephemeral_id: string;
+  // ephemeral_id: string;
   id: string;
   name: string;
   type: string;

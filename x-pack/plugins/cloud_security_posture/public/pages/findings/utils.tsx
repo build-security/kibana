@@ -9,9 +9,6 @@ import type { CspClientPluginStartDeps } from '../../types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
-export const extractErrorMessage = (e: unknown): string =>
-  typeof e === 'string' ? e : (e as Error)?.message || 'Unknown Error';
-
 /**
  *  registers a kibana data view for kubebeat* index and fetches it
  *  TODO: use perfected kibana data views

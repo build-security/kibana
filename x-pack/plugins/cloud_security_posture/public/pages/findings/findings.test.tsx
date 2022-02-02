@@ -5,16 +5,16 @@
  * 2.0.
  */
 import React from 'react';
+import type { UseQueryResult } from 'react-query';
+import { render, screen } from '@testing-library/react';
 import { Findings } from './findings';
 import { MISSING_KUBEBEAT } from './translations';
-import { render, screen } from '@testing-library/react';
 import { TestProvider } from '../../test/test_provider';
 import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks';
 import { createStubDataView } from '../../../../../../src/plugins/data_views/public/data_views/data_view.stub';
 import * as utils from './utils';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import * as TEST_SUBJECTS from './test_subjects';
-import type { UseQueryResult } from 'react-query';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
 const spy = jest.spyOn(utils, 'useKubebeatDataView');
