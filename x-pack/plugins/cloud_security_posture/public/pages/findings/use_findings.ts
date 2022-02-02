@@ -4,9 +4,8 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import { useEffect, useMemo } from 'react';
 import type { Filter } from '@kbn/es-query';
-import { useMutation, type UseMutationResult } from 'react-query';
+import { type UseQueryResult, useQuery } from 'react-query';
 import type { AggregationsAggregate, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { getErrorOrUnknown, isNonNullable } from '../../../common/utils/helpers';
 import type {
@@ -77,32 +76,22 @@ export const useFindings = (
   const { notifications, data: dataService } = useKibana<CspClientPluginStartDeps>().services;
   const { query: queryService, search: searchService } = dataService;
 
-  const { mutate, ...result } = useMutation<
-    CspFindingsSearchSourceResult,
-    unknown,
-    CspFindingsSearchSource
-  >(
-    async (props) => {
+  return useQuery<CspFindingsSearchSourceResult, unknown>(
+    ['csp_findings', { searchProps, urlKey }],
+    async () => {
       const source = await searchService.searchSource.create(
-        createFindingsSearchSource({ ...props, dataView }, queryService)
+        createFindingsSearchSource({ ...searchProps, dataView }, queryService)
       );
 
-      const response = await source
-        .fetch$()
-        .toPromise<IKibanaSearchResponse<SearchResponse<CspFinding>>>();
+      const response = await source.fetch$().toPromise<CspFindingsSearchSourceResult>();
 
       return response;
     },
-    { onError: showResponseErrorToast(notifications!) }
+    { onError: showResponseErrorToast(notifications!), cacheTime: 0 }
   );
-
-  useEffect(() => mutate(searchProps), [mutate, searchProps, urlKey]);
-
-  return useMemo(() => ({ ...result, mutate }), [mutate, result]);
 };
 
-export type CspFindingsSearchSourceResponse = UseMutationResult<
+export type CspFindingsSearchSourceResponse = UseQueryResult<
   CspFindingsSearchSourceResult,
-  unknown,
-  CspFindingsSearchSource
+  unknown
 >;

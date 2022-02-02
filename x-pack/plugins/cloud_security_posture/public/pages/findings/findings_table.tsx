@@ -6,7 +6,8 @@
  */
 import React, { useCallback, useMemo } from 'react';
 import {
-  Criteria,
+  type Criteria,
+  EuiToolTip,
   EuiLink,
   EuiTableFieldDataColumnType,
   EuiEmptyPrompt,
@@ -37,7 +38,6 @@ const FindingsTableComponent = ({
   from,
   size,
   sort = [],
-  data = [],
   error,
   ...props
 }: FindingsTableProps) => {
@@ -68,7 +68,7 @@ const FindingsTableComponent = ({
   );
 
   // Show "zero state"
-  if (!data.length && props.status === 'success')
+  if (props.status === 'success' && !props.data.length)
     // TODO: use our own logo
     return (
       <EuiEmptyPrompt
@@ -83,7 +83,7 @@ const FindingsTableComponent = ({
       data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
       loading={props.status === 'loading'}
       error={error ? error : undefined}
-      items={data}
+      items={props.data || []}
       columns={columns}
       pagination={pagination}
       sorting={sorting}
@@ -127,10 +127,23 @@ const getEsSearchQueryFromEuiTableParams = ({
   sort: sort ? [{ [sort.field]: SortDirection[sort.direction] }] : undefined,
 });
 
-const timestampRenderer = (timestamp: string) =>
-  moment.duration(moment().diff(timestamp)).humanize();
+const timestampRenderer = (timestamp: string) => (
+  <EuiToolTip position="top" content={timestamp}>
+    <span>{moment.duration(moment().diff(timestamp)).humanize()}</span>
+  </EuiToolTip>
+);
 
-const ruleNameRenderer = (name: string) => <EuiLink>{name}</EuiLink>;
+const resourceFilenameRenderer = (filename: string) => (
+  <EuiToolTip position="top" content={filename}>
+    <span>{filename}</span>
+  </EuiToolTip>
+);
+
+const ruleNameRenderer = (name: string) => (
+  <EuiToolTip position="top" content={name}>
+    <EuiLink>{name}</EuiLink>
+  </EuiToolTip>
+);
 
 const resultEvaluationRenderer = (type: PropsOf<typeof CspEvaluationBadge>['type']) => (
   <CspEvaluationBadge type={type} />
@@ -143,11 +156,11 @@ const columns: Array<EuiTableFieldDataColumnType<CspFinding>> = [
     truncateText: true,
     width: '15%',
     sortable: true,
+    render: resourceFilenameRenderer,
   },
   {
     field: 'rule.name',
     name: TEXT.RULE_NAME,
-    width: '45%',
     truncateText: true,
     render: ruleNameRenderer,
     sortable: true,
@@ -161,6 +174,7 @@ const columns: Array<EuiTableFieldDataColumnType<CspFinding>> = [
   },
   {
     field: '@timestamp',
+    width: '100px',
     name: TEXT.TIMESTAMP,
     truncateText: true,
     render: timestampRenderer,

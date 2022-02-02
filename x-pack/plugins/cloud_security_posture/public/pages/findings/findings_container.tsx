@@ -36,7 +36,7 @@ type FindingsResponse<T extends CspFindingsSearchSourceResponse['status']> = Pic
 export type FindingsFetchState = Readonly<
   | FindingsResponse<'idle'>
   | FindingsResponse<'loading'>
-  | (FindingsResponse<'error'> & { error: string })
+  | (FindingsResponse<'error'> & { error: string; data: undefined })
   | (Omit<FindingsResponse<'success'>, 'data'> & {
       // TODO: add id to schema
       data: CspFinding[];
@@ -61,6 +61,7 @@ export const getDefaultQuery = (): FindingsUrlQuery => ({
 const createErrorState = (response: FindingsResponse<'error'>) => ({
   ...response,
   error: extractErrorMessage(response.error),
+  data: undefined,
 });
 
 const createSuccessState = (response: FindingsResponse<'success'>) => ({
@@ -82,7 +83,6 @@ export const getFetchState = (response: CspFindingsSearchSourceResponse): Findin
           ...response,
           status: 'error',
           error: INVALID_RESPONE,
-          data: undefined,
         });
 
       return createSuccessState(response);
