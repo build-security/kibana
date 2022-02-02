@@ -20,10 +20,41 @@ import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { getFormattedNum } from '../../../common/utils/getFormattedNum';
+import * as TEXT from '../translations';
+import { RULE_FAILED } from '../../../../common/constants';
 
 export interface RisksTableProps {
   data: CloudPostureStats['resourceTypesAggs'];
 }
+
+const maxRisks = 5;
+
+export function sortAscending<T>(getter: (x: T) => number) {
+  return (a: T, b: T) => {
+    const v1 = getter(a);
+    const v2 = getter(b);
+    if (v1 > v2) return -1;
+    if (v2 > v1) return 1;
+
+    return 0;
+  };
+}
+
+const sortByMostRisks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
+  return resourceTypesAggs.slice().sort(sortAscending((x) => x.totalFailed));
+};
+
+const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
+  if (resourceTypesAggs.length > maxRisks) {
+    return sortByMostRisks(resourceTypesAggs.slice(0, maxRisks));
+  }
+  return sortByMostRisks(resourceTypesAggs);
+};
+
+const getFailedFindingsQuery = (): Query => ({
+  language: 'kuery',
+  query: `result.evaluation : "${RULE_FAILED}" `,
+});
 
 const getResourceTypeQuery = (resourceType: string, evaluation: string): Query => ({
   language: 'kuery',
@@ -33,11 +64,20 @@ const getResourceTypeQuery = (resourceType: string, evaluation: string): Query =
 export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
   const history = useHistory();
 
-  const handleClick = useCallback(
+  const handleCellClick = useCallback(
     (resourceType: ResourceTypeAgg['resourceType']) =>
       history.push({
         pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getResourceTypeQuery(resourceType, 'failed')),
+        search: encodeQuery(getResourceTypeQuery(resourceType, RULE_FAILED)),
+      }),
+    [history]
+  );
+
+  const handleViewAllClick = useCallback(
+    () =>
+      history.push({
+        pathname: allNavigationItems.findings.path,
+        search: encodeQuery(getFailedFindingsQuery()),
       }),
     [history]
   );
@@ -46,14 +86,14 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
     () => [
       {
         field: 'resourceType',
-        name: 'Resource Type',
+        name: TEXT.RESOURCE_TYPE,
         render: (resourceType: ResourceTypeAgg['resourceType']) => (
-          <EuiLink onClick={() => handleClick(resourceType)}>{resourceType}</EuiLink>
+          <EuiLink onClick={() => handleCellClick(resourceType)}>{resourceType}</EuiLink>
         ),
       },
       {
         field: 'totalFailed',
-        name: 'Failed Findings',
+        name: TEXT.FAILED_FINDINGS,
         render: (totalFailed: ResourceTypeAgg['totalFailed'], resource: ResourceTypeAgg) => (
           <>
             <EuiText size="s" color="danger">{`${getFormattedNum(resource.totalFailed)}`}</EuiText>
@@ -62,28 +102,26 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
         ),
       },
     ],
-    [handleClick]
+    [handleCellClick]
   );
 
   if (!resourceTypesAggs) return null;
-
-  const c = resourceTypesAggs.flatMap((x) => [x, x]);
-  c.length = 2;
 
   return (
     <EuiFlexGroup direction="column" justifyContent="spaceBetween" gutterSize="s">
       <EuiFlexItem>
         <EuiBasicTable<ResourceTypeAgg>
-          tableCaption="Risks Table"
           rowHeader="resourceType"
-          items={c}
+          items={getTop5Risks(resourceTypesAggs)}
           columns={columns}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiFlexGroup justifyContent="center" gutterSize="none">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty iconType="search">View all failed findings</EuiButtonEmpty>
+            <EuiButtonEmpty onClick={handleViewAllClick} iconType="search">
+              {TEXT.VIEW_ALL_FAILED_FINDINGS}
+            </EuiButtonEmpty>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>

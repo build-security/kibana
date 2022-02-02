@@ -69,3 +69,15 @@ export const PASSED = i18n.translate('xpack.csp.passed', {
 export const FAILED = i18n.translate('xpack.csp.failed', {
   defaultMessage: 'Failed',
 });
+
+export const VIEW_ALL_FAILED_FINDINGS = i18n.translate('xpack.csp.view_all_failed_findings', {
+  defaultMessage: 'View all failed findings',
+});
+
+export const RESOURCE_TYPE = i18n.translate('xpack.csp.resource_type', {
+  defaultMessage: 'Resource Type',
+});
+
+export const FAILED_FINDINGS = i18n.translate('xpack.csp.failed_findings', {
+  defaultMessage: 'Failed Findings',
+});
