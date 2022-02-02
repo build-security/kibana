@@ -9,7 +9,6 @@ import { render, screen, cleanup } from '@testing-library/react';
 import * as TEST_SUBJECTS from './test_subjects';
 import { FindingsTable } from './findings_table';
 import type { PropsOf } from '@elastic/eui';
-import { SortDirection } from '../../../../../../src/plugins/data/common';
 
 import Chance from 'chance';
 import type { CspFinding } from './types';
