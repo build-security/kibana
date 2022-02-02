@@ -17,6 +17,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
 } from '@elastic/eui';
+import { FormattedMessage } from '@kbn/i18n-react';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
 
@@ -24,11 +25,12 @@ interface RulesBulkActionsMenuProps {
   items: ReadonlyArray<EuiContextMenuItemProps & { text: string }>;
 }
 
-interface RuelsTableToolbarProps {
+interface RulesTableToolbarProps {
   search(value: string): void;
   refresh(): void;
   bulkEnable(): void;
   bulkDisable(): void;
+  totalRulesCount: number;
   selectedRulesCount: number;
   searchValue: string;
   isSearching: boolean;
@@ -39,29 +41,45 @@ export const RulesTableHeader = ({
   refresh,
   bulkEnable,
   bulkDisable,
+  totalRulesCount,
   selectedRulesCount,
   searchValue,
   isSearching,
-}: RuelsTableToolbarProps) => (
+}: RulesTableToolbarProps) => (
   <div>
     <EuiFlexGroup alignItems="center" justifyContent="spaceBetween">
-      <EuiFlexItem grow={true}>
-        <span>
-          Selected <strong>{selectedRulesCount}</strong> rules
-        </span>
+      <EuiFlexItem
+        grow={false}
+        style={{ flexDirection: 'row', fontVariantNumeric: 'tabular-nums' }}
+      >
+        <FormattedMessage
+          id="xpack.csp.rules.total_rules_count"
+          defaultMessage="Showing {totalRulesCount} rules"
+          values={{
+            totalRulesCount: <b>&nbsp;{totalRulesCount}&nbsp;</b>,
+          }}
+        />
+        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+        <FormattedMessage
+          id="xpack.csp.rules.selected_rules_count"
+          defaultMessage="Selected {selectedRulesCount} rules"
+          values={{
+            selectedRulesCount: <b>&nbsp;{selectedRulesCount}&nbsp;</b>,
+          }}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <RulesBulkActionsMenu
           items={[
             {
               icon: 'copy', // TODO: icon
-              text: TEXT.ENABLE, // TODO: i18n
+              text: TEXT.ENABLE,
               'data-test-subj': TEST_SUBJECTS.CSP_RULES_TABLE_BULK_ENABLE_BUTTON,
               onClick: bulkEnable,
             },
             {
               icon: 'copy', // TODO: icon
-              text: TEXT.DISABLE, // TODO: i18n
+              text: TEXT.DISABLE,
               'data-test-subj': TEST_SUBJECTS.CSP_RULES_TABLE_BULK_DISABLE_BUTTON,
               onClick: bulkDisable,
             },
@@ -77,7 +95,7 @@ export const RulesTableHeader = ({
           {TEXT.REFRESH}
         </EuiButtonEmpty>
       </EuiFlexItem>
-      <EuiFlexItem grow={true}>
+      <EuiFlexItem grow={true} style={{ alignItems: 'flex-end' }}>
         <EuiFieldSearch
           isLoading={isSearching}
           placeholder={TEXT.SEARCH}
@@ -112,7 +130,6 @@ const RulesBulkActionsMenu = ({ items }: RulesBulkActionsMenuProps) => {
     />
   ));
 
-  // TODO: i18n
   const button = (
     <EuiButtonEmpty
       iconType={'arrowDown'}

@@ -6,10 +6,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { cspRuleAssetSavedObjectType, type CspRuleSchema } from '../../../common/schemas/csp_rule';
-import type {
-  SavedObjectsBatchResponse,
-  SavedObjectsFindOptions,
-} from '../../../../../../src/core/public';
+import type { SavedObjectsFindOptions } from '../../../../../../src/core/public';
 import { useKibana } from '../../common/hooks/use_kibana';
 
 export type UseCspRulesOptions = Pick<
@@ -32,7 +29,7 @@ export const useFindCspRules = ({
         search,
         searchFields,
         page,
-        // NOTE: 'name.raw' is a field maping we defined on 'name' so it'd also be sortable
+        // NOTE: 'name.raw' is a field mapping we defined on 'name' so it'd also be sortable
         // TODO: this needs to be shared or removed
         sortField: 'name.raw',
         perPage,
@@ -47,14 +44,13 @@ export const useBulkUpdateCspRules = () => {
 
   return useMutation(
     (rules: CspRuleSchema[]) =>
-      savedObjects.client.bulkUpdate(
+      savedObjects.client.bulkUpdate<CspRuleSchema>(
         rules.map((rule) => ({
           type: cspRuleAssetSavedObjectType,
           id: rule.id,
           attributes: rule,
         }))
-        // TODO: fix bulkUpdate types in core
-      ) as Promise<SavedObjectsBatchResponse<CspRuleSchema>>,
+      ),
     {
       onSettled: () =>
         queryClient.invalidateQueries({
