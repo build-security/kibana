@@ -16,7 +16,7 @@ import {
 } from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
-import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
+import { CloudPostureStats, Evaluation, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { getFormattedNum } from '../../../common/utils/getFormattedNum';
@@ -26,8 +26,6 @@ import { RULE_FAILED } from '../../../../common/constants';
 export interface RisksTableProps {
   data: CloudPostureStats['resourceTypesAggs'];
 }
-
-const maxRisks = 5;
 
 export function sortAscending<T>(getter: (x: T) => number) {
   return (a: T, b: T) => {
@@ -40,15 +38,17 @@ export function sortAscending<T>(getter: (x: T) => number) {
   };
 }
 
-const sortByMostRisks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
-  return resourceTypesAggs.slice().sort(sortAscending((x) => x.totalFailed));
-};
+const maxRisks = 5;
 
-const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
-  if (resourceTypesAggs.length > maxRisks) {
-    return sortByMostRisks(resourceTypesAggs.slice(0, maxRisks));
+export const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
+  const filtered = resourceTypesAggs.filter((x) => x.totalFailed > 0);
+  const sorted = filtered.slice().sort(sortAscending((x) => x.totalFailed));
+
+  if (sorted.length > maxRisks) {
+    return sorted.slice(0, maxRisks);
   }
-  return sortByMostRisks(resourceTypesAggs);
+
+  return sorted;
 };
 
 const getFailedFindingsQuery = (): Query => ({
@@ -56,7 +56,7 @@ const getFailedFindingsQuery = (): Query => ({
   query: `result.evaluation : "${RULE_FAILED}" `,
 });
 
-const getResourceTypeQuery = (resourceType: string, evaluation: string): Query => ({
+const getResourceTypeQuery = (resourceType: string, evaluation: Evaluation): Query => ({
   language: 'kuery',
   query: `resource.type : "${resourceType}" and result.evaluation : "${evaluation}" `,
 });

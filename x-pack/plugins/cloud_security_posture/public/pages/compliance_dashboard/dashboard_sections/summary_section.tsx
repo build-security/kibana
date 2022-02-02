@@ -25,10 +25,11 @@ const getEvaluationQuery = (evaluation: Evaluation): Query => ({
   query: `"result.evaluation : "${evaluation}"`,
 });
 
-const risksTableMaxHeight = 361;
+const defaultHeight = 360;
 
+// TODO: limit this to desktop media queries only
 const summarySectionWrapperStyle = {
-  height: risksTableMaxHeight,
+  height: defaultHeight,
 };
 
 export const SummarySection = () => {
@@ -74,7 +75,7 @@ export const SummarySection = () => {
           isError={getStats.isError}
         >
           {/* TODO: no api for this chart yet, using empty state for now. needs BE */}
-          <ScorePerAccountChart data={[]} />
+          <ScorePerAccountChart />
         </ChartPanel>
       </EuiFlexItem>
     </EuiFlexGrid>
