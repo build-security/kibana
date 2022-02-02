@@ -33,6 +33,10 @@ export type CspFindingsSearchSource = Pick<
   dateRange: TimeRange;
 };
 
+type CspFindingsSearchSourceResult = IKibanaSearchResponse<
+  SearchResponse<CspFinding, Record<string, AggregationsAggregate>>
+>;
+
 const showResponseErrorToast =
   ({ toasts: { addError } }: CoreStart['notifications']) =>
   (error: unknown): void => {
@@ -74,7 +78,7 @@ export const useFindings = (
   const { query: queryService, search: searchService } = dataService;
 
   const { mutate, ...result } = useMutation<
-    IKibanaSearchResponse<SearchResponse<CspFinding, Record<string, AggregationsAggregate>>>,
+    CspFindingsSearchSourceResult,
     unknown,
     CspFindingsSearchSource
   >(
@@ -98,7 +102,7 @@ export const useFindings = (
 };
 
 export type CspFindingsSearchSourceResponse = UseMutationResult<
-  IKibanaSearchResponse<SearchResponse<CspFinding, Record<string, AggregationsAggregate>>>,
+  CspFindingsSearchSourceResult,
   unknown,
   CspFindingsSearchSource
 >;

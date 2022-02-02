@@ -62,7 +62,7 @@ describe('<FindingsTable />', () => {
       status: 'success',
       data: [],
       error: null,
-      sort: [{ ['result.evaluation']: SortDirection['desc'] }],
+      sort: [],
       from: 1,
       size: 10,
       total: 1,
