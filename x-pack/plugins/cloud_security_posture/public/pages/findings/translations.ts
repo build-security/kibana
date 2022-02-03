@@ -149,3 +149,7 @@ export const PLATFORM = i18n.translate('xpack.csp.platform', {
 export const NO_FINDINGS = i18n.translate('xpack.csp.platform', {
   defaultMessage: 'There are no Findings',
 });
+
+export const INVALID_RESPONE = i18n.translate('xpack.csp.invalid_response', {
+  defaultMessage: 'Invalid response',
+});
