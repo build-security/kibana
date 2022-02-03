@@ -7,24 +7,24 @@
 
 import type { UseQueryResult } from 'react-query/types/react/types';
 
-interface CreateReactQueryResponseInput {
+interface CreateReactQueryResponseInput<TData = unknown, TError = unknown> {
   status?: UseQueryResult['status'];
-  data?: any;
-  error?: Error;
+  data?: TData;
+  error?: TError;
 }
 
-export const createReactQueryResponse = ({
+export const createReactQueryResponse = <TData = unknown, TError = unknown>({
   status = 'loading',
-  error = new Error(),
+  error = undefined,
   data = undefined,
-}: CreateReactQueryResponseInput = {}): UseQueryResult => {
+}: CreateReactQueryResponseInput<TData, TError> = {}): UseQueryResult<TData, TError> => {
   if (status === 'success') {
-    return { status, data } as UseQueryResult;
+    return { status, data } as UseQueryResult<TData, TError>;
   }
 
   if (status === 'error') {
-    return { status, error } as UseQueryResult;
+    return { status, error } as UseQueryResult<TData, TError>;
   }
 
-  return { status } as UseQueryResult;
+  return { status } as UseQueryResult<TData, TError>;
 };

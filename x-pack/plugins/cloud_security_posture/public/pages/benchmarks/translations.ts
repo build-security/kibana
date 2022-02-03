@@ -18,7 +18,7 @@ export const LOADING_BENCHMARKS = i18n.translate('xpack.csp.benchmarks.loading_b
   defaultMessage: 'Loading your benchmarks...',
 });
 
-export const ADD_CIS_INTEGRATION = i18n.translate('xpack.csp.benchmarks.add_cis_integration', {
+export const ADD_A_CIS_INTEGRATION = i18n.translate('xpack.csp.benchmarks.add_a_cis_integration', {
   defaultMessage: 'Add a CIS integration',
 });
 

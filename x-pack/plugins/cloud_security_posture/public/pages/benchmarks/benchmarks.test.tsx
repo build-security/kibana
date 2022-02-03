@@ -11,7 +11,7 @@ import { createCspBenchmarkIntegrationFixture } from '../../test/fixtures/csp_be
 import { createReactQueryResponse } from '../../test/fixtures/react_query';
 import { TestProvider } from '../../test/test_provider';
 import { Benchmarks, BENCHMARKS_ERROR_TEXT, BENCHMARKS_TABLE_DATA_TEST_SUBJ } from './benchmarks';
-import { ADD_CIS_INTEGRATION, BENCHMARK_INTEGRATIONS, LOADING_BENCHMARKS } from './translations';
+import { ADD_A_CIS_INTEGRATION, BENCHMARK_INTEGRATIONS, LOADING_BENCHMARKS } from './translations';
 import { useCspBenchmarkIntegrations } from './use_csp_benchmark_integrations';
 
 jest.mock('./use_csp_benchmark_integrations');
@@ -21,10 +21,8 @@ describe('<Benchmarks />', () => {
     jest.resetAllMocks();
   });
 
-  const renderBenchmarks = (queryResponse?: UseQueryResult) => {
-    (useCspBenchmarkIntegrations as jest.Mock).mockImplementation(
-      () => queryResponse ?? createReactQueryResponse()
-    );
+  const renderBenchmarks = (queryResponse: UseQueryResult = createReactQueryResponse()) => {
+    (useCspBenchmarkIntegrations as jest.Mock).mockImplementation(() => queryResponse);
 
     return render(
       <TestProvider>
@@ -42,7 +40,7 @@ describe('<Benchmarks />', () => {
   it('renders the "add integration" button', () => {
     renderBenchmarks();
 
-    expect(screen.getByText(ADD_CIS_INTEGRATION)).toBeInTheDocument();
+    expect(screen.getByText(ADD_A_CIS_INTEGRATION)).toBeInTheDocument();
   });
 
   it('renders loading state while loading', () => {
@@ -53,7 +51,7 @@ describe('<Benchmarks />', () => {
   });
 
   it('renders error state while there is an error', () => {
-    renderBenchmarks(createReactQueryResponse({ status: 'error' }));
+    renderBenchmarks(createReactQueryResponse({ status: 'error', error: new Error() }));
 
     expect(screen.getByText(BENCHMARKS_ERROR_TEXT)).toBeInTheDocument();
     expect(screen.queryByTestId(BENCHMARKS_TABLE_DATA_TEST_SUBJ)).not.toBeInTheDocument();

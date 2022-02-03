@@ -19,6 +19,6 @@ export const DASHBOARD = i18n.translate('xpack.csp.navigation.dashboard', {
   defaultMessage: 'Dashboard',
 });
 
-export const BENCHMARKS = i18n.translate('xpack.csp.navigation.benchmarks', {
+export const MY_BENCHMARKS = i18n.translate('xpack.csp.navigation.my_benchmarks', {
   defaultMessage: 'My Benchmarks',
 });
