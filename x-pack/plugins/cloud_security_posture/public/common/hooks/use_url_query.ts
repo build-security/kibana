@@ -14,11 +14,11 @@ import { decodeQuery, encodeQuery } from '../navigation/query_utils';
  */
 export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
   const { push } = useHistory();
-  const loc = useLocation();
+  const { search, key } = useLocation();
 
   const urlQuery = useMemo(
-    () => ({ ...getDefaultQuery(), ...decodeQuery<T>(loc.search) }),
-    [getDefaultQuery, loc.search]
+    () => ({ ...getDefaultQuery(), ...decodeQuery<T>(search) }),
+    [getDefaultQuery, search]
   );
 
   const setUrlQuery = useCallback(
@@ -32,14 +32,13 @@ export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
   // Set initial query
   useEffect(() => {
     // TODO: condition should be if decoding failed
-    if (loc.search) return;
+    if (search) return;
 
     setUrlQuery(getDefaultQuery());
-  }, [getDefaultQuery, loc.search, setUrlQuery]);
+  }, [getDefaultQuery, search, setUrlQuery]);
 
   return {
-    /** the current Location key */
-    key: loc.key,
+    key,
     urlQuery,
     setUrlQuery,
   };

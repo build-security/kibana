@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   type Criteria,
   EuiToolTip,
@@ -23,24 +23,25 @@ import type { CspFinding } from './types';
 import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
 import type { CspFindingsRequest, CspFindingsResponse } from './use_findings';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
+import { FindingsRuleFlyout } from './findings_flyout';
 
 type TableQueryProps = Pick<CspFindingsRequest, 'sort' | 'from' | 'size'>;
 type FindingsTableProps = CspFindingsResponse & BaseFindingsTableProps;
 
 interface BaseFindingsTableProps extends TableQueryProps {
   setQuery(query: Partial<TableQueryProps>): void;
-  selectItem(item: CspFinding | undefined): void;
 }
 
 const FindingsTableComponent = ({
   setQuery,
-  selectItem,
   from,
   size,
   sort = [],
   error,
   ...props
 }: FindingsTableProps) => {
+  const [selectedFinding, setSelectedFinding] = useState<CspFinding>();
+
   const pagination = useMemo(
     () =>
       getEuiPaginationFromEsSearchSource({
@@ -55,9 +56,9 @@ const FindingsTableComponent = ({
 
   const getCellProps = useCallback(
     (item: CspFinding, column: EuiTableFieldDataColumnType<CspFinding>) => ({
-      onClick: column.field === 'rule.name' ? () => selectItem(item) : undefined,
+      onClick: column.field === 'rule.name' ? () => setSelectedFinding(item) : undefined,
     }),
-    [selectItem]
+    []
   );
 
   const onTableChange = useCallback(
@@ -79,17 +80,25 @@ const FindingsTableComponent = ({
     );
 
   return (
-    <EuiBasicTable
-      data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
-      loading={props.status === 'loading'}
-      error={error ? extractErrorMessage(error) : undefined}
-      items={props.data?.data || []}
-      columns={columns}
-      pagination={pagination}
-      sorting={sorting}
-      onChange={onTableChange}
-      cellProps={getCellProps}
-    />
+    <>
+      <EuiBasicTable
+        data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
+        loading={props.status === 'loading'}
+        error={error ? extractErrorMessage(error) : undefined}
+        items={props.data?.data || []}
+        columns={columns}
+        pagination={pagination}
+        sorting={sorting}
+        onChange={onTableChange}
+        cellProps={getCellProps}
+      />
+      {selectedFinding && (
+        <FindingsRuleFlyout
+          findings={selectedFinding}
+          onClose={() => setSelectedFinding(undefined)}
+        />
+      )}
+    </>
   );
 };
 

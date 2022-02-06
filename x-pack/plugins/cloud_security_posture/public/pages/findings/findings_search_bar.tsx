@@ -44,8 +44,8 @@ export const FindingsSearchBar = ({
       showSaveQuery={false}
       isLoading={status === 'loading'}
       indexPatterns={[dataView]}
-      dateRangeFrom={dateRange?.from}
-      dateRangeTo={dateRange?.to}
+      dateRangeFrom={dateRange.from}
+      dateRangeTo={dateRange.to}
       query={query}
       filters={filters}
       onQuerySubmit={setQuery}
