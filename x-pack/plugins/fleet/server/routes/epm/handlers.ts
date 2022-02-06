@@ -318,6 +318,7 @@ export const installPackageByUploadHandler: FleetRequestHandler<
   undefined,
   TypeOf<typeof InstallPackageByUploadRequestSchema.body>
 > = async (context, request, response) => {
+  console.log('!@#@$@%&^');
   if (!licenseService.isEnterprise()) {
     return response.customError({
       statusCode: 403,

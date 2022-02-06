@@ -137,6 +137,7 @@ export async function ensureFleetGlobalEsAssets(
   soClient: SavedObjectsClientContract,
   esClient: ElasticsearchClient
 ) {
+  console.log('^^^^^^^^^^^^^^^^^^^');
   const logger = appContextService.getLogger();
   // Ensure Global Fleet ES assets are installed
   logger.debug('Creating Fleet component template and ingest pipeline');

@@ -133,6 +133,7 @@ class PackageClientImpl implements PackageClient {
     let installedAssets: InstalledAssetType[] = [];
 
     const transformPaths = assetPaths.filter(isTransform);
+    console.log({ transformPaths });
 
     if (transformPaths.length !== assetPaths.length) {
       throw new Error('reinstallEsAssets is currently only implemented for transform assets');

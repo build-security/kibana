@@ -248,6 +248,7 @@ async function installPackageFromRegistry({
   const telemetryEvent: PackageUpdateEvent = getTelemetryEvent(pkgName, pkgVersion);
 
   try {
+    console.log('!!!!!!!!!');
     // get the currently installed package
     const installedPkg = await getInstallationObject({ savedObjectsClient, pkgName });
     installType = getInstallType({ pkgVersion, installedPkg });
@@ -383,6 +384,7 @@ async function installPackageByUpload({
   contentType,
   spaceId,
 }: InstallUploadedArchiveParams): Promise<InstallResult> {
+  console.log('@@@@@@@@@@@@@@@@@@@@@');
   const logger = appContextService.getLogger();
   // if an error happens during getInstallType, report that we don't know
   let installType: InstallType = 'unknown';
@@ -469,6 +471,7 @@ export type InstallPackageParams = { spaceId: string } & (
 );
 
 export async function installPackage(args: InstallPackageParams) {
+  console.log('########################');
   if (!('installSource' in args)) {
     throw new Error('installSource is required');
   }

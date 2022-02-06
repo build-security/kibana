@@ -33,6 +33,7 @@ export const installTransform = async (
   savedObjectsClient: SavedObjectsClientContract,
   logger: Logger
 ) => {
+  console.log('Install Transform');
   const installation = await getInstallation({
     savedObjectsClient,
     pkgName: installablePackage.name,
@@ -113,7 +114,11 @@ export const installTransform = async (
 };
 
 export const isTransform = (path: string) => {
+  console.log('isTransform~');
   const pathParts = getPathParts(path);
+  console.log({ path });
+  const tmpFlag = !path.endsWith('/') && pathParts.type === ElasticsearchAssetType.transform;
+  console.log({ tmpFlag });
   return !path.endsWith('/') && pathParts.type === ElasticsearchAssetType.transform;
 };
 

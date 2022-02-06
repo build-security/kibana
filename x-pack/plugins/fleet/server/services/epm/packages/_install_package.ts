@@ -72,6 +72,7 @@ export async function _installPackage({
   const { name: pkgName, version: pkgVersion } = packageInfo;
 
   try {
+    console.log('%%%%%%');
     // if some installation already exists
     if (installedPkg) {
       // if the installation is currently running, don't try to install
