@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { EuiSpacer } from '@elastic/eui';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { EuiErrorBoundary } from '@elastic/eui';
@@ -15,6 +16,8 @@ import {
 import { allNavigationItems } from '../common/navigation/constants';
 import type { CspNavigationItem } from '../common/navigation/types';
 import { CLOUD_SECURITY_POSTURE } from '../common/translations';
+import { CspLoadingState } from './csp_loading_state';
+import { LOADING } from './translations';
 
 const activeItemStyle = { fontWeight: 700 };
 
@@ -42,10 +45,29 @@ const defaultProps: KibanaPageTemplateProps = {
   template: 'default',
 };
 
-export const CspPageTemplate: React.FC<KibanaPageTemplateProps> = ({ children, ...props }) => {
+interface CspPageTemplateProps extends KibanaPageTemplateProps {
+  isLoading?: boolean;
+  loadingText?: string;
+}
+
+export const CspPageTemplate: React.FC<CspPageTemplateProps> = ({
+  children,
+  isLoading,
+  loadingText = LOADING,
+  ...props
+}) => {
   return (
     <KibanaPageTemplate {...defaultProps} {...props}>
-      <EuiErrorBoundary>{children}</EuiErrorBoundary>
+      <EuiErrorBoundary>
+        {isLoading ? (
+          <>
+            <EuiSpacer size="xxl" />
+            <CspLoadingState>{loadingText}</CspLoadingState>
+          </>
+        ) : (
+          children
+        )}
+      </EuiErrorBoundary>
     </KibanaPageTemplate>
   );
 };

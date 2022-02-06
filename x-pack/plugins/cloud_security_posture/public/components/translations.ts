@@ -22,3 +22,7 @@ export const HEALTHY = i18n.translate('xpack.csp.healthy', {
 export const PAGE_NOT_FOUND = i18n.translate('xpack.csp.page_not_found', {
   defaultMessage: 'Page not found',
 });
+
+export const LOADING = i18n.translate('xpack.csp.loading', {
+  defaultMessage: 'Loading...',
+});

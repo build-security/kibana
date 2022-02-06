@@ -19,7 +19,7 @@ const FAKE_DATA: CspBenchmarkIntegration[] = [
   createCspBenchmarkIntegrationFixture(),
 ];
 
-// TODO: Use BE once it exists
+// TODO: Use data from BE https://github.com/elastic/security-team/issues/2942
 export const useCspBenchmarkIntegrations = () => {
   return useQuery(QUERY_KEY, () => Promise.resolve(FAKE_DATA));
 };

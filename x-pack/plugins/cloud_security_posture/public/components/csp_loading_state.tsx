@@ -8,15 +8,11 @@
 import { EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner } from '@elastic/eui';
 import React from 'react';
 
-interface CspLoadingStateProps {
-  loadingText?: string;
-}
-
-export const CspLoadingState = ({ loadingText = 'Loading...' }: CspLoadingStateProps) => (
-  <EuiFlexGroup direction="column" alignItems="center" style={{ marginTop: '10vh' }}>
+export const CspLoadingState: React.FunctionComponent = ({ children }) => (
+  <EuiFlexGroup direction="column" alignItems="center">
     <EuiFlexItem>
       <EuiLoadingSpinner size="xl" />
     </EuiFlexItem>
-    <EuiFlexItem>{loadingText}</EuiFlexItem>
+    <EuiFlexItem>{children}</EuiFlexItem>
   </EuiFlexGroup>
 );
