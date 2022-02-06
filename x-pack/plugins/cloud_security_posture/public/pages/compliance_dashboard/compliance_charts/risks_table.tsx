@@ -16,49 +16,75 @@ import {
 } from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
-import { CloudPostureStats, Evaluation, ResourceTypeAgg } from '../../../../common/types';
+import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { getFormattedNum } from '../../../common/utils/getFormattedNum';
 import * as TEXT from '../translations';
 import { RULE_FAILED } from '../../../../common/constants';
 
+// TODO: remove this option after we get data from the beat
+const useMockData: boolean = false;
+const mock = [
+  {
+    resourceType: 'pods',
+    totalFindings: 2,
+    totalPassed: 1,
+    totalFailed: 1,
+  },
+  {
+    resourceType: 'etcd',
+    totalFindings: 5,
+    totalPassed: 0,
+    totalFailed: 5,
+  },
+  {
+    resourceType: 'cluster',
+    totalFindings: 2,
+    totalPassed: 2,
+    totalFailed: 0,
+  },
+  {
+    resourceType: 'system',
+    totalFindings: 10,
+    totalPassed: 6,
+    totalFailed: 4,
+  },
+  {
+    resourceType: 'api',
+    totalFindings: 19100,
+    totalPassed: 2100,
+    totalFailed: 17000,
+  },
+  {
+    resourceType: 'server',
+    totalFindings: 7,
+    totalPassed: 4,
+    totalFailed: 3,
+  },
+];
+
 export interface RisksTableProps {
   data: CloudPostureStats['resourceTypesAggs'];
-}
-
-export function sortAscending<T>(getter: (x: T) => number) {
-  return (a: T, b: T) => {
-    const v1 = getter(a);
-    const v2 = getter(b);
-    if (v1 > v2) return -1;
-    if (v2 > v1) return 1;
-
-    return 0;
-  };
 }
 
 const maxRisks = 5;
 
 export const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
   const filtered = resourceTypesAggs.filter((x) => x.totalFailed > 0);
-  const sorted = filtered.slice().sort(sortAscending((x) => x.totalFailed));
+  const sorted = filtered.slice().sort((first, second) => second.totalFailed - first.totalFailed);
 
-  if (sorted.length > maxRisks) {
-    return sorted.slice(0, maxRisks);
-  }
-
-  return sorted;
+  return sorted.slice(0, maxRisks);
 };
 
-const getFailedFindingsQuery = (): Query => ({
+const failedFindingsQuery: Query = {
   language: 'kuery',
   query: `result.evaluation : "${RULE_FAILED}" `,
-});
+};
 
-const getResourceTypeQuery = (resourceType: string, evaluation: Evaluation): Query => ({
+const getResourceTypeFailedFindingsQuery = (resourceType: string): Query => ({
   language: 'kuery',
-  query: `resource.type : "${resourceType}" and result.evaluation : "${evaluation}" `,
+  query: `resource.type : "${resourceType}" and result.evaluation : "${RULE_FAILED}" `,
 });
 
 export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
@@ -68,7 +94,7 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
     (resourceType: ResourceTypeAgg['resourceType']) =>
       history.push({
         pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getResourceTypeQuery(resourceType, RULE_FAILED)),
+        search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceType)),
       }),
     [history]
   );
@@ -77,7 +103,7 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
     () =>
       history.push({
         pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getFailedFindingsQuery()),
+        search: encodeQuery(failedFindingsQuery),
       }),
     [history]
   );
@@ -112,7 +138,7 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
       <EuiFlexItem>
         <EuiBasicTable<ResourceTypeAgg>
           rowHeader="resourceType"
-          items={getTop5Risks(resourceTypesAggs)}
+          items={useMockData ? getTop5Risks(mock) : getTop5Risks(resourceTypesAggs)}
           columns={columns}
         />
       </EuiFlexItem>

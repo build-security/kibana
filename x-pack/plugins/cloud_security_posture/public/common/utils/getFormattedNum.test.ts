@@ -7,28 +7,61 @@
 
 import { getFormattedNum } from './getFormattedNum';
 
-const mockNums: number[] = [
-  -1000000000, -1000, 0, 100, 1000, 12345, 123456, 1234567, 12345678, 123456789, 1234567890,
-  1234567890000,
+const mockData: Array<{ value: number; expected: string }> = [
+  {
+    value: -1000000000,
+    expected: '-1B',
+  },
+  {
+    value: -1000,
+    expected: '-1K',
+  },
+  {
+    value: 0,
+    expected: '0',
+  },
+  {
+    value: 100,
+    expected: '100',
+  },
+  {
+    value: 1000,
+    expected: '1K',
+  },
+  {
+    value: 12345,
+    expected: '12.3K',
+  },
+  {
+    value: 123456,
+    expected: '123.5K',
+  },
+  {
+    value: 1234567,
+    expected: '1.2M',
+  },
+  {
+    value: 12345678,
+    expected: '12.3M',
+  },
+  {
+    value: 123456789,
+    expected: '123.5M',
+  },
+  {
+    value: 1234567890,
+    expected: '1.2B',
+  },
+  {
+    value: 1234567890000,
+    expected: '1.2T',
+  },
 ];
 
 describe('getFormattedNum', () => {
   it('returns correct abbreviation', () => {
     // tests that the used properties for Intl.NumberFormat set in 'getFormattedNum' are correct
-    const formattedResults = mockNums.map((n) => getFormattedNum(n));
-    expect(formattedResults).toEqual([
-      '-1B',
-      '-1K',
-      '0',
-      '100',
-      '1K',
-      '12.3K',
-      '123.5K',
-      '1.2M',
-      '12.3M',
-      '123.5M',
-      '1.2B',
-      '1.2T',
-    ]);
+    const formattedResults = mockData.map(({ value }) => getFormattedNum(value));
+    expect(formattedResults).toEqual(mockData.map(({ expected }) => expected));
   });
 });

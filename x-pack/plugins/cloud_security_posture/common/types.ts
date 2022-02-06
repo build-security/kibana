@@ -9,15 +9,17 @@ export type Evaluation = 'passed' | 'failed' | 'NA';
 /** number between 1-100 */
 export type Score = number;
 
-export interface Stats {
-  postureScore: Score;
+export interface FindingsResults {
   totalFindings: number;
   totalPassed: number;
   totalFailed: number;
 }
 
-export interface ResourceTypeAgg
-  extends Pick<Stats, 'totalFindings' | 'totalPassed' | 'totalFailed'> {
+export interface Stats extends FindingsResults {
+  postureScore: Score;
+}
+
+export interface ResourceTypeAgg extends FindingsResults {
   resourceType: string;
 }
 

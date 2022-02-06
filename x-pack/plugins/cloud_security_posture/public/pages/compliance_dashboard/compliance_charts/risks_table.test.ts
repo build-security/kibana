@@ -37,9 +37,9 @@ const systemAgg = {
 
 const apiAgg = {
   resourceType: 'api',
-  totalFindings: 9,
-  totalPassed: 2,
-  totalFailed: 7,
+  totalFindings: 19100,
+  totalPassed: 2100,
+  totalFailed: 17000,
 };
 
 const serverAgg = {
