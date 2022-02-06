@@ -7,18 +7,17 @@
 import React from 'react';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 import * as TEST_SUBJECTS from './test_subjects';
-import type { FindingsUrlQuery, FindingsFetchState } from './findings_container';
+import type { CspFindingsRequest, CspFindingsResponse } from './use_findings';
 import type { CspClientPluginStartDeps } from '../../types';
 import { PLUGIN_NAME } from '../../../common';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
-type SearchBarQueryProps = Pick<FindingsUrlQuery, 'query' | 'filters' | 'dateRange'>;
+type SearchBarQueryProps = Pick<CspFindingsRequest, 'query' | 'filters' | 'dateRange'>;
+type FindingsSearchBarProps = CspFindingsResponse & BaseFindingsSearchBarProps;
 
 interface BaseFindingsSearchBarProps extends SearchBarQueryProps {
   setQuery(v: Partial<SearchBarQueryProps>): void;
 }
-
-type FindingsSearchBarProps = FindingsFetchState & BaseFindingsSearchBarProps;
 
 export const FindingsSearchBar = ({
   dataView,

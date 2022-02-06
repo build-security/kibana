@@ -5,11 +5,10 @@
  * 2.0.
  */
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import * as TEST_SUBJECTS from './test_subjects';
 import { FindingsTable } from './findings_table';
 import type { PropsOf } from '@elastic/eui';
-
 import Chance from 'chance';
 import type { CspFinding } from './types';
 
@@ -56,27 +55,19 @@ const getFakeFindings = (): CspFinding & { id: string } => ({
 type TableProps = PropsOf<typeof FindingsTable>;
 
 describe('<FindingsTable />', () => {
-  it('renders the zero state when status success and data has a length less than 1 or is undefined', async () => {
+  it('renders the zero state when status success and data has a length of zero ', async () => {
     const props: TableProps = {
       status: 'success',
-      data: [],
+      data: { data: [], total: 0 },
       error: null,
       sort: [],
       from: 1,
       size: 10,
-      total: 1,
       setQuery: jest.fn,
       selectItem: jest.fn,
     };
 
     render(<FindingsTable {...props} />);
-
-    expect(screen.getByTestId(TEST_SUBJECTS.FINDINGS_TABLE_ZERO_STATE)).toBeInTheDocument();
-
-    cleanup();
-
-    // @ts-expect-error in case response is invalid
-    render(<FindingsTable {...{ ...props, data: undefined }} />);
 
     expect(screen.getByTestId(TEST_SUBJECTS.FINDINGS_TABLE_ZERO_STATE)).toBeInTheDocument();
   });
@@ -86,12 +77,11 @@ describe('<FindingsTable />', () => {
 
     const props: TableProps = {
       status: 'success',
-      data,
+      data: { data, total: 10 },
       error: null,
       sort: [],
       from: 0,
       size: 10,
-      total: data.length,
       setQuery: jest.fn,
       selectItem: jest.fn,
     };

@@ -16,21 +16,21 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 import moment from 'moment';
+import { extractErrorMessage } from '../../../common/utils/helpers';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
 import type { CspFinding } from './types';
 import { CspEvaluationBadge } from '../../components/csp_evaluation_badge';
-import type { FindingsUrlQuery, FindingsFetchState } from './findings_container';
+import type { CspFindingsRequest, CspFindingsResponse } from './use_findings';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
 
-type TableQueryProps = Pick<FindingsUrlQuery, 'sort' | 'from' | 'size'>;
+type TableQueryProps = Pick<CspFindingsRequest, 'sort' | 'from' | 'size'>;
+type FindingsTableProps = CspFindingsResponse & BaseFindingsTableProps;
 
 interface BaseFindingsTableProps extends TableQueryProps {
   setQuery(query: Partial<TableQueryProps>): void;
   selectItem(item: CspFinding | undefined): void;
 }
-
-type FindingsTableProps = FindingsFetchState & BaseFindingsTableProps;
 
 const FindingsTableComponent = ({
   setQuery,
@@ -46,7 +46,7 @@ const FindingsTableComponent = ({
       getEuiPaginationFromEsSearchSource({
         from,
         size,
-        total: props.status === 'success' ? props.total : 0,
+        total: props.status === 'success' ? props.data.total : 0,
       }),
     [from, size, props]
   );
@@ -68,7 +68,7 @@ const FindingsTableComponent = ({
   );
 
   // Show "zero state"
-  if (props.status === 'success' && !props.data.length)
+  if (props.status === 'success' && !props.data.data.length)
     // TODO: use our own logo
     return (
       <EuiEmptyPrompt
@@ -82,8 +82,8 @@ const FindingsTableComponent = ({
     <EuiBasicTable
       data-test-subj={TEST_SUBJECTS.FINDINGS_TABLE}
       loading={props.status === 'loading'}
-      error={error ? error : undefined}
-      items={props.data || []}
+      error={error ? extractErrorMessage(error) : undefined}
+      items={props.data?.data || []}
       columns={columns}
       pagination={pagination}
       sorting={sorting}

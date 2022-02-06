@@ -7,7 +7,8 @@
 import type { Filter } from '@kbn/es-query';
 import { type UseQueryResult, useQuery } from 'react-query';
 import type { AggregationsAggregate, SearchResponse } from '@elastic/elasticsearch/lib/api/types';
-import { getErrorOrUnknown, isNonNullable } from '../../../common/utils/helpers';
+import { number } from 'io-ts';
+import { extractErrorMessage, isNonNullable } from '../../../common/utils/helpers';
 import type {
   DataView,
   IKibanaSearchResponse,
@@ -20,27 +21,42 @@ import * as TEXT from './translations';
 import type { CoreStart } from '../../../../../../src/core/public';
 import type { CspFinding } from './types';
 
-interface WithDataView {
-  dataView: DataView;
+interface CspFindings {
+  data: CspFinding[];
+  total: number;
 }
 
-export type CspFindingsSearchSource = Pick<
-  SerializedSearchSourceFields,
-  'sort' | 'size' | 'from' | 'query'
-> & {
+export interface CspFindingsRequest
+  extends Required<Pick<SerializedSearchSourceFields, 'sort' | 'size' | 'from' | 'query'>> {
   filters: Filter[];
   dateRange: TimeRange;
-};
+}
 
-type CspFindingsSearchSourceResult = IKibanaSearchResponse<
-  SearchResponse<CspFinding, Record<string, AggregationsAggregate>>
->;
+type ResponseProps = 'data' | 'error' | 'status';
+type Result = UseQueryResult<CspFindings, unknown>;
+
+// TODO: use distributive Pick
+export type CspFindingsResponse =
+  | Pick<Extract<Result, { status: 'success' }>, ResponseProps>
+  | Pick<Extract<Result, { status: 'error' }>, ResponseProps>
+  | Pick<Extract<Result, { status: 'idle' }>, ResponseProps>
+  | Pick<Extract<Result, { status: 'loading' }>, ResponseProps>;
 
 const showResponseErrorToast =
-  ({ toasts: { addError } }: CoreStart['notifications']) =>
+  ({ toasts: { addDanger } }: CoreStart['notifications']) =>
   (error: unknown): void => {
-    addError(getErrorOrUnknown(error), { title: TEXT.SEARCH_FAILED });
+    addDanger(extractErrorMessage(error, TEXT.SEARCH_FAILED));
   };
+
+const extractFindings = ({
+  rawResponse: { hits },
+}: IKibanaSearchResponse<
+  SearchResponse<CspFinding, Record<string, AggregationsAggregate>>
+>): CspFindings => ({
+  // TODO: use 'fields' instead of '_source' ?
+  data: hits.hits.map((hit) => hit._source!),
+  total: number.is(hits.total) ? hits.total : 0,
+});
 
 const createFindingsSearchSource = (
   {
@@ -49,7 +65,9 @@ const createFindingsSearchSource = (
     dataView,
     filters,
     ...rest
-  }: Omit<CspFindingsSearchSource, 'queryKey'> & WithDataView,
+  }: Omit<CspFindingsRequest, 'queryKey'> & {
+    dataView: DataView;
+  },
   queryService: CspClientPluginStartDeps['data']['query']
 ): SerializedSearchSourceFields => {
   if (query) queryService.queryString.setQuery(query);
@@ -70,28 +88,27 @@ const createFindingsSearchSource = (
  */
 export const useFindings = (
   dataView: DataView,
-  searchProps: CspFindingsSearchSource,
+  searchProps: CspFindingsRequest,
   urlKey?: string // Needed when URL query (searchProps) didn't change (now-15) but require a refetch
-): CspFindingsSearchSourceResponse => {
+): CspFindingsResponse => {
   const { notifications, data: dataService } = useKibana<CspClientPluginStartDeps>().services;
   const { query: queryService, search: searchService } = dataService;
 
-  return useQuery<CspFindingsSearchSourceResult, unknown>(
+  return useQuery(
     ['csp_findings', { searchProps, urlKey }],
     async () => {
       const source = await searchService.searchSource.create(
         createFindingsSearchSource({ ...searchProps, dataView }, queryService)
       );
 
-      const response = await source.fetch$().toPromise<CspFindingsSearchSourceResult>();
+      const response = await source.fetch$().toPromise();
 
       return response;
     },
-    { onError: showResponseErrorToast(notifications!), cacheTime: 0 }
+    {
+      cacheTime: 0,
+      onError: showResponseErrorToast(notifications!),
+      select: extractFindings,
+    }
   );
 };
-
-export type CspFindingsSearchSourceResponse = UseQueryResult<
-  CspFindingsSearchSourceResult,
-  unknown
->;
