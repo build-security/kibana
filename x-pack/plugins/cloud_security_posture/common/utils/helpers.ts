@@ -14,12 +14,9 @@ import * as t from 'io-ts';
 export const isNonNullable = <T extends unknown>(v: T): v is NonNullable<T> =>
   v !== null && v !== undefined;
 
-export const getErrorOrUnknown = (e: unknown) =>
-  e instanceof Error ? e : new Error('Unknown Error');
-
-export const extractErrorMessage = (e: unknown): string => {
+export const extractErrorMessage = (e: unknown, defaultMessage = 'Unknown Error'): string => {
   if (e instanceof Error) return e.message;
   if (t.record(t.literal('message'), t.string).is(e)) return e.message;
 
-  return 'Unknown Error'; // TODO: i18n
+  return defaultMessage; // TODO: i18n
 };
