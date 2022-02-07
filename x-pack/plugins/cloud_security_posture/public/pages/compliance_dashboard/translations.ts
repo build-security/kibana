@@ -15,7 +15,7 @@ export const CLOUD_POSTURE_SCORE = i18n.translate('xpack.csp.cloud_posture_score
   defaultMessage: 'Cloud Posture Score',
 });
 
-export const RISKS = i18n.translate('xpack.csp.top_5_chart_title', {
+export const RISKS = i18n.translate('xpack.csp.risks', {
   defaultMessage: 'Risks',
 });
 

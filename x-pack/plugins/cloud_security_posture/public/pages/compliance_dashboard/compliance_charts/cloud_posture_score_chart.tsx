@@ -18,7 +18,7 @@ import { EuiFlexGroup, EuiText, EuiHorizontalRule, EuiFlexItem } from '@elastic/
 import { statusColors } from '../../../common/constants';
 import type { Stats } from '../../../../common/types';
 import * as TEXT from '../translations';
-import { getFormattedNum } from '../../../common/utils/getFormattedNum';
+import { getFormattedNum } from '../../../common/utils/get_formatted_num';
 
 interface CloudPostureScoreChartProps {
   data: Stats;

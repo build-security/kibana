@@ -19,7 +19,7 @@ import { useHistory } from 'react-router-dom';
 import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
-import { getFormattedNum } from '../../../common/utils/getFormattedNum';
+import { getFormattedNum } from '../../../common/utils/get_formatted_num';
 import * as TEXT from '../translations';
 import { RULE_FAILED } from '../../../../common/constants';
 
@@ -77,10 +77,10 @@ export const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypes
   return sorted.slice(0, maxRisks);
 };
 
-const failedFindingsQuery: Query = {
+const getFailedFindingsQuery = (): Query => ({
   language: 'kuery',
   query: `result.evaluation : "${RULE_FAILED}" `,
-};
+});
 
 const getResourceTypeFailedFindingsQuery = (resourceType: string): Query => ({
   language: 'kuery',
@@ -88,24 +88,24 @@ const getResourceTypeFailedFindingsQuery = (resourceType: string): Query => ({
 });
 
 export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
-  const history = useHistory();
+  const { push } = useHistory();
 
   const handleCellClick = useCallback(
     (resourceType: ResourceTypeAgg['resourceType']) =>
-      history.push({
+      push({
         pathname: allNavigationItems.findings.path,
         search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceType)),
       }),
-    [history]
+    [push]
   );
 
   const handleViewAllClick = useCallback(
     () =>
-      history.push({
+      push({
         pathname: allNavigationItems.findings.path,
-        search: encodeQuery(failedFindingsQuery),
+        search: encodeQuery(getFailedFindingsQuery()),
       }),
-    [history]
+    [push]
   );
 
   const columns = useMemo(

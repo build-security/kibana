@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { getFormattedNum } from './getFormattedNum';
+import { getFormattedNum } from './get_formatted_num';
 
 const mockData: Array<{ value: number; expected: string }> = [
   {
