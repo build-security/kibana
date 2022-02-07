@@ -16,7 +16,7 @@ import { useFindings, type CspFindingsRequest } from './use_findings';
 
 // TODO: define this as a schema with default values
 // need to get Query and DateRange schema
-export const getDefaultQuery = (): CspFindingsRequest => ({
+const getDefaultQuery = (): CspFindingsRequest => ({
   query: { language: 'kuery', query: '' },
   filters: [],
   dateRange: {

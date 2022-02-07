@@ -64,7 +64,6 @@ describe('<FindingsTable />', () => {
       from: 1,
       size: 10,
       setQuery: jest.fn,
-      selectItem: jest.fn,
     };
 
     render(<FindingsTable {...props} />);
@@ -83,7 +82,6 @@ describe('<FindingsTable />', () => {
       from: 0,
       size: 10,
       setQuery: jest.fn,
-      selectItem: jest.fn,
     };
 
     render(<FindingsTable {...props} />);

@@ -12,21 +12,20 @@ import { MISSING_KUBEBEAT } from './translations';
 import { TestProvider } from '../../test/test_provider';
 import { dataPluginMock } from '../../../../../../src/plugins/data/public/mocks';
 import { createStubDataView } from '../../../../../../src/plugins/data_views/public/data_views/data_view.stub';
-import * as utils from './utils';
+import { useKubebeatDataView } from './utils';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import * as TEST_SUBJECTS from './test_subjects';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
-const spy = jest.spyOn(utils, 'useKubebeatDataView');
+jest.mock('./utils');
 
 beforeEach(() => {
-  spy.mockReset();
+  jest.restoreAllMocks();
 });
 
-const FindingsComponentWithTestProvider = () => {
-  const dataMock = dataPluginMock.createStartContract();
+const FindingsComponentWithTestProvider = ({ data = dataPluginMock.createStartContract() }) => {
   return (
-    <TestProvider deps={{ data: dataMock }}>
+    <TestProvider deps={{ data }}>
       <Findings />
     </TestProvider>
   );
@@ -34,7 +33,9 @@ const FindingsComponentWithTestProvider = () => {
 
 describe('<Findings />', () => {
   it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
-    spy.mockImplementation(() => ({ status: 'success' } as UseQueryResult<DataView>));
+    (useKubebeatDataView as jest.Mock).mockReturnValue({
+      status: 'success',
+    } as UseQueryResult<DataView>);
 
     render(<FindingsComponentWithTestProvider />);
 
@@ -42,7 +43,9 @@ describe('<Findings />', () => {
   });
 
   it("renders the error state component when 'kubebeat' request status is 'error'", async () => {
-    spy.mockImplementation(() => ({ status: 'error' } as UseQueryResult<DataView>));
+    (useKubebeatDataView as jest.Mock).mockReturnValue({
+      status: 'error',
+    } as UseQueryResult<DataView>);
 
     render(<FindingsComponentWithTestProvider />);
 
@@ -50,19 +53,24 @@ describe('<Findings />', () => {
   });
 
   it("renders the success state component when 'kubebeat' DataView exists and request status is 'success'", async () => {
-    spy.mockImplementation(
-      () =>
-        ({
-          status: 'success',
-          data: createStubDataView({
-            spec: {
-              id: CSP_KUBEBEAT_INDEX_PATTERN,
-            },
-          }),
-        } as UseQueryResult<DataView>)
-    );
+    const data = dataPluginMock.createStartContract();
 
-    render(<FindingsComponentWithTestProvider />);
+    const source = await data.search.searchSource.create();
+
+    (source.fetch$ as jest.Mock).mockReturnValue({
+      toPromise: () => Promise.resolve({ rawResponse: { hits: { hits: [] } } }),
+    });
+
+    (useKubebeatDataView as jest.Mock).mockReturnValue({
+      status: 'success',
+      data: createStubDataView({
+        spec: {
+          id: CSP_KUBEBEAT_INDEX_PATTERN,
+        },
+      }),
+    } as UseQueryResult<DataView>);
+
+    render(<FindingsComponentWithTestProvider data={data} />);
 
     expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_CONTAINER)).toBeInTheDocument();
   });

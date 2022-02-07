@@ -11,6 +11,7 @@ import { decodeQuery, encodeQuery } from '../navigation/query_utils';
 /**
  * @description uses 'rison' to encode/decode a url query
  * @todo replace getDefaultQuery with schema. validate after decoded from URL, use defaultValues
+ * @note shallow-merges default, current and next query
  */
 export const useUrlQuery = <T extends object>(getDefaultQuery: () => T) => {
   const { push } = useHistory();
