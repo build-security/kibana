@@ -11,6 +11,7 @@ import type {
 } from '@elastic/elasticsearch/lib/api/types';
 
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
+import { Evaluation } from '../../../common/types';
 
 export const getFindingsEsQuery = (
   cycleId: string,
@@ -37,7 +38,7 @@ export const getFindingsEsQuery = (
 
 export const getResourcesEvaluationEsQuery = (
   cycleId: string,
-  result: 'passed' | 'failed',
+  evaluation: Evaluation,
   size: number,
   resources?: string[]
 ): SearchRequest => {
@@ -45,7 +46,7 @@ export const getResourcesEvaluationEsQuery = (
     bool: {
       filter: [
         { term: { 'cycle_id.keyword': cycleId } },
-        { term: { 'result.evaluation.keyword': result } },
+        { term: { 'result.evaluation.keyword': evaluation } },
       ],
     },
   };
@@ -82,5 +83,29 @@ export const getLatestFindingQuery = (): SearchRequest => ({
   sort: { '@timestamp': 'desc' },
   query: {
     match_all: {},
+  },
+});
+
+export const getRisksEsQuery = (cycleId: string): SearchRequest => ({
+  index: CSP_KUBEBEAT_INDEX_PATTERN,
+  size: 0,
+  query: {
+    bool: {
+      filter: [{ term: { 'cycle_id.keyword': cycleId } }],
+    },
+  },
+  aggs: {
+    resource_types: {
+      terms: {
+        field: 'resource.type.keyword',
+      },
+      aggs: {
+        bucket_evaluation: {
+          terms: {
+            field: 'result.evaluation.keyword',
+          },
+        },
+      },
+    },
   },
 });

@@ -120,7 +120,7 @@ export const BenchmarksSection = () => {
                         isLoading={getStats.isLoading}
                         isError={getStats.isError}
                       >
-                        // TODO: no api for this chart yet, using empty state for now. needs BE
+                        {/* TODO: no api for this chart yet, using empty state for now. needs BE */}
                         <ComplianceTrendChart />
                       </ChartPanel>
                     ),
