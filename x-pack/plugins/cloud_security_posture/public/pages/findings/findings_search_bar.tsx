@@ -13,11 +13,12 @@ import { PLUGIN_NAME } from '../../../common';
 import type { DataView } from '../../../../../../src/plugins/data/common';
 
 type SearchBarQueryProps = Pick<CspFindingsRequest, 'query' | 'filters' | 'dateRange'>;
-type FindingsSearchBarProps = CspFindingsResponse & BaseFindingsSearchBarProps;
 
 interface BaseFindingsSearchBarProps extends SearchBarQueryProps {
   setQuery(v: Partial<SearchBarQueryProps>): void;
 }
+
+type FindingsSearchBarProps = CspFindingsResponse & BaseFindingsSearchBarProps;
 
 export const FindingsSearchBar = ({
   dataView,

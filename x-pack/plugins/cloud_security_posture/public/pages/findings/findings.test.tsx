@@ -23,13 +23,11 @@ beforeEach(() => {
   jest.restoreAllMocks();
 });
 
-const FindingsComponentWithTestProvider = ({ data = dataPluginMock.createStartContract() }) => {
-  return (
-    <TestProvider deps={{ data }}>
-      <Findings />
-    </TestProvider>
-  );
-};
+const Wrapper = ({ data = dataPluginMock.createStartContract() }) => (
+  <TestProvider deps={{ data }}>
+    <Findings />
+  </TestProvider>
+);
 
 describe('<Findings />', () => {
   it("renders the error state component when 'kubebeat' DataView doesn't exists", async () => {
@@ -37,7 +35,7 @@ describe('<Findings />', () => {
       status: 'success',
     } as UseQueryResult<DataView>);
 
-    render(<FindingsComponentWithTestProvider />);
+    render(<Wrapper />);
 
     expect(await screen.findByText(MISSING_KUBEBEAT)).toBeInTheDocument();
   });
@@ -47,14 +45,13 @@ describe('<Findings />', () => {
       status: 'error',
     } as UseQueryResult<DataView>);
 
-    render(<FindingsComponentWithTestProvider />);
+    render(<Wrapper />);
 
     expect(await screen.findByText(MISSING_KUBEBEAT)).toBeInTheDocument();
   });
 
   it("renders the success state component when 'kubebeat' DataView exists and request status is 'success'", async () => {
     const data = dataPluginMock.createStartContract();
-
     const source = await data.search.searchSource.create();
 
     (source.fetch$ as jest.Mock).mockReturnValue({
@@ -70,7 +67,7 @@ describe('<Findings />', () => {
       }),
     } as UseQueryResult<DataView>);
 
-    render(<FindingsComponentWithTestProvider data={data} />);
+    render(<Wrapper data={data} />);
 
     expect(await screen.findByTestId(TEST_SUBJECTS.FINDINGS_CONTAINER)).toBeInTheDocument();
   });

@@ -26,11 +26,12 @@ import { SortDirection } from '../../../../../../src/plugins/data/common';
 import { FindingsRuleFlyout } from './findings_flyout';
 
 type TableQueryProps = Pick<CspFindingsRequest, 'sort' | 'from' | 'size'>;
-type FindingsTableProps = CspFindingsResponse & BaseFindingsTableProps;
 
 interface BaseFindingsTableProps extends TableQueryProps {
   setQuery(query: Partial<TableQueryProps>): void;
 }
+
+type FindingsTableProps = CspFindingsResponse & BaseFindingsTableProps;
 
 const FindingsTableComponent = ({
   setQuery,
