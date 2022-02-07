@@ -88,24 +88,24 @@ const getResourceTypeFailedFindingsQuery = (resourceType: string): Query => ({
 });
 
 export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
-  const history = useHistory();
+  const { push } = useHistory();
 
   const handleCellClick = useCallback(
     (resourceType: ResourceTypeAgg['resourceType']) =>
-      history.push({
+      push({
         pathname: allNavigationItems.findings.path,
         search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceType)),
       }),
-    [history.push]
+    [push]
   );
 
   const handleViewAllClick = useCallback(
     () =>
-      history.push({
+      push({
         pathname: allNavigationItems.findings.path,
         search: encodeQuery(getFailedFindingsQuery()),
       }),
-    [history.push]
+    [push]
   );
 
   const columns = useMemo(
