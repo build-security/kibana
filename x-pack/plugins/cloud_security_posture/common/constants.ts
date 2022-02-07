@@ -20,5 +20,5 @@ export const INTERNAL_FEATURE_FLAGS = {
   benchmarks: false,
 } as const;
 
-/** This Kibana Advanced Setting enables the `Cloud Security Posture` beta feature */
+/** This Kibana Advanced Setting enables the `Cloud Security Posture` experimental feature */
 export const ENABLE_CSP = 'securitySolution:enableCloudSecurityPosture';
