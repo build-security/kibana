@@ -158,7 +158,6 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         const soClient = context.core.savedObjects.client;
         const { query } = request;
 
-        // const agentService = cspContext.service.getAgentService();
         const agentService = cspContext.service.agentService;
         const agentPolicyService = cspContext.service.agentPolicyService;
         const packagePolicyService = cspContext.service.packagePolicyService;
