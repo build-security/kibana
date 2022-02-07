@@ -21,7 +21,7 @@ export const initUiSettings = (uiSettings: CoreSetup['uiSettings']) => {
       description: `${i18n.translate(
         'xpack.securitySolution.uiSettings.enableCloudSecurityPostureDescription',
         {
-          defaultMessage: '<p>Enables the Cloud Security Posture feature (beta)</p>',
+          defaultMessage: '<p>Enables the Cloud Security Posture feature (experimental)</p>',
         }
       )}`,
       type: 'boolean',
