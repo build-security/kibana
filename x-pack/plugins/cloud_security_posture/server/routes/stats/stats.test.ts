@@ -15,7 +15,7 @@ import {
   getAllFindingsStats,
   roundScore,
   getBenchmarksStats,
-  getResourcesEvaluation,
+  getResourceTypesAggs,
 } from './stats';
 
 export const mockCountResultOnce = async (mockEsClient: ElasticsearchClientMock, count: number) => {
@@ -36,6 +36,44 @@ export const mockSearchResultOnce = async (
 };
 
 const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
+
+const resourceTypeAggsMockData = {
+  aggregations: {
+    resource_types: {
+      buckets: [
+        {
+          key: 'pods',
+          doc_count: 3,
+          bucket_evaluation: {
+            buckets: [
+              {
+                key: 'passed',
+                doc_count: 1,
+              },
+              {
+                key: 'failed',
+                doc_count: 2,
+              },
+            ],
+          },
+        },
+        {
+          key: 'etcd',
+          doc_count: 4,
+          bucket_evaluation: {
+            buckets: [
+              // there is only one bucket here, in cases where aggs can't find an evaluation we count that as 0.
+              {
+                key: 'failed',
+                doc_count: 4,
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+};
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -141,55 +179,23 @@ describe('score per benchmark, testing getBenchmarksStats', () => {
   });
 });
 
-describe('Evaluation Per Resource', () => {
-  it('getResourcesEvaluation - check for one resource', async () => {
-    const returnedMock = {
-      aggregations: {
-        group: {
-          buckets: [{ key: 'etcd.yaml', doc_count: 1 }],
-        },
+describe('getResourceTypesAggs', () => {
+  it('get all resources types aggregations', async () => {
+    await mockSearchResultOnce(mockEsClient, resourceTypeAggsMockData);
+    const resourceTypeAggs = await getResourceTypesAggs(mockEsClient, 'RandomCycleId');
+    expect(resourceTypeAggs).toEqual([
+      {
+        resourceType: 'pods',
+        totalFindings: 3,
+        totalPassed: 1,
+        totalFailed: 2,
       },
-    };
-    mockSearchResultOnce(mockEsClient, returnedMock);
-    mockSearchResultOnce(mockEsClient, returnedMock);
-    const evaluations = await getResourcesEvaluation(mockEsClient, 'RandomCycleId');
-    expect(evaluations).toEqual([
-      { resource: 'etcd.yaml', value: 1, evaluation: 'passed' },
-      { resource: 'etcd.yaml', value: 1, evaluation: 'failed' },
+      {
+        resourceType: 'etcd',
+        totalFindings: 4,
+        totalPassed: 0,
+        totalFailed: 4,
+      },
     ]);
-  });
-
-  it('getResourcesEvaluation - check for multiple resources', async () => {
-    const returnedMock1 = {
-      aggregations: {
-        group: {
-          buckets: [
-            { key: 'etcd.yaml', doc_count: 2 },
-            { key: 'kube-apiserver.yaml', doc_count: 10 },
-          ],
-        },
-      },
-    };
-    const returnedMock2 = {
-      aggregations: {
-        group: {
-          buckets: [
-            { key: 'etcd.yaml', doc_count: 7 },
-            { key: 'kube-apiserver.yaml', doc_count: 8 },
-          ],
-        },
-      },
-    };
-    await mockSearchResultOnce(mockEsClient, returnedMock1);
-    await mockSearchResultOnce(mockEsClient, returnedMock2);
-    const evaluations = await getResourcesEvaluation(mockEsClient, 'RandomCycleId');
-    expect(evaluations).toEqual(
-      expect.arrayContaining([
-        { resource: 'kube-apiserver.yaml', value: 8, evaluation: 'passed' },
-        { resource: 'kube-apiserver.yaml', value: 10, evaluation: 'failed' },
-        { resource: 'etcd.yaml', value: 2, evaluation: 'failed' },
-        { resource: 'etcd.yaml', value: 7, evaluation: 'passed' },
-      ])
-    );
   });
 });

@@ -5,7 +5,11 @@
  * 2.0.
  */
 import Chance from 'chance';
+<<<<<<< HEAD
 import { createNavigationItemFixture } from '../test/fixtures/navigationItem';
+=======
+import { createNavigationItemFixture } from '../test/fixtures/navigation_item';
+>>>>>>> main
 import { getRoutesFromMapping } from './app';
 
 const chance = new Chance();

@@ -18,6 +18,7 @@ import { EuiFlexGroup, EuiText, EuiHorizontalRule, EuiFlexItem } from '@elastic/
 import { statusColors } from '../../../common/constants';
 import type { Stats } from '../../../../common/types';
 import * as TEXT from '../translations';
+import { getFormattedNum } from '../../../common/utils/get_formatted_num';
 
 interface CloudPostureScoreChartProps {
   data: Stats;
@@ -36,13 +37,23 @@ const ScoreChart = ({
   ];
 
   return (
-    <Chart size={{ height: 75, width: 90 }}>
-      <Settings onElementClick={partitionOnElementClick as ElementClickListener} />
+    <Chart size={{ height: 80, width: 90 }}>
+      <Settings
+        theme={{
+          partition: {
+            linkLabel: { maximumSection: Infinity, maxCount: 0 },
+            outerSizeRatio: 0.9,
+            emptySizeRatio: 0.75,
+          },
+        }}
+        onElementClick={partitionOnElementClick as ElementClickListener}
+      />
       <Partition
         id={id}
         data={data}
         valueGetter="percent"
         valueAccessor={(d) => d.value as number}
+        layout={PartitionLayout.sunburst}
         layers={[
           {
             groupByRollup: (d: { label: string }) => d.label,
@@ -52,12 +63,6 @@ const ScoreChart = ({
             },
           },
         ]}
-        config={{
-          partitionLayout: PartitionLayout.sunburst,
-          linkLabel: { maximumSection: Infinity, maxCount: 0 },
-          outerSizeRatio: 0.9,
-          emptySizeRatio: 0.8,
-        }}
       />
     </Chart>
   );
@@ -71,9 +76,11 @@ const PercentageInfo = ({
   const percentage = `${Math.round(postureScore)}%`;
 
   return (
-    <EuiFlexGroup direction="column" justifyContent="flexEnd">
-      <EuiText style={{ fontSize: 36, fontWeight: 'bold', lineHeight: 1 }}>{percentage}</EuiText>
-      <EuiText size="xs">{`${totalPassed}/${totalFindings} Findings passed`}</EuiText>
+    <EuiFlexGroup direction="column" justifyContent="center">
+      <EuiText style={{ fontSize: 40, fontWeight: 'bold', lineHeight: 1 }}>{percentage}</EuiText>
+      <EuiText size="xs">{`${getFormattedNum(totalPassed)}/${getFormattedNum(
+        totalFindings
+      )} Findings passed`}</EuiText>
     </EuiFlexGroup>
   );
 };
@@ -85,10 +92,10 @@ export const CloudPostureScoreChart = ({
   id,
   partitionOnElementClick,
 }: CloudPostureScoreChartProps) => (
-  <EuiFlexGroup direction="column">
-    <EuiFlexItem>
-      <EuiFlexGroup direction="row" style={{ padding: '0 10px' }}>
-        <EuiFlexItem grow={false} style={{ margin: 0 }}>
+  <EuiFlexGroup direction="column" gutterSize="none">
+    <EuiFlexItem grow={4}>
+      <EuiFlexGroup direction="row" style={{ margin: 0 }}>
+        <EuiFlexItem grow={false} style={{ justifyContent: 'flex-end' }}>
           <ScoreChart {...{ id, data, partitionOnElementClick }} />
         </EuiFlexItem>
         <EuiFlexItem>
@@ -97,7 +104,7 @@ export const CloudPostureScoreChart = ({
       </EuiFlexGroup>
     </EuiFlexItem>
     <EuiHorizontalRule margin="m" />
-    <EuiFlexItem>
+    <EuiFlexItem grow={6}>
       <ComplianceTrendChart />
     </EuiFlexItem>
   </EuiFlexGroup>

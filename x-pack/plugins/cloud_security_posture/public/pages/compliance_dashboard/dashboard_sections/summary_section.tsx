@@ -10,7 +10,6 @@ import { EuiFlexGrid, EuiFlexItem } from '@elastic/eui';
 import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
 import { Query } from '@kbn/es-query';
-import { ResourcesAtRiskChart } from '../compliance_charts/resources_at_risk_chart';
 import { ScorePerAccountChart } from '../compliance_charts/score_per_account_chart';
 import { ChartPanel } from '../../../components/chart_panel';
 import { useCloudPostureStatsApi } from '../../../common/api';
@@ -19,11 +18,19 @@ import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { Evaluation } from '../../../../common/types';
+import { RisksTable } from '../compliance_charts/risks_table';
 
 const getEvaluationQuery = (evaluation: Evaluation): Query => ({
   language: 'kuery',
   query: `"result.evaluation : "${evaluation}"`,
 });
+
+const defaultHeight = 360;
+
+// TODO: limit this to desktop media queries only
+const summarySectionWrapperStyle = {
+  height: defaultHeight,
+};
 
 export const SummarySection = () => {
   const history = useHistory();
@@ -42,7 +49,7 @@ export const SummarySection = () => {
   };
 
   return (
-    <EuiFlexGrid columns={3}>
+    <EuiFlexGrid columns={3} style={summarySectionWrapperStyle}>
       <EuiFlexItem>
         <ChartPanel
           title={TEXT.CLOUD_POSTURE_SCORE}
@@ -57,12 +64,8 @@ export const SummarySection = () => {
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>
-        <ChartPanel
-          title={TEXT.TOP_5_CHART_TITLE}
-          isLoading={getStats.isLoading}
-          isError={getStats.isError}
-        >
-          <ResourcesAtRiskChart data={getStats.data?.resourcesEvaluations} />
+        <ChartPanel title={TEXT.RISKS} isLoading={getStats.isLoading} isError={getStats.isError}>
+          <RisksTable data={getStats.data?.resourceTypesAggs} />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>
@@ -71,8 +74,8 @@ export const SummarySection = () => {
           isLoading={getStats.isLoading}
           isError={getStats.isError}
         >
-          // TODO: no api for this chart yet, using empty state for now. needs BE
-          <ScorePerAccountChart data={[]} />
+          {/* TODO: no api for this chart yet, using empty state for now. needs BE */}
+          <ScorePerAccountChart />
         </ChartPanel>
       </EuiFlexItem>
     </EuiFlexGrid>

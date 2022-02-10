@@ -112,7 +112,6 @@ const getResourceCards = ({ resource }: CspFinding): Card[] => [
       [TEXT.PATH, <EuiCode>{resource.path}</EuiCode>],
       [TEXT.TYPE, resource.type],
       [TEXT.UID, resource.uid],
-      [TEXT.GID, resource.gid],
     ],
   },
 ];

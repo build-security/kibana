@@ -8,14 +8,9 @@
 import React from 'react';
 import { Axis, BarSeries, Chart, Settings } from '@elastic/charts';
 import { statusColors } from '../../../common/constants';
-import { EvaluationResult } from '../../../../common/types';
 
 // soon to be deprecated
-export const ScorePerAccountChart = ({
-  data: accountEvaluations,
-}: {
-  data: EvaluationResult[];
-}) => {
+export const ScorePerAccountChart = () => {
   return (
     <Chart size={{ height: 200 }}>
       <Settings theme={theme} rotation={90} showLegend={false} />
@@ -26,7 +21,7 @@ export const ScorePerAccountChart = ({
           valueFormatter: (v) => `${Number(v * 100).toFixed(0)}%`,
         }}
         id="bars"
-        data={accountEvaluations}
+        data={[]}
         xAccessor={'resource'}
         yAccessors={['value']}
         splitSeriesAccessors={['evaluation']}

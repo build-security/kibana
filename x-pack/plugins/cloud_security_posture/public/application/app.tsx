@@ -9,6 +9,7 @@ import { I18nProvider } from '@kbn/i18n-react';
 import { Router, Redirect, Switch, Route } from 'react-router-dom';
 import type { RouteProps } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { EuiErrorBoundary } from '@elastic/eui';
 import { allNavigationItems } from '../common/navigation/constants';
 import { CspNavigationItem } from '../common/navigation/types';
 import { UnknownRoute } from '../components/unknown_route';
@@ -42,17 +43,19 @@ const routes = getRoutesFromMapping(allNavigationItems, pageToComponentMapping);
 export const CspApp = ({ core, deps, params }: CspAppDeps) => (
   <KibanaContextProvider services={{ ...deps, ...core }}>
     <QueryClientProvider client={queryClient}>
-      <Router history={params.history}>
-        <I18nProvider>
-          <Switch>
-            {routes.map((route) => (
-              <Route key={route.path as string} {...route} />
-            ))}
-            <Route exact path="/" component={RedirectToDashboard} />
-            <Route path="*" component={UnknownRoute} />
-          </Switch>
-        </I18nProvider>
-      </Router>
+      <EuiErrorBoundary>
+        <Router history={params.history}>
+          <I18nProvider>
+            <Switch>
+              {routes.map((route) => (
+                <Route key={route.path as string} {...route} />
+              ))}
+              <Route exact path="/" component={RedirectToDashboard} />
+              <Route path="*" component={UnknownRoute} />
+            </Switch>
+          </I18nProvider>
+        </Router>
+      </EuiErrorBoundary>
     </QueryClientProvider>
   </KibanaContextProvider>
 );

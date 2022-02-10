@@ -13,7 +13,7 @@ export const allNavigationItems: Record<CspPage, CspNavigationItem> = {
   dashboard: { name: TEXT.DASHBOARD, path: '/dashboard' },
   findings: { name: TEXT.FINDINGS, path: '/findings' },
   benchmarks: {
-    name: TEXT.BENCHMARKS,
+    name: TEXT.MY_BENCHMARKS,
     path: '/benchmarks',
     disabled: !INTERNAL_FEATURE_FLAGS.benchmarks,
   },
