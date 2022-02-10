@@ -8,9 +8,18 @@
 /** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
   preset: '@kbn/test',
+<<<<<<< HEAD
   rootDir: '../../../',
   projects: [
     '<rootDir>/x-pack/plugins/cloud_security_posture/server/jest.config.js',
     '<rootDir>/x-pack/plugins/cloud_security_posture/public/jest.config.js',
+=======
+  rootDir: '../../..',
+  roots: ['<rootDir>/x-pack/plugins/cloud_security_posture'],
+  coverageDirectory: '<rootDir>/target/kibana-coverage/jest/x-pack/plugins/cloud_security_posture',
+  coverageReporters: ['text', 'html'],
+  collectCoverageFrom: [
+    '<rootDir>/x-pack/plugins/cloud_security_posture/{common,public,server}/**/*.{ts,tsx}',
+>>>>>>> main
   ],
 };

@@ -11,19 +11,20 @@ export const CLOUD_POSTURE = i18n.translate('xpack.csp.cloud_posture', {
   defaultMessage: 'Cloud Posture',
 });
 
-export const TOP_5_CHART_TITLE = i18n.translate('xpack.csp.top_5_chart_title', {
-  defaultMessage: 'Top 5 Resources Types At Risk',
+export const CLOUD_POSTURE_SCORE = i18n.translate('xpack.csp.cloud_posture_score', {
+  defaultMessage: 'Cloud Posture Score',
 });
 
-export const SCORE_PER_CLUSTER_CHART_TITLE = i18n.translate(
-  'xpack.csp.score_per_cluster_chart_title',
-  {
-    defaultMessage: 'Score Per Account / Cluster',
-  }
-);
+export const RISKS = i18n.translate('xpack.csp.risks', {
+  defaultMessage: 'Risks',
+});
 
-export const NON_COMPLIANT_FIRST = i18n.translate('xpack.csp.non_compliant_first', {
-  defaultMessage: 'Non compliant first',
+export const OPEN_CASES = i18n.translate('xpack.csp.open_cases', {
+  defaultMessage: 'Open Cases',
+});
+
+export const COMING_SOON = i18n.translate('xpack.csp.coming_soon', {
+  defaultMessage: 'Coming soon',
 });
 
 export const COMPLIANCE_SCORE = i18n.translate('xpack.csp.compliance_score', {
@@ -68,4 +69,16 @@ export const PASSED = i18n.translate('xpack.csp.passed', {
 
 export const FAILED = i18n.translate('xpack.csp.failed', {
   defaultMessage: 'Failed',
+});
+
+export const VIEW_ALL_FAILED_FINDINGS = i18n.translate('xpack.csp.view_all_failed_findings', {
+  defaultMessage: 'View all failed findings',
+});
+
+export const RESOURCE_TYPE = i18n.translate('xpack.csp.resource_type', {
+  defaultMessage: 'Resource Type',
+});
+
+export const FAILED_FINDINGS = i18n.translate('xpack.csp.failed_findings', {
+  defaultMessage: 'Failed Findings',
 });

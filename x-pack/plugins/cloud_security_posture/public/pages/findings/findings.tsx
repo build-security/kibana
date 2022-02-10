@@ -9,7 +9,7 @@ import { EuiEmptyPrompt, EuiLoadingSpinner } from '@elastic/eui';
 import type { EuiPageHeaderProps } from '@elastic/eui';
 import { allNavigationItems } from '../../common/navigation/constants';
 import { useCspBreadcrumbs } from '../../common/navigation/use_csp_breadcrumbs';
-import { FindingsTableContainer } from './findings_container';
+import { FindingsContainer } from './findings_container';
 import { CspPageTemplate } from '../../components/page_template';
 import { useKubebeatDataView } from './utils';
 import * as TEST_SUBJECTS from './test_subjects';
@@ -30,7 +30,7 @@ export const Findings = () => {
         <ErrorPrompt />
       )}
       {dataView.status === 'success' && dataView.data && (
-        <FindingsTableContainer dataView={dataView.data} />
+        <FindingsContainer dataView={dataView.data} />
       )}
     </CspPageTemplate>
   );
