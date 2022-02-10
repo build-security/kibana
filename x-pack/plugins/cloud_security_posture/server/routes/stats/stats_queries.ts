@@ -85,6 +85,8 @@ export const getLatestFindingQuery = (): SearchRequest => ({
     match_all: {},
   },
 });
+
+export const getRisksEsQuery = (cycleId: string): SearchRequest => ({
   index: CSP_KUBEBEAT_INDEX_PATTERN,
   size: 0,
   query: {
