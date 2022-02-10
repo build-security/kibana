@@ -12,11 +12,8 @@ import {
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { KibanaRequest } from 'src/core/server/http/router/request';
 import { httpServerMock, httpServiceMock, loggingSystemMock } from 'src/core/server/mocks';
-<<<<<<< HEAD
 import { CspAppService } from '../../lib/csp_app_services';
 import { CspAppContext } from '../../plugin';
-=======
->>>>>>> main
 import {
   defineFindingsIndexRoute,
   findingsInputSchema,
@@ -46,7 +43,6 @@ describe('findings API', () => {
 
   it('validate the API route path', async () => {
     const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
     const cspAppContextService = new CspAppService();
 
     const cspContext: CspAppContext = {
@@ -54,9 +50,6 @@ describe('findings API', () => {
       service: cspAppContextService,
     };
     defineFindingsIndexRoute(router, cspContext);
-=======
-    defineFindingsIndexRoute(router, logger);
->>>>>>> main
 
     const [config, _] = router.get.mock.calls[0];
 
@@ -145,7 +138,6 @@ describe('findings API', () => {
     it('takes cycle_id and validate the filter was built right', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
       const cspAppContextService = new CspAppService();
 
       const cspContext: CspAppContext = {
@@ -153,9 +145,6 @@ describe('findings API', () => {
         service: cspAppContextService,
       };
       defineFindingsIndexRoute(router, cspContext);
-=======
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
 
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
@@ -203,7 +192,6 @@ describe('findings API', () => {
     it('validate that default sort is timestamp desc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
       const cspAppContextService = new CspAppService();
 
       const cspContext: CspAppContext = {
@@ -212,9 +200,6 @@ describe('findings API', () => {
       };
       defineFindingsIndexRoute(router, cspContext);
 
-=======
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -238,7 +223,6 @@ describe('findings API', () => {
     it('should build sort request by `sort_field` and `sort_order` - asc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
       const cspAppContextService = new CspAppService();
 
       const cspContext: CspAppContext = {
@@ -247,9 +231,6 @@ describe('findings API', () => {
       };
       defineFindingsIndexRoute(router, cspContext);
 
-=======
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -274,7 +255,6 @@ describe('findings API', () => {
     it('should build sort request by `sort_field` and `sort_order` - desc', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
       const cspAppContextService = new CspAppService();
 
       const cspContext: CspAppContext = {
@@ -283,9 +263,6 @@ describe('findings API', () => {
       };
       defineFindingsIndexRoute(router, cspContext);
 
-=======
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -307,7 +284,6 @@ describe('findings API', () => {
       });
     });
 
-<<<<<<< HEAD
     it('takes `page` number and `per_page` validate that the requested selected page was called', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
@@ -319,12 +295,6 @@ describe('findings API', () => {
       };
       defineFindingsIndexRoute(router, cspContext);
 
-=======
-    it('takes `page_number` and `per_page` validate that the requested selected page was called', async () => {
-      const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
-      const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
       const mockResponse = httpServerMock.createResponseFactory();
@@ -350,7 +320,6 @@ describe('findings API', () => {
     it('should format request by fields filter', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-<<<<<<< HEAD
       const cspAppContextService = new CspAppService();
 
       const cspContext: CspAppContext = {
@@ -359,9 +328,6 @@ describe('findings API', () => {
       };
       defineFindingsIndexRoute(router, cspContext);
 
-=======
-      defineFindingsIndexRoute(router, logger);
->>>>>>> main
       const [_, handler] = router.get.mock.calls[0];
 
       const mockContext = getMockCspContext(mockEsClient);
