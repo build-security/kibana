@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-export const CSP_KUBEBEAT_INDEX_PATTERN = 'logs-k8s_cis*';
+export const CSP_KUBEBEAT_INDEX_PATTERN = 'findings*';
 export const CSP_FINDINGS_INDEX_NAME = 'findings';
 export const STATS_ROUTE_PATH = '/api/csp/stats';
 export const FINDINGS_ROUTE_PATH = '/api/csp/findings';
@@ -18,6 +18,9 @@ export const RULE_FAILED = `failed`;
 // activated via a simple code change in a single location.
 export const INTERNAL_FEATURE_FLAGS = {
   benchmarks: false,
+  trendLineMock: false,
+  clusterMetaMock: false,
+  ManageRulesMock: false,
 } as const;
 
 /** This Kibana Advanced Setting enables the `Cloud Security Posture` experimental feature */
