@@ -7,10 +7,6 @@
 
 import { CspPlugin } from './plugin';
 
-<<<<<<< HEAD
-export { CspClientPluginSetup, CspClientPluginStart } from './types';
-=======
 export type { CspClientPluginSetup, CspClientPluginStart } from './types';
->>>>>>> main
 
 export const plugin = () => new CspPlugin();
