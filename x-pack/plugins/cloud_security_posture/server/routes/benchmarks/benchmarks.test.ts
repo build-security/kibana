@@ -12,13 +12,11 @@ import {
   PACKAGE_POLICY_SAVED_OBJECT_TYPE,
   getPackagePolicies,
   getAgentPolicies,
-  addRunningAgentToAgentPolicy,
   createBenchmarkEntry,
 } from './benchmarks';
 import { SavedObjectsClientContract } from 'src/core/server';
 import {
   createMockAgentPolicyService,
-  createMockAgentService,
   createPackagePolicyServiceMock,
 } from '../../../../fleet/server/mocks';
 import { createPackagePolicyMock } from '../../../../fleet/common/mocks';
@@ -128,11 +126,6 @@ describe('benchmarks API', () => {
     });
 
     describe('test getAgentPolicies', () => {
-      it('should throw when agentPolicyService is undefined', async () => {
-        const agentPolicyService = undefined;
-        expect(getAgentPolicies(mockSoClient, [], agentPolicyService)).rejects.toThrow();
-      });
-
       it('should return one agent policy id when there is duplication', async () => {
         const agentPolicyService = createMockAgentPolicyService();
         const packagePolicies = [createPackagePolicyMock(), createPackagePolicyMock()];
@@ -156,34 +149,7 @@ describe('benchmarks API', () => {
       });
     });
 
-    describe('test addRunningAgentsToAgentPolicy', () => {
-      it('should throw when agentService is undefined', async () => {
-        const agentService = undefined;
-
-        const agentPolicies = [createMockAgentPolicy(), createMockAgentPolicy()];
-
-        expect(addRunningAgentToAgentPolicy(agentService, agentPolicies)).rejects.toThrow();
-      });
-
-      it('should return empty array when agentPolicies is undefined', async () => {
-        const agentService = createMockAgentService();
-        const agentPolicies = undefined;
-
-        const enrichAgentPolicy = await addRunningAgentToAgentPolicy(agentService, agentPolicies);
-
-        expect(enrichAgentPolicy).toMatchObject([]);
-      });
-    });
-
     describe('test createBenchmarkEntry', () => {
-      it('should throw when agentService is undefined', async () => {
-        const agentService = undefined;
-
-        const agentPolicies = [createMockAgentPolicy(), createMockAgentPolicy()];
-
-        expect(addRunningAgentToAgentPolicy(agentService, agentPolicies)).rejects.toThrow();
-      });
-
       it('should build benchmark entry agent policy and package policy', async () => {
         const packagePolicy = createPackagePolicyMock();
         const agentPolicy = createMockAgentPolicy();

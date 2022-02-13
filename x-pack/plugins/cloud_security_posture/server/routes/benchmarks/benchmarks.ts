@@ -43,7 +43,7 @@ export interface Benchmark {
 export const DEFAULT_BENCHMARKS_PER_PAGE = 20;
 export const PACKAGE_POLICY_SAVED_OBJECT_TYPE = 'ingest-package-policies';
 
-export const getPackageNameQuery = (packageName: string): string => {
+const getPackageNameQuery = (packageName: string): string => {
   return `${PACKAGE_POLICY_SAVED_OBJECT_TYPE}.package.name:${packageName}`;
 };
 
@@ -71,26 +71,18 @@ export const getPackagePolicies = async (
 export const getAgentPolicies = async (
   soClient: SavedObjectsClientContract,
   packagePolicies: PackagePolicy[],
-  agentPolicyService: AgentPolicyServiceInterface | undefined
+  agentPolicyService: AgentPolicyServiceInterface
 ): Promise<AgentPolicy[]> => {
-  if (!agentPolicyService) {
-    throw new Error('agentPolicyService is undefined');
-  }
-
   const agentPolicyIds = uniq(map(packagePolicies, 'policy_id'));
   const agentPolicies = await agentPolicyService.getByIds(soClient, agentPolicyIds);
 
   return agentPolicies;
 };
 
-export const addRunningAgentToAgentPolicy = async (
-  agentService: AgentService | undefined,
-  agentPolicies: AgentPolicy[] | undefined
+const addRunningAgentToAgentPolicy = async (
+  agentService: AgentService,
+  agentPolicies: AgentPolicy[]
 ): Promise<GetAgentPoliciesResponseItem[]> => {
-  if (!agentService) {
-    throw new Error('agentService is undefined');
-  }
-
   if (!agentPolicies?.length) return [];
   return Promise.all(
     agentPolicies.map((agentPolicy) =>
@@ -162,6 +154,11 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         const agentPolicyService = cspContext.service.agentPolicyService;
         const packagePolicyService = cspContext.service.packagePolicyService;
 
+        // TODO: This validate can be remove after #2819 will be merged
+        if(!agentPolicyService || !agentService ){
+          throw (`Failed to get Fleet services`)
+        }
+
         const packagePolicies = await getPackagePolicies(
           soClient,
           packagePolicyService,
@@ -178,6 +175,7 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         });
       } catch (err) {
         const error = transformError(err);
+        cspContext.logger.error(`Failed to fetch benchmarks ${err}`)
         return response.customError({
           body: { message: error.message },
           statusCode: error.statusCode,
