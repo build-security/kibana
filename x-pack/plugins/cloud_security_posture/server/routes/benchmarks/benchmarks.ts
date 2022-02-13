@@ -155,8 +155,8 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         const packagePolicyService = cspContext.service.packagePolicyService;
 
         // TODO: This validate can be remove after #2819 will be merged
-        if(!agentPolicyService || !agentService ){
-          throw (`Failed to get Fleet services`)
+        if (!agentPolicyService || !agentService) {
+          throw new Error(`Failed to get Fleet services`);
         }
 
         const packagePolicies = await getPackagePolicies(
@@ -175,7 +175,7 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         });
       } catch (err) {
         const error = transformError(err);
-        cspContext.logger.error(`Failed to fetch benchmarks ${err}`)
+        cspContext.logger.error(`Failed to fetch benchmarks ${err}`);
         return response.customError({
           body: { message: error.message },
           statusCode: error.statusCode,
