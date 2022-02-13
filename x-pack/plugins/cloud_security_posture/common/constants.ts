@@ -5,7 +5,8 @@
  * 2.0.
  */
 
-export const CSP_KUBEBEAT_INDEX_PATTERN = 'logs-k8s_cis*';
+// export const CSP_KUBEBEAT_INDEX_PATTERN = 'logs-k8s_cis*';
+export const CSP_KUBEBEAT_INDEX_PATTERN = 'logs-*';
 export const CSP_FINDINGS_INDEX_NAME = 'findings';
 export const STATS_ROUTE_PATH = '/api/csp/stats';
 export const FINDINGS_ROUTE_PATH = '/api/csp/findings';

@@ -6,7 +6,7 @@
  */
 import { useQuery } from 'react-query';
 import type { CspClientPluginStartDeps } from '../../types';
-import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
+import { CSP_KUBEBEAT_DAVA_VIEW } from '../../../common/constants';
 import { useKibana } from '../../../../../../src/plugins/kibana_react/public';
 
 /**
@@ -22,7 +22,7 @@ export const useKubebeatDataView = () => {
   // const check = () => http?.get(`/kubebeat`);
 
   // TODO: use `dataViews.get(ID)`
-  const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_INDEX_PATTERN))?.[0];
+  const findDataView = async () => (await dataViews.find(CSP_KUBEBEAT_DAVA_VIEW))?.[0];
 
   return useQuery(['kubebeat_dataview'], findDataView);
 };
