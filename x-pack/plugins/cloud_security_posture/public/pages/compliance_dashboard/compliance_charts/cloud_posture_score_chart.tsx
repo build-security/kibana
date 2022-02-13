@@ -103,7 +103,7 @@ const ComplianceTrendChart = () => (
     <Settings showLegend={false} legendPosition="right" />
     <AreaSeries
       id="compliance_score"
-      // TODO: no api for this chart yet, using empty state for now. needs BE
+      // TODO: no api yet
       data={INTERNAL_FEATURE_FLAGS.trendLineMock ? mockData : []}
       xScaleType="time"
       xAccessor={0}

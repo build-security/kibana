@@ -17,7 +17,7 @@ import * as TEXT from './translations';
 
 const CompliancePage = () => {
   const getStats = useCloudPostureStatsApi();
-  // if (getStats.isLoading) return null;
+  if (getStats.isLoading) return null;
 
   return (
     <>
