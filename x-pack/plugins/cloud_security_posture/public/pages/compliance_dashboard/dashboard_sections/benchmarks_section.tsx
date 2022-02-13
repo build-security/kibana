@@ -7,13 +7,10 @@
 
 import React from 'react';
 import {
-  EuiFlexGrid,
   EuiFlexItem,
   EuiPanel,
   EuiIcon,
-  EuiTitle,
   EuiSpacer,
-  EuiDescriptionList,
   EuiFlexGroup,
   EuiText,
   EuiButtonEmpty,
@@ -23,9 +20,7 @@ import { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
-import { ComplianceTrendChart } from '../compliance_charts/compliance_trend_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
-import { CspHealthBadge } from '../../../components/csp_health_badge';
 import { ChartPanel } from '../../../components/chart_panel';
 import * as TEXT from '../translations';
 import { allNavigationItems } from '../../../common/navigation/constants';
@@ -95,7 +90,7 @@ export const BenchmarksSection = () => {
               )}
               <EuiSpacer />
               <EuiIcon type={getBenchmarkLogo(benchmark.name)} size="xxl" />
-              {INTERNAL_FEATURE_FLAGS.ManageRulesMock && (
+              {INTERNAL_FEATURE_FLAGS.manageRulesMock && (
                 <>
                   <EuiSpacer />
                   <EuiButtonEmpty>{'Manage Rules'}</EuiButtonEmpty>
