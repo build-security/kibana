@@ -10,6 +10,7 @@ import { I18nProvider } from '@kbn/i18n-react';
 import { Router, Switch, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { coreMock } from '../../../../../src/core/public/mocks';
+import { dataPluginMock } from '../../../../../src/plugins/data/public/mocks';
 import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/public';
 import type { CspAppDeps } from '../application/app';
 
@@ -19,12 +20,12 @@ const defaultParams = coreMock.createAppMountParameters();
 
 export const TestProvider: React.FC<Partial<CspAppDeps>> = ({
   core = defaultCore,
-  deps = {},
+  deps = { data: dataPluginMock.createStartContract() },
   params = defaultParams,
   children,
 } = {}) => {
   return (
-    <KibanaContextProvider services={{ ...deps, ...core }}>
+    <KibanaContextProvider services={{ ...core, ...deps }}>
       <QueryClientProvider client={queryClient}>
         <Router history={params.history}>
           <I18nProvider>
