@@ -66,7 +66,7 @@ export interface RisksTableProps {
   data: CloudPostureStats['resourceTypesAggs'];
 }
 
-const maxRisks = 5;
+const maxRisks = 4;
 
 export const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
   const filtered = resourceTypesAggs.filter((x) => x.totalFailed > 0);

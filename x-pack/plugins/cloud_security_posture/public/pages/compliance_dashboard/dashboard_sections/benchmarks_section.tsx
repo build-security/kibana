@@ -14,11 +14,13 @@ import {
   EuiFlexGroup,
   EuiText,
   EuiButtonEmpty,
+  useEuiTheme,
 } from '@elastic/eui';
 import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
 import { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
+import { EuiThemeComputed } from '@elastic/eui/src/services/theme/types';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
 import { ChartPanel } from '../../../components/chart_panel';
@@ -51,6 +53,7 @@ const getBenchmarkEvaluationQuery = (name: string, evaluation: Evaluation): Quer
 const mockClusterId = '2468540';
 
 export const BenchmarksSection = () => {
+  const { euiTheme } = useEuiTheme();
   const history = useHistory();
   const getStats = useCloudPostureStatsApi();
   const benchmarks = getStats.isSuccess && getStats.data.benchmarksStats;
@@ -72,7 +75,7 @@ export const BenchmarksSection = () => {
       {benchmarks.map((benchmark) => (
         <EuiPanel hasBorder hasShadow={false} paddingSize="none">
           <EuiFlexGroup>
-            <EuiFlexItem grow={2} style={integrationBoxStyle}>
+            <EuiFlexItem grow={2} style={getIntegrationBoxStyle(euiTheme)}>
               <EuiText>
                 <h4>{benchmark.name}</h4>
               </EuiText>
@@ -130,11 +133,11 @@ export const BenchmarksSection = () => {
   );
 };
 
-const integrationBoxStyle = {
-  border: '1px solid #ABB4C4',
-  borderRadius: '6px 0 0 6px',
+const getIntegrationBoxStyle = (euiTheme: EuiThemeComputed) => ({
+  border: `1px solid ${euiTheme.colors.lightShade}`,
+  borderRadius: `${euiTheme.border.radius.medium} 0 0 ${euiTheme.border.radius.medium}`,
   justifyContent: 'center',
   alignItems: 'center',
-  background: '#F5F7FA',
+  background: euiTheme.colors.lightestShade,
   padding: 0,
-};
+});
