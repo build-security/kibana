@@ -21,6 +21,7 @@ import type {
   CspServerPluginStartDeps,
 } from './types';
 import { defineRoutes } from './routes';
+// import { cspRuleAssetType } from './saved_objects/benchmark_rules/csp_rule_type';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
 import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
