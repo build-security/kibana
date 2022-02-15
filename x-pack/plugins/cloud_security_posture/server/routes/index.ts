@@ -9,10 +9,12 @@ import type { IRouter } from '../../../../../src/core/server';
 import { defineGetStatsRoute } from './stats/stats';
 import { defineGetBenchmarksRoute } from './benchmarks/benchmarks';
 import { defineFindingsIndexRoute as defineGetFindingsIndexRoute } from './findings/findings';
+import { defineUpdateRulesConfigRoute } from './configuration/update_rules_configuration';
 import { CspAppContext } from '../plugin';
 
 export function defineRoutes(router: IRouter, cspContext: CspAppContext) {
   defineGetStatsRoute(router, cspContext);
   defineGetFindingsIndexRoute(router, cspContext);
   defineGetBenchmarksRoute(router, cspContext);
+  defineUpdateRulesConfigRoute(router, cspContext);
 }

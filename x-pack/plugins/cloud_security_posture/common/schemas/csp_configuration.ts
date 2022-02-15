@@ -6,10 +6,10 @@
  */
 import { schema as rt, TypeOf } from '@kbn/config-schema';
 
-export const cspConfigSchema = rt.object({
+export const cspRulesConfigSchema = rt.object({
   activated_rules: rt.object({
     cis_k8s: rt.arrayOf(rt.string()),
   }),
 });
 
-export type CspConfigSchema = TypeOf<typeof cspConfigSchema>;
+export type CspRulesConfigSchema = TypeOf<typeof cspRulesConfigSchema>;
