@@ -10,7 +10,7 @@ import {
   benchmarksInputSchema,
   DEFAULT_BENCHMARKS_PER_PAGE,
   PACKAGE_POLICY_SAVED_OBJECT_TYPE,
-  getCspPackagePolicies,
+  getPackagePolicies,
   getAgentPolicies,
   createBenchmarkEntry,
 } from './benchmarks';
@@ -100,7 +100,7 @@ describe('benchmarks API', () => {
       it('should format request by package name', async () => {
         const mockPackagePolicyService = createPackagePolicyServiceMock();
 
-        await getCspPackagePolicies(mockSoClient, mockPackagePolicyService, 'myPackage', {
+        await getPackagePolicies(mockSoClient, mockPackagePolicyService, 'myPackage', {
           page: 1,
           per_page: 100,
         });
