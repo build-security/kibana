@@ -10,7 +10,7 @@ import {
   benchmarksInputSchema,
   DEFAULT_BENCHMARKS_PER_PAGE,
   PACKAGE_POLICY_SAVED_OBJECT_TYPE,
-  getPackagePolicies,
+  getCspPackagePolicies,
   getAgentPolicies,
   createBenchmarkEntry,
 } from './benchmarks';
@@ -97,25 +97,15 @@ describe('benchmarks API', () => {
     });
 
     describe('test getPackagePolicies', () => {
-      it('should throw when agentPolicyService is undefined', async () => {
-        const mockAgentPolicyService = undefined;
-        expect(
-          getPackagePolicies(mockSoClient, mockAgentPolicyService, 'myPackage', {
-            page: 1,
-            per_page: 100,
-          })
-        ).rejects.toThrow();
-      });
-
       it('should format request by package name', async () => {
-        const mockAgentPolicyService = createPackagePolicyServiceMock();
+        const mockPackagePolicyService = createPackagePolicyServiceMock();
 
-        await getPackagePolicies(mockSoClient, mockAgentPolicyService, 'myPackage', {
+        await getCspPackagePolicies(mockSoClient, mockPackagePolicyService, 'myPackage', {
           page: 1,
           per_page: 100,
         });
 
-        expect(mockAgentPolicyService.list.mock.calls[0][1]).toMatchObject(
+        expect(mockPackagePolicyService.list.mock.calls[0][1]).toMatchObject(
           expect.objectContaining({
             kuery: `${PACKAGE_POLICY_SAVED_OBJECT_TYPE}.package.name:myPackage`,
             page: 1,

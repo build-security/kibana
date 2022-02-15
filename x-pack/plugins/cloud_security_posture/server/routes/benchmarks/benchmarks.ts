@@ -43,26 +43,22 @@ export interface Benchmark {
 export const DEFAULT_BENCHMARKS_PER_PAGE = 20;
 export const PACKAGE_POLICY_SAVED_OBJECT_TYPE = 'ingest-package-policies';
 
-const getPackageNameQuery = (packageName: string): string => {
+export const getCspPackagesNamesQuery = (packageName: string): string => {
   return `${PACKAGE_POLICY_SAVED_OBJECT_TYPE}.package.name:${packageName}`;
 };
 
-export const getPackagePolicies = async (
+export const getCspPackagePolicies = async (
   soClient: SavedObjectsClientContract,
-  packagePolicyService: PackagePolicyServiceInterface | undefined,
+  packagePolicyService: PackagePolicyServiceInterface,
   packageName: string,
-  queryParams: BenchmarksQuerySchema
+  queryParams?: BenchmarksQuerySchema
 ): Promise<PackagePolicy[]> => {
-  if (!packagePolicyService) {
-    throw new Error('packagePolicyService is undefined');
-  }
-
-  const packageNameQuery = getPackageNameQuery(packageName);
+  const packageNameQuery = getCspPackagesNamesQuery(packageName);
 
   const { items: packagePolicies } = (await packagePolicyService?.list(soClient, {
     kuery: packageNameQuery,
-    page: queryParams.page,
-    perPage: queryParams.per_page,
+    page: queryParams?.page,
+    perPage: queryParams?.per_page,
   })) ?? { items: [] as PackagePolicy[] };
 
   return packagePolicies;
@@ -155,11 +151,11 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         const packagePolicyService = cspContext.service.packagePolicyService;
 
         // TODO: This validate can be remove after #2819 will be merged
-        if (!agentPolicyService || !agentService) {
+        if (!agentPolicyService || !agentService || !packagePolicyService) {
           throw new Error(`Failed to get Fleet services`);
         }
 
-        const packagePolicies = await getPackagePolicies(
+        const packagePolicies = await getCspPackagePolicies(
           soClient,
           packagePolicyService,
           CIS_KUBERNETES_PACKAGE_NAME,
