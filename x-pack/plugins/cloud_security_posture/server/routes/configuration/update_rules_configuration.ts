@@ -20,7 +20,7 @@ import { PackagePolicy, PackagePolicyConfigRecord } from '../../../../fleet/comm
 import { CspAppContext } from '../../plugin';
 import { CspRulesConfigSchema } from '../../../common/schemas/csp_configuration';
 import { CspRuleSchema, cspRuleAssetSavedObjectType } from '../../../common/schemas/csp_rule';
-import { getCspPackagePolicies } from '../benchmarks/benchmarks';
+import { getPackagePolicies } from '../benchmarks/benchmarks';
 import { UPDATE_RULES_CONFIG_ROUTE_PATH } from '../../../common/constants';
 import { CIS_KUBERNETES_PACKAGE_NAME } from '../../../common/constants';
 import { PackagePolicyServiceInterface } from '../../../../fleet/server';
@@ -111,7 +111,7 @@ export const defineUpdateRulesConfigRoute = (router: IRouter, cspContext: CspApp
         const rulesConfig = createRulesConfig(cspRules);
         const dataYaml = convertRulesConfigToYaml(rulesConfig);
 
-        const packagePolicies = await getCspPackagePolicies(
+        const packagePolicies = await getPackagePolicies(
           soClient,
           packagePolicyService,
           CIS_KUBERNETES_PACKAGE_NAME,

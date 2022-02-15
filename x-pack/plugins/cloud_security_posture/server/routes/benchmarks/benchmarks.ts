@@ -43,22 +43,22 @@ export interface Benchmark {
 export const DEFAULT_BENCHMARKS_PER_PAGE = 20;
 export const PACKAGE_POLICY_SAVED_OBJECT_TYPE = 'ingest-package-policies';
 
-export const getCspPackagesNamesQuery = (packageName: string): string => {
+export const getPackageNameQuery = (packageName: string): string => {
   return `${PACKAGE_POLICY_SAVED_OBJECT_TYPE}.package.name:${packageName}`;
 };
 
-export const getCspPackagePolicies = async (
+export const getPackagePolicies = async (
   soClient: SavedObjectsClientContract,
   packagePolicyService: PackagePolicyServiceInterface,
   packageName: string,
-  queryParams?: BenchmarksQuerySchema
+  queryParams: BenchmarksQuerySchema
 ): Promise<PackagePolicy[]> => {
-  const packageNameQuery = getCspPackagesNamesQuery(packageName);
+  const packageNameQuery = getPackageNameQuery(packageName);
 
   const { items: packagePolicies } = (await packagePolicyService?.list(soClient, {
     kuery: packageNameQuery,
-    page: queryParams?.page,
-    perPage: queryParams?.per_page,
+    page: queryParams.page,
+    perPage: queryParams.per_page,
   })) ?? { items: [] as PackagePolicy[] };
 
   return packagePolicies;
@@ -155,7 +155,7 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
           throw new Error(`Failed to get Fleet services`);
         }
 
-        const packagePolicies = await getCspPackagePolicies(
+        const packagePolicies = await getPackagePolicies(
           soClient,
           packagePolicyService,
           CIS_KUBERNETES_PACKAGE_NAME,
