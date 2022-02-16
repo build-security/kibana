@@ -4,7 +4,6 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-
 import type { IRouter, Logger } from 'src/core/server';
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
@@ -111,7 +110,6 @@ export const defineFindingsIndexRoute = (router: IRouter, cspContext: CspAppCont
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const options = buildOptionsRequest(request.query);
-        console.log({ options });
 
         const latestCycleIds =
           request.query.latest_cycle === true
