@@ -171,7 +171,7 @@ export const mapping: MappingTypeMapping = {
         },
       },
     },
-    run_id: {
+    cycle_id: {
       type: 'text',
       fields: {
         keyword: {

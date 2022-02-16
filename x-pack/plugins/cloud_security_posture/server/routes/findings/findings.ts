@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import type { IRouter } from 'src/core/server';
+import type { IRouter, Logger } from 'src/core/server';
 import { SearchRequest, QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { fromKueryExpression, toElasticsearchQuery } from '@kbn/es-query';
 import { QueryDslBoolQuery } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
@@ -33,7 +33,7 @@ export interface FindingsOptions {
 const buildLatestCycleFilter = (latestCycleIds?: string[]): QueryDslQueryContainer[] => {
   if (!!latestCycleIds) {
     const latestCycleFilter = latestCycleIds.map((latestCycleId) => ({
-      term: { 'run_id.keyword': latestCycleId },
+      term: { 'cycle_id.keyword': latestCycleId },
     }));
     return latestCycleFilter;
   }
@@ -117,15 +117,15 @@ export const defineFindingsIndexRoute = (router: IRouter, cspContext: CspAppCont
             ? await getLatestCycleIds(esClient, cspContext.logger)
             : undefined;
 
-        const query = buildQueryRequest(request.query.kquery, latestCycleIds, logger);
+        const query = buildQueryRequest(request.query.kquery, latestCycleIds, cspContext.logger);
         const esQuery = getFindingsEsQuery(query, options);
-
         const findings = await esClient.search(esQuery);
         const hits = findings.body.hits.hits;
 
         return response.ok({ body: hits });
       } catch (err) {
         const error = transformError(err);
+        cspContext.logger.error(`Failed to fetch Findings ${error.message}`);
         return response.customError({
           body: { message: error.message },
           statusCode: error.statusCode,

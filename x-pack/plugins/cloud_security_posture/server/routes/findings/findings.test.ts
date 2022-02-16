@@ -35,9 +35,6 @@ describe('findings API', () => {
 
   beforeEach(() => {
     logger = loggingSystemMock.createLogger();
-  });
-
-  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -162,7 +159,7 @@ describe('findings API', () => {
                 {
                   group_docs: {
                     hits: {
-                      hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }],
+                      hits: [{ fields: { 'cycle_id.keyword': ['randomId1'] } }],
                     },
                   },
                 },
@@ -183,7 +180,7 @@ describe('findings API', () => {
       expect(handlerArgs).toMatchObject({
         query: {
           bool: {
-            filter: [{ term: { 'run_id.keyword': 'randomId1' } }],
+            filter: [{ term: { 'cycle_id.keyword': 'randomId1' } }],
           },
         },
       });
@@ -352,7 +349,13 @@ describe('findings API', () => {
     it('takes dslQuery and validate the conversion to esQuery filter', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router, logger);
+      const cspAppContextService = new CspAppService();
+      const cspContext: CspAppContext = {
+        logger,
+        service: cspAppContextService,
+      };
+
+      defineFindingsIndexRoute(router, cspContext);
 
       const [_, handler] = router.get.mock.calls[0];
       const mockContext = getMockCspContext(mockEsClient);
@@ -387,7 +390,13 @@ describe('findings API', () => {
     it('takes dslQuery and latest_cycle filter validate the conversion to esQuery filter', async () => {
       const mockEsClient = elasticsearchClientMock.createClusterClient().asScoped().asInternalUser;
       const router = httpServiceMock.createRouter();
-      defineFindingsIndexRoute(router, logger);
+      const cspAppContextService = new CspAppService();
+      const cspContext: CspAppContext = {
+        logger,
+        service: cspAppContextService,
+      };
+
+      defineFindingsIndexRoute(router, cspContext);
       const [_, handler] = router.get.mock.calls[0];
 
       const mockContext = getMockCspContext(mockEsClient);
@@ -408,7 +417,7 @@ describe('findings API', () => {
                 {
                   group_docs: {
                     hits: {
-                      hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }],
+                      hits: [{ fields: { 'cycle_id.keyword': ['randomId1'] } }],
                     },
                   },
                 },
@@ -434,7 +443,7 @@ describe('findings API', () => {
                   minimum_should_match: 1,
                 },
               },
-              { term: { 'run_id.keyword': 'randomId1' } },
+              { term: { 'cycle_id.keyword': 'randomId1' } },
             ],
           },
         },
