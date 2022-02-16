@@ -33,8 +33,9 @@ describe('get latest cycle ids', () => {
         },
       })
     );
-    const response = await getLatestCycleIds(mockEsClient, logger);
-    expect(response).toEqual(undefined);
+    // const response = await getLatestCycleIds(mockEsClient, logger);
+    // expect(response).toEqual(undefined);
+    expect(getLatestCycleIds(mockEsClient, logger)).rejects.toThrow();
   });
 
   it('expect to find 1 cycle id', async () => {
