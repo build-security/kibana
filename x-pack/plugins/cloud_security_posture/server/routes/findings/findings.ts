@@ -111,6 +111,7 @@ export const defineFindingsIndexRoute = (router: IRouter, cspContext: CspAppCont
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const options = buildOptionsRequest(request.query);
+        console.log({ options });
 
         const latestCycleIds =
           request.query.latest_cycle === true
