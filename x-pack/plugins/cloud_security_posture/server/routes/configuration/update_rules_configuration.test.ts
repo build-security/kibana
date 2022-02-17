@@ -142,7 +142,7 @@ describe('Update rules configuration API', () => {
     const mockPackagePolicy2 = createPackagePolicyMock();
     mockPackagePolicy1.id = packagePolicyId1;
     mockPackagePolicy2.id = packagePolicyId2;
-    const packagePolicies = [mockPackagePolicy1, mockPackagePolicy2];
+    const packagePolicies = mockPackagePolicy1;
 
     const dataYaml = 'activated_rules:\n  cis_k8s:\n    - 1.1.1\n    - 1.1.2\n';
 
@@ -154,8 +154,7 @@ describe('Update rules configuration API', () => {
       dataYaml
     );
 
-    expect(mockPackagePolicyService.update).toBeCalledTimes(2);
+    expect(mockPackagePolicyService.update).toBeCalledTimes(1);
     expect(mockPackagePolicyService.update.mock.calls[0][2]).toEqual(packagePolicyId1);
-    expect(mockPackagePolicyService.update.mock.calls[1][2]).toEqual(packagePolicyId2);
   });
 });

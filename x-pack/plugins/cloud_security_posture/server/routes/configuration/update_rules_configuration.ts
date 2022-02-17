@@ -10,6 +10,7 @@ import type {
   SavedObjectsClientContract,
   SavedObjectsFindResponse,
 } from 'src/core/server';
+import { schema as rt } from '@kbn/config-schema';
 import { transformError } from '@kbn/securitysolution-es-utils';
 
 import { produce } from 'immer';
@@ -20,10 +21,28 @@ import { PackagePolicy, PackagePolicyConfigRecord } from '../../../../fleet/comm
 import { CspAppContext } from '../../plugin';
 import { CspRulesConfigSchema } from '../../../common/schemas/csp_configuration';
 import { CspRuleSchema, cspRuleAssetSavedObjectType } from '../../../common/schemas/csp_rule';
-import { getPackagePolicies } from '../benchmarks/benchmarks';
 import { UPDATE_RULES_CONFIG_ROUTE_PATH } from '../../../common/constants';
 import { CIS_KUBERNETES_PACKAGE_NAME } from '../../../common/constants';
 import { PackagePolicyServiceInterface } from '../../../../fleet/server';
+
+export const getPackagePolicy = async (
+  soClient: SavedObjectsClientContract,
+  packagePolicyService: PackagePolicyServiceInterface,
+  packagePolicyId: string
+): Promise<PackagePolicy> => {
+  const packagePolicies = await packagePolicyService.getByIDs(soClient, [packagePolicyId]);
+
+  // PackagePolicies always contains one element, even when package does not exist
+  if (!packagePolicies || !packagePolicies[0].version) {
+    throw new Error(`package policy Id ${packagePolicyId} is not exist`);
+  }
+  if (packagePolicies[0].package?.name !== CIS_KUBERNETES_PACKAGE_NAME) {
+    // TODO: improve this validator to support any future CSP package
+    throw new Error(`Package Policy Id ${packagePolicyId} is not CSP package`);
+  }
+
+  return packagePolicies![0];
+};
 
 export const getCspRules = async (soClient: SavedObjectsClientContract) => {
   const cspRules = await soClient.find<CspRuleSchema>({
@@ -69,58 +88,47 @@ export const setVarToPackagePolicy = (
   return updatedPackagePolicy;
 };
 
-export const updatePackagePolicy = async (
+export const updatePackagePolicy = (
   packagePolicyService: PackagePolicyServiceInterface,
-  packagePolicies: PackagePolicy[],
+  packagePolicy: PackagePolicy,
   esClient: ElasticsearchClient,
   soClient: SavedObjectsClientContract,
   dataYaml: string
-): Promise<PackagePolicy[]> => {
-  const updatedPackagePolicies = Promise.all(
-    packagePolicies.map((packagePolicy) => {
-      const updatedPackagePolicy = setVarToPackagePolicy(packagePolicy, dataYaml);
-      return packagePolicyService.update(
-        soClient,
-        esClient,
-        packagePolicy.id,
-        updatedPackagePolicy
-      );
-    })
-  );
-  return updatedPackagePolicies;
+): Promise<PackagePolicy> => {
+  const updatedPackagePolicy = setVarToPackagePolicy(packagePolicy, dataYaml);
+  return packagePolicyService.update(soClient, esClient, packagePolicy.id, updatedPackagePolicy);
 };
 
 export const defineUpdateRulesConfigRoute = (router: IRouter, cspContext: CspAppContext): void =>
   router.get(
     {
       path: UPDATE_RULES_CONFIG_ROUTE_PATH,
-      validate: false,
+      validate: { query: configurationUpdateInputSchema },
     },
     async (context, request, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
         const soClient = context.core.savedObjects.client;
         const packagePolicyService = cspContext.service.packagePolicyService;
+        const packagePolicyId = request.query.package_policy_id;
 
         // TODO: This validate can be remove after #2819 will be merged
         if (!packagePolicyService) {
           throw new Error(`Failed to get Fleet services`);
         }
+        const packagePolicy = await getPackagePolicy(
+          soClient,
+          packagePolicyService,
+          packagePolicyId
+        );
 
         const cspRules = await getCspRules(soClient);
         const rulesConfig = createRulesConfig(cspRules);
         const dataYaml = convertRulesConfigToYaml(rulesConfig);
 
-        const packagePolicies = await getPackagePolicies(
-          soClient,
-          packagePolicyService,
-          CIS_KUBERNETES_PACKAGE_NAME,
-          { page: 1, per_page: 10000 } // // TODO: research how to get all packages
-        );
-
         const updatedPackagePolicies = await updatePackagePolicy(
           packagePolicyService!,
-          packagePolicies,
+          packagePolicy,
           esClient,
           soClient,
           dataYaml
@@ -139,3 +147,10 @@ export const defineUpdateRulesConfigRoute = (router: IRouter, cspContext: CspApp
       }
     }
   );
+
+export const configurationUpdateInputSchema = rt.object({
+  /**
+   * CSP integration instance ID
+   */
+  package_policy_id: rt.string(),
+});
