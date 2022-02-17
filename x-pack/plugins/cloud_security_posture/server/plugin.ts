@@ -24,6 +24,7 @@ import { defineRoutes } from './routes';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
 import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
+import { cspRuleTemplateAssetType } from './saved_objects/cis_1_4_1/csp_rule_template';
 
 export interface CspAppContext {
   logger: Logger;
@@ -57,6 +58,7 @@ export class CspPlugin
     };
 
     core.savedObjects.registerType(cspRuleAssetType);
+    core.savedObjects.registerType(cspRuleTemplateAssetType);
 
     const router = core.http.createRouter();
 
