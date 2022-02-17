@@ -10,6 +10,5 @@ import { CspPlugin } from './plugin';
 export type { CspServerPluginSetup, CspServerPluginStart } from './types';
 export type { cspRuleTemplateAssetType } from './saved_objects/cis_1_4_1/csp_rule_template';
 
-
 export const plugin = (initializerContext: PluginInitializerContext) =>
   new CspPlugin(initializerContext);
