@@ -13,4 +13,5 @@ export const pageToComponentMapping: Record<CspPage, RouteProps['component']> = 
   dashboard: pages.ComplianceDashboard,
   benchmarks: pages.Benchmarks,
   rules: pages.Rules,
+  inventory: pages.Inventory,
 };

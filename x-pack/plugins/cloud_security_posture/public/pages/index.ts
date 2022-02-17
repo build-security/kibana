@@ -9,3 +9,4 @@ export { Findings } from './findings';
 export * from './compliance_dashboard';
 export { Benchmarks } from './benchmarks';
 export { Rules } from './rules';
+export { Inventory } from './inventory/inventory';
