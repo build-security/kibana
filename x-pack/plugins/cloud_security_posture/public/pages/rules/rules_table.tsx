@@ -14,7 +14,7 @@ import {
   EuiBasicTable,
   EuiBasicTableProps,
 } from '@elastic/eui';
-import moment from 'moment';
+// import moment from 'moment';
 import { extractErrorMessage } from '../../../common/utils/helpers';
 import type { RulesState, RuleSavedObject } from './rules_container';
 import * as TEST_SUBJECTS from './test_subjects';
@@ -86,8 +86,8 @@ const ruleNameRenderer = (name: string) => (
   </EuiLink>
 );
 
-const timestampRenderer = (timestamp: string) =>
-  moment.duration(moment().diff(timestamp)).humanize();
+// const timestampRenderer = (timestamp: string) =>
+//   moment.duration(moment().diff(timestamp)).humanize();
 
 interface GetColumnProps {
   toggleRule: (rule: RuleSavedObject) => void;
