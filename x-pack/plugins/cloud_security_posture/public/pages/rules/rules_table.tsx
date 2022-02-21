@@ -15,7 +15,6 @@ import {
   EuiBasicTableProps,
 } from '@elastic/eui';
 // import moment from 'moment';
-import { extractErrorMessage } from '../../../common/utils/helpers';
 import type { RulesState, RuleSavedObject } from './rules_container';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
@@ -68,7 +67,7 @@ export const RulesTable = ({
     <EuiBasicTable
       data-test-subj={TEST_SUBJECTS.CSP_RULES_TABLE}
       loading={props.status === 'loading'}
-      error={props.error ? extractErrorMessage(props.error) : undefined}
+      error={props.error || undefined}
       items={items}
       columns={columns}
       pagination={euiPagination}

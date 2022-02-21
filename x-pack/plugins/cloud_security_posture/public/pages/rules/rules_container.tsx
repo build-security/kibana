@@ -23,7 +23,12 @@ type SimpleRulesQueryResult = DistributivePick<RulesQueryResult, 'data' | 'error
 
 /** Rules with local changes */
 type LocalRulesResult =
-  | Exclude<SimpleRulesQueryResult, { status: 'success' }>
+  | Exclude<SimpleRulesQueryResult, { status: 'success' | 'error' }>
+  | {
+      status: 'error';
+      error: string;
+      data: undefined;
+    }
   | {
       status: 'success';
       error: null;
@@ -73,6 +78,7 @@ const getLocalRulesResult = (
     case 'error':
       return {
         ...result,
+        data: undefined,
         error: extractErrorMessage(result.error),
       };
     default:
