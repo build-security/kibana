@@ -5,7 +5,7 @@
  * 2.0.
  */
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { EuiPanel } from '@elastic/eui';
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiButtonEmpty } from '@elastic/eui';
 import { SavedObject } from 'src/core/public';
 import { extractErrorMessage } from '../../../common/utils/helpers';
 import { RulesTable } from './rules_table';
@@ -147,28 +147,35 @@ export const RulesContainer = () => {
   useEffect(discardChanges, [baseData, discardChanges]);
 
   return (
-    <div data-test-subj={TEST_SUBJECTS.CSP_RULES_CONTAINER}>
-      <EuiPanel hasBorder hasShadow={false}>
-        <RulesTableHeader
-          search={(value) => setRulesQuery((currentQuery) => ({ ...currentQuery, search: value }))}
-          refresh={refetch}
-          bulkEnable={() => bulkToggleRules(true)}
-          bulkDisable={() => bulkToggleRules(false)}
-          selectedRulesCount={selectedRules.length}
-          searchValue={rulesQuery.search}
-          totalRulesCount={localRulesResult.status === 'success' ? localRulesResult.total : 0}
-          isSearching={localRulesResult.status === 'loading'}
-        />
-        <RulesTable
-          {...localRulesResult}
-          {...rulesQuery}
-          toggleRule={toggleRule}
-          setSelectedRules={setSelectedRules}
-          setPagination={(paginationQuery) =>
-            setRulesQuery((currentQuery) => ({ ...currentQuery, ...paginationQuery }))
-          }
-        />
-      </EuiPanel>
+    <div style={{ height: '100%' }} data-test-subj={TEST_SUBJECTS.CSP_RULES_CONTAINER}>
+      <EuiFlexGroup direction="column">
+        <EuiFlexItem>
+          <EuiButtonEmpty style={{ marginLeft: 'auto' }}>Manage Integration</EuiButtonEmpty>
+        </EuiFlexItem>
+        <EuiPanel hasBorder hasShadow={false}>
+          <RulesTableHeader
+            search={(value) =>
+              setRulesQuery((currentQuery) => ({ ...currentQuery, search: value }))
+            }
+            refresh={refetch}
+            bulkEnable={() => bulkToggleRules(true)}
+            bulkDisable={() => bulkToggleRules(false)}
+            selectedRulesCount={selectedRules.length}
+            searchValue={rulesQuery.search}
+            totalRulesCount={localRulesResult.status === 'success' ? localRulesResult.total : 0}
+            isSearching={localRulesResult.status === 'loading'}
+          />
+          <RulesTable
+            {...localRulesResult}
+            {...rulesQuery}
+            toggleRule={toggleRule}
+            setSelectedRules={setSelectedRules}
+            setPagination={(paginationQuery) =>
+              setRulesQuery((currentQuery) => ({ ...currentQuery, ...paginationQuery }))
+            }
+          />
+        </EuiPanel>
+      </EuiFlexGroup>
       {!!hasChanges && (
         <RulesBottomBar onSave={bulkUpdateRules} onCancel={discardChanges} isLoading={isUpdating} />
       )}
