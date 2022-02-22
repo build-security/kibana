@@ -87,7 +87,7 @@ const getResourceTypeFailedFindingsQuery = (resourceTypeName: string): Query => 
   query: `resource.type : "${resourceTypeName}" and result.evaluation : "${RULE_FAILED}" `,
 });
 
-export const RisksTable = ({ data: resourcesTypes, maxItems = 5 }: RisksTableProps) => {
+export const RisksTable = ({ data: resourcesTypes, maxItems }: RisksTableProps) => {
   const { push } = useHistory();
 
   const handleCellClick = useCallback(
