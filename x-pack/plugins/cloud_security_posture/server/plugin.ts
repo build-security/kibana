@@ -13,7 +13,6 @@ import type {
   Logger,
 } from '../../../../src/core/server';
 import { CspAppService } from './lib/csp_app_services';
-import { createFindingsIndexTemplate } from './index_template/create_index_template';
 import type {
   CspServerPluginSetup,
   CspServerPluginStart,
@@ -73,10 +72,6 @@ export class CspPlugin
     this.CspAppService.start({
       ...plugins.fleet,
     });
-
-    createFindingsIndexTemplate(core.elasticsearch.client.asInternalUser, this.logger).catch(
-      this.logger.error
-    );
 
     initializeCspRules(core.savedObjects.createInternalRepository());
 
