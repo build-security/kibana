@@ -44,6 +44,8 @@ const getBenchmarkLogo = (benchmarkName: BenchmarksWithIcons | string): EuiIconT
 
 const mockClusterId = '2468540';
 
+const cardHeight = 300;
+
 export const BenchmarksSection = () => {
   const { euiTheme } = useEuiTheme();
   const navToFindings = useNavigateFindings();
@@ -79,7 +81,7 @@ export const BenchmarksSection = () => {
         return (
           <>
             <EuiPanel hasBorder hasShadow={false} paddingSize="none">
-              <EuiFlexGroup gutterSize="none" style={{ height: 300 }}>
+              <EuiFlexGroup gutterSize="none" style={{ height: cardHeight }}>
                 <EuiFlexItem grow={2} style={getIntegrationBoxStyle(euiTheme)}>
                   <EuiFlexGroup direction="column" alignItems="center" justifyContent="spaceAround">
                     <EuiFlexItem grow={false}>
