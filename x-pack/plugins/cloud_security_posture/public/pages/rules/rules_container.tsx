@@ -14,6 +14,7 @@ import { RulesTableHeader } from './rules_table_header';
 import type { CspRuleSchema } from '../../../common/schemas/csp_rule';
 import { useFindCspRules, useBulkUpdateCspRules, type UseCspRulesOptions } from './use_csp_rules';
 import * as TEST_SUBJECTS from './test_subjects';
+import { pagePathGetters } from '../../../../fleet/public';
 
 export type RuleSavedObject = SavedObject<CspRuleSchema>; // SimpleSavedObject
 
@@ -150,7 +151,12 @@ export const RulesContainer = () => {
     <div style={{ height: '100%' }} data-test-subj={TEST_SUBJECTS.CSP_RULES_CONTAINER}>
       <EuiFlexGroup direction="column">
         <EuiFlexItem>
-          <EuiButtonEmpty style={{ marginLeft: 'auto' }}>Manage Integration</EuiButtonEmpty>
+          <EuiButtonEmpty
+            href={pagePathGetters.edit_integration({ policyId: '1', packagePolicyId: '2' })[1]}
+            style={{ marginLeft: 'auto' }}
+          >
+            Manage Integration
+          </EuiButtonEmpty>
         </EuiFlexItem>
         <EuiPanel hasBorder hasShadow={false}>
           <RulesTableHeader
