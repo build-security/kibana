@@ -6,7 +6,7 @@
  */
 
 import { ElasticsearchClient } from 'kibana/server';
-import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
+import { QueryDslQueryContainer, SearchRequest } from '@elastic/elasticsearch/lib/api/types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { CloudPostureStats, Score } from '../../../common/types';
 
@@ -36,13 +36,9 @@ export const findingsEvaluationAggsQuery = {
   },
 };
 
-export const getEvaluationsQuery = (cycleId: string): SearchRequest => ({
+export const getEvaluationsQuery = (query: QueryDslQueryContainer): SearchRequest => ({
   index: CSP_KUBEBEAT_INDEX_PATTERN,
-  query: {
-    bool: {
-      filter: [{ term: { 'cycle_id.keyword': cycleId } }],
-    },
-  },
+  query,
   aggs: findingsEvaluationAggsQuery,
 });
 
@@ -65,13 +61,17 @@ export const getStatsFromFindingsEvaluationsAggs = (
 
 export const getStats = async (
   esClient: ElasticsearchClient,
-  cycleId: string
+  query: QueryDslQueryContainer
 ): Promise<CloudPostureStats['stats']> => {
   const evaluationsQueryResult = await esClient.search<unknown, FindingsEvaluationsQueryResult>(
-    getEvaluationsQuery(cycleId)
+    getEvaluationsQuery(query)
   );
   const findingsEvaluations = evaluationsQueryResult.body.aggregations;
   if (!findingsEvaluations) throw new Error('missing findings evaluations');
 
   return getStatsFromFindingsEvaluationsAggs(findingsEvaluations);
 };
+
+// 1c2ca5f1a79547c09667b17ce7395eed
+// 377fadacffe8418095761256296b3518
+// b41fbc58180846499b524633e542851c

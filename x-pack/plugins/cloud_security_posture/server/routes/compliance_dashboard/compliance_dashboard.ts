@@ -7,7 +7,12 @@
 
 import type { ElasticsearchClient, IRouter } from 'src/core/server';
 import { transformError } from '@kbn/securitysolution-es-utils';
-import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
+import {
+  AggregationsMultiBucketAggregateBase as Aggregation,
+  AggregationsTopHitsAggregate,
+  QueryDslQueryContainer,
+  SearchRequest,
+} from '@elastic/elasticsearch/lib/api/types';
 import type { CloudPostureStats } from '../../../common/types';
 import { CSP_KUBEBEAT_INDEX_PATTERN, STATS_ROUTE_PATH } from '../../../common/constants';
 import { CspAppContext } from '../../plugin';
@@ -15,8 +20,12 @@ import { getResourcesTypes } from './get_resources_types';
 import { getClusters } from './get_clusters';
 import { getStats } from './get_stats';
 
-interface LastCycle {
-  cycle_id: string;
+export interface ClusterBucket {
+  ordered_top_hits: AggregationsTopHitsAggregate;
+}
+
+interface ClustersQueryResult {
+  aggs_by_cluster_id: Aggregation<ClusterBucket>;
 }
 
 export interface KeyDocCount<TKey = string> {
@@ -26,22 +35,35 @@ export interface KeyDocCount<TKey = string> {
 
 export const getLatestFindingQuery = (): SearchRequest => ({
   index: CSP_KUBEBEAT_INDEX_PATTERN,
-  size: 1,
-  /* @ts-expect-error TS2322 - missing SearchSortContainer */
-  sort: { '@timestamp': 'desc' },
+  size: 0,
   query: {
     match_all: {},
   },
+  aggs: {
+    aggs_by_cluster_id: {
+      terms: { field: 'cluster_id.keyword' },
+      aggs: {
+        ordered_top_hits: {
+          top_hits: {
+            size: 1,
+            sort: {
+              '@timestamp': {
+                order: 'desc',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 });
 
-const getLatestCycleId = async (esClient: ElasticsearchClient) => {
-  const latestFinding = await esClient.search<LastCycle>(getLatestFindingQuery());
-  const lastCycle = latestFinding.body.hits.hits[0];
+const getLatestCyclesIds = async (esClient: ElasticsearchClient) => {
+  const queryResult = await esClient.search<unknown, ClustersQueryResult>(getLatestFindingQuery());
+  const clusters = queryResult.body.aggregations?.aggs_by_cluster_id.buckets;
+  if (!Array.isArray(clusters)) throw new Error('missing aggs by cluster id');
 
-  if (lastCycle?._source?.cycle_id === undefined) {
-    throw new Error('cycle id is missing');
-  }
-  return lastCycle?._source?.cycle_id;
+  return clusters.map((c) => c.ordered_top_hits.hits.hits[0]._source.cycle_id);
 };
 
 export const defineGetComplianceDashboardRoute = (
@@ -56,12 +78,19 @@ export const defineGetComplianceDashboardRoute = (
     async (context, _, response) => {
       try {
         const esClient = context.core.elasticsearch.client.asCurrentUser;
-        const latestCycleID = await getLatestCycleId(esClient);
+        const latestCyclesIds = await getLatestCyclesIds(esClient);
+        const query: QueryDslQueryContainer = {
+          bool: {
+            should: latestCyclesIds.map((id: string) => ({
+              match: { 'cycle_id.keyword': { query: id } },
+            })),
+          },
+        };
 
         const [stats, resourcesTypes, clusters] = await Promise.all([
-          getStats(esClient, latestCycleID),
-          getResourcesTypes(esClient, latestCycleID),
-          getClusters(esClient, latestCycleID),
+          getStats(esClient, query),
+          getResourcesTypes(esClient, query),
+          getClusters(esClient, query),
         ]);
 
         const body: CloudPostureStats = {
