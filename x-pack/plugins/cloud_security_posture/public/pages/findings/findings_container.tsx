@@ -9,31 +9,10 @@ import { EuiSpacer } from '@elastic/eui';
 import { FindingsTable } from './findings_table';
 import { FindingsSearchBar } from './findings_search_bar';
 import * as TEST_SUBJECTS from './test_subjects';
-import type { DataView, Query } from '../../../../../../src/plugins/data/common';
+import type { DataView } from '../../../../../../src/plugins/data/common';
 import { SortDirection } from '../../../../../../src/plugins/data/common';
 import { useUrlQuery } from '../../common/hooks/use_url_query';
 import { useFindings, type CspFindingsRequest } from './use_findings';
-
-export const getFindingsQuery = (queryValue: Query['query']): Pick<CspFindingsRequest, 'query'> => {
-  const query =
-    typeof queryValue === 'string'
-      ? queryValue
-      : // TODO: use a tested query builder instead ASAP
-        Object.entries(queryValue)
-          .reduce<string[]>((a, [key, value]) => {
-            a.push(`${key} : "${value}"`);
-            return a;
-          }, [])
-          .join(' and ');
-
-  return {
-    query: {
-      language: 'kuery',
-      // NOTE: a query object is valid TS but throws on runtime
-      query,
-    },
-  }!;
-};
 
 // TODO: define this as a schema with default values
 // need to get Query and DateRange schema
