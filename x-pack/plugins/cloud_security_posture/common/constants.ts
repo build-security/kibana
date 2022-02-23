@@ -24,7 +24,7 @@ export const INTERNAL_FEATURE_FLAGS = {
   showTrendLineMock: false,
   showClusterMetaMock: false,
   showManageRulesMock: false,
-  showRisksMock: true,
+  showRisksMock: false,
 } as const;
 
 /** This Kibana Advanced Setting enables the `Cloud Security Posture` experimental feature */
