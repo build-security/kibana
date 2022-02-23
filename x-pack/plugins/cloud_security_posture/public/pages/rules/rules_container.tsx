@@ -5,8 +5,9 @@
  * 2.0.
  */
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { EuiPanel, EuiLink, EuiFlexGroup, EuiFlexItem, EuiButtonEmpty } from '@elastic/eui';
+import { EuiPanel, EuiButtonEmpty, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { SavedObject } from 'src/core/public';
+import { FormattedMessage } from '@kbn/i18n-react';
 import { extractErrorMessage } from '../../../common/utils/helpers';
 import { RulesTable } from './rules_table';
 import { RulesBottomBar } from './rules_bottom_bar';
@@ -192,20 +193,20 @@ const ManageIntegrationLink = ({
   policyId: string;
   packagePolicyId: string;
 }) => {
-  const { application } = useKibana().services;
-
+  const { getUrlForApp } = useKibana().services.application;
   const integrationEditHref = useMemo(() => {
-    const [, path] = pagePathGetters.edit_integration({
-      policyId,
-      packagePolicyId,
-    });
-    return application.getUrlForApp('fleet', { path });
-  }, [application, packagePolicyId, policyId]);
+    const [, path] = pagePathGetters.edit_integration({ policyId, packagePolicyId });
+    return getUrlForApp('fleet', { path });
+  }, [getUrlForApp, packagePolicyId, policyId]);
 
   return (
-    <EuiLink href={integrationEditHref} style={{ marginLeft: 'auto' }}>
-      Manage Integration
-    </EuiLink>
+    <EuiButtonEmpty iconType="gear" href={integrationEditHref} style={{ marginLeft: 'auto' }}>
+      <FormattedMessage
+        id="xpack.rules.header.manageIntegrationLink"
+        defaultMessage="Manage Integration"
+      />
+    </EuiButtonEmpty>
   );
 };
+
 type DistributivePick<T, K extends keyof T> = T extends unknown ? Pick<T, K> : never;
