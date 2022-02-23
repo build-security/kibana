@@ -99,6 +99,16 @@ export const RulesContainer = () => {
     [data, error, status, changedRules, rulesQuery]
   );
 
+  const lastModificationTime = useMemo(
+    () =>
+      rulesPageData.all_rules.slice().sort(
+        (a, b) =>
+          // TODO: updated_at isn't on SimpleSavedObject
+          new Date(a.updated_at!).getTime() - new Date(b.updated_at!).getTime()
+      )[0]?.updated_at,
+    [rulesPageData.all_rules]
+  );
+
   const hasChanges = !!changedRules.size;
 
   const selectAll = () => {
@@ -161,6 +171,7 @@ export const RulesContainer = () => {
           searchValue={rulesQuery.search}
           totalRulesCount={rulesPageData.all_rules.length}
           isSearching={status === 'loading'}
+          lastModificationTime={lastModificationTime}
         />
         <RulesTable
           {...rulesPageData}

@@ -119,7 +119,7 @@ const getColumns = ({
     // TODO: get timestamp value
     // add SavedObject["updated_at"] to SimpleSavedObject?
     field: 'updated_at',
-    name: TEXT.UPDATED_AT,
+    name: TEXT.LAST_MODIFIED,
     width: '15%',
     // render: timestampRenderer,
   },

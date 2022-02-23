@@ -39,8 +39,8 @@ export const SECTION = i18n.translate('xpack.csp.section', {
   defaultMessage: 'Section',
 });
 
-export const UPDATED_AT = i18n.translate('xpack.csp.updated_at', {
-  defaultMessage: 'Updated at',
+export const LAST_MODIFIED = i18n.translate('xpack.csp.last_modified', {
+  defaultMessage: 'Last Modified',
 });
 
 export const ENABLED = i18n.translate('xpack.csp.enabled', {

@@ -22,6 +22,7 @@ interface RulesTableToolbarProps {
   selectedRulesCount: number;
   searchValue: string;
   isSearching: boolean;
+  lastModificationTime?: string;
 }
 
 interface CounterProps {
@@ -43,24 +44,29 @@ export const RulesTableHeader = ({
   selectedRulesCount,
   searchValue,
   isSearching,
+  lastModificationTime,
 }: RulesTableToolbarProps) => (
   <div>
-    <EuiFlexGroup alignItems="center" justifyContent="spaceBetween" responsive={false} wrap>
-      <Counters total={totalRulesCount} selected={selectedRulesCount} />
-      <SelectAllToggle
-        isSelectAll={selectedRulesCount === totalRulesCount}
-        clear={clearSelection}
-        select={selectAll}
-      />
-      <BulkMenu
-        bulkEnable={bulkEnable}
-        bulkDisable={bulkDisable}
-        selectedRulesCount={selectedRulesCount}
-      />
-      <RefreshButton onClick={refresh} />
-      <SearchField isSearching={isSearching} searchValue={searchValue} search={search} />
-    </EuiFlexGroup>
-    <EuiSpacer />
+    {lastModificationTime && <LastModificationTime time={lastModificationTime} />}
+    <EuiSpacer size="s" />
+    <div>
+      <EuiFlexGroup alignItems="center" justifyContent="spaceBetween" responsive={false} wrap>
+        <Counters total={totalRulesCount} selected={selectedRulesCount} />
+        <SelectAllToggle
+          isSelectAll={selectedRulesCount === totalRulesCount}
+          clear={clearSelection}
+          select={selectAll}
+        />
+        <BulkMenu
+          bulkEnable={bulkEnable}
+          bulkDisable={bulkDisable}
+          selectedRulesCount={selectedRulesCount}
+        />
+        <RefreshButton onClick={refresh} />
+        <SearchField isSearching={isSearching} searchValue={searchValue} search={search} />
+      </EuiFlexGroup>
+      <EuiSpacer />
+    </div>
   </div>
 );
 
@@ -127,6 +133,14 @@ const SearchField = ({
       style={{ minWidth: 150 }}
     />
   </EuiFlexItem>
+);
+
+const LastModificationTime = ({ time }: { time: string }) => (
+  <FormattedMessage
+    id="xpack.csp.rules.header.last_modification"
+    defaultMessage="Last modification to integration {time}"
+    values={{ time }}
+  />
 );
 
 const TotalRulesCount = ({ count }: CounterProps) => (
