@@ -16,7 +16,7 @@ import {
 } from '@elastic/eui';
 import type { Query } from '@kbn/es-query';
 import { useHistory } from 'react-router-dom';
-import { CloudPostureStats, ResourceTypeAgg } from '../../../../common/types';
+import { CloudPostureStats, ResourceType } from '../../../../common/types';
 import { allNavigationItems } from '../../../common/navigation/constants';
 import { encodeQuery } from '../../../common/navigation/query_utils';
 import { getFormattedNum } from '../../../common/utils/get_formatted_num';
@@ -25,37 +25,37 @@ import { INTERNAL_FEATURE_FLAGS, RULE_FAILED } from '../../../../common/constant
 
 const mockData = [
   {
-    resourceType: 'pods',
+    name: 'pods',
     totalFindings: 2,
     totalPassed: 1,
     totalFailed: 1,
   },
   {
-    resourceType: 'etcd',
+    name: 'etcd',
     totalFindings: 5,
     totalPassed: 0,
     totalFailed: 5,
   },
   {
-    resourceType: 'cluster',
+    name: 'cluster',
     totalFindings: 2,
     totalPassed: 2,
     totalFailed: 0,
   },
   {
-    resourceType: 'system',
+    name: 'system',
     totalFindings: 10,
     totalPassed: 6,
     totalFailed: 4,
   },
   {
-    resourceType: 'api',
+    name: 'api',
     totalFindings: 19100,
     totalPassed: 2100,
     totalFailed: 17000,
   },
   {
-    resourceType: 'server',
+    name: 'server',
     totalFindings: 7,
     totalPassed: 4,
     totalFailed: 3,
@@ -63,13 +63,13 @@ const mockData = [
 ];
 
 export interface RisksTableProps {
-  data: CloudPostureStats['resourceTypesAggs'];
+  data: CloudPostureStats['resourcesTypes'];
 }
 
 const maxRisks = 5;
 
-export const getTop5Risks = (resourceTypesAggs: CloudPostureStats['resourceTypesAggs']) => {
-  const filtered = resourceTypesAggs.filter((x) => x.totalFailed > 0);
+export const getTop5Risks = (resourcesTypes: CloudPostureStats['resourcesTypes']) => {
+  const filtered = resourcesTypes.filter((x) => x.totalFailed > 0);
   const sorted = filtered.slice().sort((first, second) => second.totalFailed - first.totalFailed);
 
   return sorted.slice(0, maxRisks);
@@ -80,19 +80,19 @@ const getFailedFindingsQuery = (): Query => ({
   query: `result.evaluation : "${RULE_FAILED}" `,
 });
 
-const getResourceTypeFailedFindingsQuery = (resourceType: string): Query => ({
+const getResourceTypeFailedFindingsQuery = (resourceTypeName: string): Query => ({
   language: 'kuery',
-  query: `resource.type : "${resourceType}" and result.evaluation : "${RULE_FAILED}" `,
+  query: `resource.type : "${resourceTypeName}" and result.evaluation : "${RULE_FAILED}" `,
 });
 
-export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
+export const RisksTable = ({ data: resourcesTypes }: RisksTableProps) => {
   const { push } = useHistory();
 
   const handleCellClick = useCallback(
-    (resourceType: ResourceTypeAgg['resourceType']) =>
+    (resourceTypeName: ResourceType['name']) =>
       push({
         pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceType)),
+        search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceTypeName)),
       }),
     [push]
   );
@@ -109,16 +109,16 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
   const columns = useMemo(
     () => [
       {
-        field: 'resourceType',
+        field: 'name',
         name: TEXT.RESOURCE_TYPE,
-        render: (resourceType: ResourceTypeAgg['resourceType']) => (
-          <EuiLink onClick={() => handleCellClick(resourceType)}>{resourceType}</EuiLink>
+        render: (resourceTypeName: ResourceType['name']) => (
+          <EuiLink onClick={() => handleCellClick(resourceTypeName)}>{resourceTypeName}</EuiLink>
         ),
       },
       {
         field: 'totalFailed',
         name: TEXT.FINDINGS,
-        render: (totalFailed: ResourceTypeAgg['totalFailed'], resource: ResourceTypeAgg) => (
+        render: (totalFailed: ResourceType['totalFailed'], resource: ResourceType) => (
           <>
             <EuiText size="s" color="danger">{`${getFormattedNum(resource.totalFailed)}`}</EuiText>
             <EuiText size="s">{`/${getFormattedNum(resource.totalFindings)}`}</EuiText>
@@ -129,18 +129,14 @@ export const RisksTable = ({ data: resourceTypesAggs }: RisksTableProps) => {
     [handleCellClick]
   );
 
-  if (!resourceTypesAggs) return null;
+  const items = useMemo(() => getTop5Risks(resourcesTypes), [resourcesTypes]);
 
   return (
     <EuiFlexGroup direction="column" justifyContent="spaceBetween" gutterSize="s">
       <EuiFlexItem>
-        <EuiBasicTable<ResourceTypeAgg>
-          rowHeader="resourceType"
-          items={
-            INTERNAL_FEATURE_FLAGS.risksMock
-              ? getTop5Risks(mockData)
-              : getTop5Risks(resourceTypesAggs)
-          }
+        <EuiBasicTable<ResourceType>
+          rowHeader="name"
+          items={INTERNAL_FEATURE_FLAGS.showRisksMock ? getTop5Risks(mockData) : items}
           columns={columns}
         />
       </EuiFlexItem>

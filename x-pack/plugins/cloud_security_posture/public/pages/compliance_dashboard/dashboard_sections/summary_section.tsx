@@ -58,14 +58,14 @@ export const SummarySection = () => {
         >
           <CloudPostureScoreChart
             id="cloud_posture_score_chart"
-            data={getStats.data}
+            data={getStats.data.stats}
             partitionOnElementClick={handleElementClick}
           />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>
         <ChartPanel title={TEXT.RISKS} isLoading={getStats.isLoading} isError={getStats.isError}>
-          <RisksTable data={getStats.data?.resourceTypesAggs} />
+          <RisksTable data={getStats.data.resourcesTypes} />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>
