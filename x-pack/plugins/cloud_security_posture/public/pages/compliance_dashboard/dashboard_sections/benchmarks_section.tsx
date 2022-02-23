@@ -45,9 +45,9 @@ const getBenchmarkLogo = (benchmarkName: BenchmarksWithIcons | string): EuiIconT
   return 'logoElastic';
 };
 
-const getBenchmarkEvaluationQuery = (name: string, evaluation: Evaluation): Query => ({
+const getClusterIdEvaluationQuery = (name: string, evaluation: Evaluation): Query => ({
   language: 'kuery',
-  query: `rule.benchmark : "${name}" and result.evaluation : "${evaluation}"`,
+  query: `cluster_id : "${name}" and result.evaluation : "${evaluation}"`,
 });
 
 const mockClusterId = '2468540';
@@ -56,79 +56,90 @@ export const BenchmarksSection = () => {
   const { euiTheme } = useEuiTheme();
   const history = useHistory();
   const getStats = useCloudPostureStatsApi();
-  const benchmarks = getStats.isSuccess && getStats.data.benchmarksStats;
-  if (!benchmarks) return null;
+  const clusters = getStats.isSuccess && getStats.data.clusters;
+  if (!clusters) return null;
 
-  const handleElementClick = (name: string, elements: PartitionElementEvent[]) => {
+  const handleElementClick = (clusterId: string, elements: PartitionElementEvent[]) => {
     const [element] = elements;
     const [layerValue] = element;
-    const rollupValue = layerValue[0].groupByRollup as Evaluation;
+    const evaluation = layerValue[0].groupByRollup as Evaluation;
 
     history.push({
       pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getBenchmarkEvaluationQuery(name, rollupValue)),
+      search: encodeQuery(getClusterIdEvaluationQuery(clusterId, evaluation)),
     });
   };
 
   return (
     <>
-      {benchmarks.map((benchmark) => (
-        <EuiPanel hasBorder hasShadow={false} paddingSize="none">
-          <EuiFlexGroup>
-            <EuiFlexItem grow={2} style={getIntegrationBoxStyle(euiTheme)}>
-              <EuiText>
-                <h4>{benchmark.name}</h4>
-              </EuiText>
-              {INTERNAL_FEATURE_FLAGS.clusterMetaMock && (
-                <>
-                  <EuiText>
-                    <h4>{`Cluster ID ${mockClusterId}`}</h4>
-                  </EuiText>
-                  <EuiSpacer size="xs" />
-                  <EuiText size="xs" color="subdue">
-                    <EuiIcon type="clock" />
-                    {'Updated 7 second ago'}
-                  </EuiText>
-                </>
-              )}
-              <EuiSpacer />
-              <EuiIcon type={getBenchmarkLogo(benchmark.name)} size="xxl" />
-              {INTERNAL_FEATURE_FLAGS.manageRulesMock && (
-                <>
-                  <EuiSpacer />
-                  <EuiButtonEmpty>{'Manage Rules'}</EuiButtonEmpty>
-                </>
-              )}
-            </EuiFlexItem>
-            <EuiFlexItem grow={4} style={{ borderRight: '1px solid #D3DAE6' }}>
-              <ChartPanel
-                title={TEXT.COMPLIANCE_SCORE}
-                hasBorder={false}
-                isLoading={getStats.isLoading}
-                isError={getStats.isError}
-              >
-                <CloudPostureScoreChart
-                  id={`${benchmark.name}_score_chart`}
-                  data={benchmark}
-                  partitionOnElementClick={(elements) =>
-                    handleElementClick(benchmark.name, elements)
-                  }
-                />
-              </ChartPanel>
-            </EuiFlexItem>
-            <EuiFlexItem grow={4}>
-              <ChartPanel
-                title={TEXT.RISKS}
-                hasBorder={false}
-                isLoading={getStats.isLoading}
-                isError={getStats.isError}
-              >
-                <RisksTable data={getStats.data.resourceTypesAggs} />
-              </ChartPanel>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiPanel>
-      ))}
+      {clusters.map((cluster) => {
+        const shortId = cluster.meta.clusterId.slice(0, 6);
+
+        return (
+          <>
+            <EuiPanel hasBorder hasShadow={false} paddingSize="none">
+              <EuiFlexGroup gutterSize="none" style={{ height: 300 }}>
+                <EuiFlexItem grow={2} style={getIntegrationBoxStyle(euiTheme)}>
+                  <EuiFlexGroup direction="column" alignItems="center" justifyContent="spaceAround">
+                    <EuiFlexItem grow={false}>
+                      <EuiText style={{ textAlign: 'center' }}>
+                        <h4>{cluster.meta.benchmarkName}</h4>
+                      </EuiText>
+                      <EuiText style={{ textAlign: 'center' }}>
+                        <h4>{`Cluster ID ${shortId || mockClusterId}`}</h4>
+                      </EuiText>
+                      {INTERNAL_FEATURE_FLAGS.showClusterMetaMock && (
+                        <EuiText size="xs" color="subdued" style={{ textAlign: 'center' }}>
+                          <EuiIcon type="clock" />
+                          {' Updated 7 second ago'}
+                        </EuiText>
+                      )}
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiIcon type={getBenchmarkLogo(cluster.meta.benchmarkName)} size="xxl" />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      {INTERNAL_FEATURE_FLAGS.showManageRulesMock && (
+                        <EuiButtonEmpty>{'Manage Rules'}</EuiButtonEmpty>
+                      )}
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+                <EuiFlexItem
+                  grow={4}
+                  style={{ borderRight: `1px solid ${euiTheme.colors.lightShade}` }}
+                >
+                  <ChartPanel
+                    title={TEXT.COMPLIANCE_SCORE}
+                    hasBorder={false}
+                    isLoading={getStats.isLoading}
+                    isError={getStats.isError}
+                  >
+                    <CloudPostureScoreChart
+                      id={`${cluster.meta.clusterId}_score_chart`}
+                      data={cluster.stats}
+                      partitionOnElementClick={(elements) =>
+                        handleElementClick(cluster.meta.clusterId, elements)
+                      }
+                    />
+                  </ChartPanel>
+                </EuiFlexItem>
+                <EuiFlexItem grow={4}>
+                  <ChartPanel
+                    title={TEXT.RISKS}
+                    hasBorder={false}
+                    isLoading={getStats.isLoading}
+                    isError={getStats.isError}
+                  >
+                    <RisksTable data={cluster.resourcesTypes} />
+                  </ChartPanel>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiPanel>
+            <EuiSpacer />
+          </>
+        );
+      })}
     </>
   );
 };
@@ -136,8 +147,5 @@ export const BenchmarksSection = () => {
 const getIntegrationBoxStyle = (euiTheme: EuiThemeComputed) => ({
   border: `1px solid ${euiTheme.colors.lightShade}`,
   borderRadius: `${euiTheme.border.radius.medium} 0 0 ${euiTheme.border.radius.medium}`,
-  justifyContent: 'center',
-  alignItems: 'center',
   background: euiTheme.colors.lightestShade,
-  padding: 0,
 });
