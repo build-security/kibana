@@ -5,7 +5,7 @@
  * 2.0.
  */
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiButtonEmpty } from '@elastic/eui';
+import { EuiPanel, EuiLink, EuiFlexGroup, EuiFlexItem, EuiButtonEmpty } from '@elastic/eui';
 import { SavedObject } from 'src/core/public';
 import { extractErrorMessage } from '../../../common/utils/helpers';
 import { RulesTable } from './rules_table';
@@ -15,6 +15,7 @@ import type { CspRuleSchema } from '../../../common/schemas/csp_rule';
 import { useFindCspRules, useBulkUpdateCspRules, type UseCspRulesOptions } from './use_csp_rules';
 import * as TEST_SUBJECTS from './test_subjects';
 import { pagePathGetters } from '../../../../fleet/public';
+import { useKibana } from '../../common/hooks/use_kibana';
 
 export type RuleSavedObject = SavedObject<CspRuleSchema>; // SimpleSavedObject
 
@@ -151,12 +152,7 @@ export const RulesContainer = () => {
     <div style={{ height: '100%' }} data-test-subj={TEST_SUBJECTS.CSP_RULES_CONTAINER}>
       <EuiFlexGroup direction="column">
         <EuiFlexItem>
-          <EuiButtonEmpty
-            href={pagePathGetters.edit_integration({ policyId: '1', packagePolicyId: '2' })[1]}
-            style={{ marginLeft: 'auto' }}
-          >
-            Manage Integration
-          </EuiButtonEmpty>
+          <ManageIntegrationLink packagePolicyId="1" policyId="2" />
         </EuiFlexItem>
         <EuiPanel hasBorder hasShadow={false}>
           <RulesTableHeader
@@ -189,4 +185,27 @@ export const RulesContainer = () => {
   );
 };
 
+const ManageIntegrationLink = ({
+  policyId,
+  packagePolicyId,
+}: {
+  policyId: string;
+  packagePolicyId: string;
+}) => {
+  const { application } = useKibana().services;
+
+  const integrationEditHref = useMemo(() => {
+    const [, path] = pagePathGetters.edit_integration({
+      policyId,
+      packagePolicyId,
+    });
+    return application.getUrlForApp('fleet', { path });
+  }, [application, packagePolicyId, policyId]);
+
+  return (
+    <EuiLink href={integrationEditHref} style={{ marginLeft: 'auto' }}>
+      Manage Integration
+    </EuiLink>
+  );
+};
 type DistributivePick<T, K extends keyof T> = T extends unknown ? Pick<T, K> : never;

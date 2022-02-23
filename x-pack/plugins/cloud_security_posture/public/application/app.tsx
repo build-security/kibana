@@ -13,8 +13,11 @@ import { EuiErrorBoundary } from '@elastic/eui';
 import { allNavigationItems } from '../common/navigation/constants';
 import { CspNavigationItem } from '../common/navigation/types';
 import { UnknownRoute } from '../components/unknown_route';
-import { KibanaContextProvider } from '../../../../../src/plugins/kibana_react/public';
-import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
+import {
+  KibanaContextProvider,
+  RedirectAppLinks,
+} from '../../../../../src/plugins/kibana_react/public';
+import { AppMountParameters, APP_WRAPPER_CLASS, CoreStart } from '../../../../../src/core/public';
 import type { CspClientPluginStartDeps } from '../types';
 import { pageToComponentMapping } from './constants';
 
@@ -42,21 +45,23 @@ const routes = getRoutesFromMapping(allNavigationItems, pageToComponentMapping);
 
 export const CspApp = ({ core, deps, params }: CspAppDeps) => (
   <KibanaContextProvider services={{ ...deps, ...core }}>
-    <QueryClientProvider client={queryClient}>
-      <EuiErrorBoundary>
-        <Router history={params.history}>
-          <I18nProvider>
-            <Switch>
-              {routes.map((route) => (
-                <Route key={route.path as string} {...route} />
-              ))}
-              <Route exact path="/" component={RedirectToDashboard} />
-              <Route path="*" component={UnknownRoute} />
-            </Switch>
-          </I18nProvider>
-        </Router>
-      </EuiErrorBoundary>
-    </QueryClientProvider>
+    <RedirectAppLinks application={core.application} className={APP_WRAPPER_CLASS}>
+      <QueryClientProvider client={queryClient}>
+        <EuiErrorBoundary>
+          <Router history={params.history}>
+            <I18nProvider>
+              <Switch>
+                {routes.map((route) => (
+                  <Route key={route.path as string} {...route} />
+                ))}
+                <Route exact path="/" component={RedirectToDashboard} />
+                <Route path="*" component={UnknownRoute} />
+              </Switch>
+            </I18nProvider>
+          </Router>
+        </EuiErrorBoundary>
+      </QueryClientProvider>
+    </RedirectAppLinks>
   </KibanaContextProvider>
 );
 
