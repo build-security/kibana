@@ -303,4 +303,42 @@ describe('<RulesContainer />', () => {
       { ...rule5.attributes, enabled: !rule5.attributes.enabled },
     ]);
   });
+
+  it('selects and updates all rules', async () => {
+    const Wrapper = getWrapper();
+    const enabled = true;
+    const rules = Array.from({ length: 20 }, (x, i) => getFakeRule({ enabled }));
+
+    useFindCspRulesMock({
+      status: 'success',
+      data: {
+        total: rules.length,
+        savedObjects: rules,
+      },
+    });
+
+    render(
+      <Wrapper>
+        <RulesContainer />
+      </Wrapper>
+    );
+
+    const { mutate } = useBulkUpdateCspRules();
+
+    fireEvent.click(screen.getByTestId(TEST_SUBJECTS.CSP_RULES_TABLE_SELECT_ALL_BUTTON));
+    fireEvent.click(screen.getByTestId(TEST_SUBJECTS.CSP_RULES_TABLE_BULK_MENU_BUTTON));
+    fireEvent.click(screen.getByTestId(TEST_SUBJECTS.CSP_RULES_TABLE_BULK_DISABLE_BUTTON));
+    fireEvent.click(screen.getByTestId(TEST_SUBJECTS.CSP_RULES_SAVE_BUTTON));
+
+    expect(
+      await screen.findByText(new RegExp(`Selected ${rules.length} rules`))
+    ).toBeInTheDocument();
+    expect(mutate).toHaveBeenCalledTimes(1);
+    expect(mutate).toHaveBeenCalledWith(
+      rules.map((rule) => ({
+        ...rule.attributes,
+        enabled: !enabled,
+      }))
+    );
+  });
 });

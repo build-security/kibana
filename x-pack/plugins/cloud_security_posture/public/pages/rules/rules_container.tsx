@@ -4,39 +4,32 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { EuiPanel } from '@elastic/eui';
-import { SavedObject } from 'src/core/public';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { type EuiBasicTable, EuiPanel } from '@elastic/eui';
 import { extractErrorMessage } from '../../../common/utils/helpers';
 import { RulesTable } from './rules_table';
 import { RulesBottomBar } from './rules_bottom_bar';
 import { RulesTableHeader } from './rules_table_header';
-import type { CspRuleSchema } from '../../../common/schemas/csp_rule';
-import { useFindCspRules, useBulkUpdateCspRules, type UseCspRulesOptions } from './use_csp_rules';
+import {
+  useFindCspRules,
+  useBulkUpdateCspRules,
+  type RuleSavedObject,
+  type RulesQuery,
+  type RulesQueryResult,
+} from './use_csp_rules';
 import * as TEST_SUBJECTS from './test_subjects';
 
-export type RuleSavedObject = SavedObject<CspRuleSchema>; // SimpleSavedObject
-
-type RulesQuery = Required<Omit<UseCspRulesOptions, 'searchFields'>>;
-type RulesQueryResult = ReturnType<typeof useFindCspRules>;
-type SimpleRulesQueryResult = DistributivePick<RulesQueryResult, 'data' | 'error' | 'status'>;
-
 /** Rules with local changes */
-type LocalRulesResult =
-  | Exclude<SimpleRulesQueryResult, { status: 'success' | 'error' }>
-  | {
-      status: 'error';
-      error: string;
-      data: undefined;
-    }
-  | {
-      status: 'success';
-      error: null;
-      data: readonly RuleSavedObject[];
-      total: number;
-    };
+interface RulesPageData {
+  rules_page: RuleSavedObject[];
+  all_rules: RuleSavedObject[];
+  rules_map: Map<string, RuleSavedObject>;
+  total: number;
+  error?: string;
+  loading: boolean;
+}
 
-export type RulesState = LocalRulesResult & RulesQuery;
+export type RulesState = RulesPageData & RulesQuery;
 
 const getSimpleQueryString = (searchValue?: string): string =>
   searchValue ? `${searchValue}*` : '';
@@ -64,66 +57,60 @@ const getChangedRules = (
   return changedRules;
 };
 
-const getLocalRulesResult = (
-  result: SimpleRulesQueryResult,
-  localData: readonly RuleSavedObject[]
-): LocalRulesResult => {
-  switch (result.status) {
-    case 'success':
-      return {
-        ...result,
-        data: localData,
-        total: result.data.total,
-      };
-    case 'error':
-      return {
-        ...result,
-        data: undefined,
-        error: extractErrorMessage(result.error),
-      };
-    default:
-      return result;
-  }
+const getRulesPageData = (
+  { status, data, error }: Pick<RulesQueryResult, 'data' | 'status' | 'error'>,
+  changedRules: Map<string, RuleSavedObject>,
+  query: RulesQuery
+): RulesPageData => {
+  const rules = data?.savedObjects || [];
+  const page = getPage(rules, query);
+  return {
+    loading: status === 'loading',
+    error: error ? extractErrorMessage(error) : undefined,
+    all_rules: rules,
+    rules_map: new Map(rules.map((rule) => [rule.id, rule])),
+    rules_page: page.map((rule) => changedRules.get(rule.attributes.id) || rule),
+    total: data?.total || 0,
+  };
 };
 
+const getPage = (data: RuleSavedObject[], { page, perPage }: RulesQuery) =>
+  data.slice(page * perPage, (page + 1) * perPage);
+
+const MAX_ITEMS_PER_PAGE = 10000;
+
 export const RulesContainer = () => {
+  const tableRef = useRef<EuiBasicTable>(null);
   const [changedRules, setChangedRules] = useState<Map<string, RuleSavedObject>>(new Map());
-  const [selectedRules, setSelectedRules] = useState<RuleSavedObject[]>([]);
-  const [rulesQuery, setRulesQuery] = useState<RulesQuery>({ page: 1, perPage: 5, search: '' });
+  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
+  const [visibleSelectedRulesIds, setVisibleSelectedRulesIds] = useState<string[]>([]);
+  const [rulesQuery, setRulesQuery] = useState<RulesQuery>({ page: 0, perPage: 5, search: '' });
 
   const { data, status, error, refetch } = useFindCspRules({
-    ...rulesQuery,
     search: getSimpleQueryString(rulesQuery.search),
-    searchFields: ['name'],
+    page: 1,
+    perPage: MAX_ITEMS_PER_PAGE,
   });
 
   const { mutate: bulkUpdate, isLoading: isUpdating } = useBulkUpdateCspRules();
 
-  const baseData: { rules: RuleSavedObject[]; rulesMap: Map<string, RuleSavedObject> } =
-    useMemo(() => {
-      const rules = data?.savedObjects || [];
-      return { rules, rulesMap: new Map(rules.map((rule) => [rule.id, rule])) };
-    }, [data]);
-
-  /**
-   * TODO(TS@4.6): remove casting
-   * @see https://github.com/microsoft/TypeScript/pull/46266
-   */
-  const localRulesResult = useMemo(
-    () =>
-      getLocalRulesResult(
-        { data, error, status } as SimpleRulesQueryResult,
-        baseData.rules.map((rule) => changedRules.get(rule.attributes.id) || rule)
-      ),
-    [baseData, changedRules, status, data, error]
+  const rulesPageData = useMemo(
+    () => getRulesPageData({ data, error, status }, changedRules, rulesQuery),
+    [data, error, status, changedRules, rulesQuery]
   );
 
   const hasChanges = !!changedRules.size;
 
+  const selectAll = () => {
+    if (!tableRef.current) return;
+    tableRef.current.setSelection(rulesPageData.rules_page);
+    setIsAllSelected(true);
+  };
+
   const toggleRules = (rules: RuleSavedObject[], enabled: boolean) =>
     setChangedRules(
       getChangedRules(
-        baseData.rulesMap,
+        rulesPageData.rules_map,
         changedRules,
         rules.map((rule) => ({
           ...rule,
@@ -134,7 +121,9 @@ export const RulesContainer = () => {
 
   const bulkToggleRules = (enabled: boolean) =>
     toggleRules(
-      selectedRules.map((rule) => baseData.rulesMap.get(rule.id)!),
+      isAllSelected
+        ? rulesPageData.all_rules
+        : visibleSelectedRulesIds.map((ruleId) => rulesPageData.rules_map.get(ruleId)!),
       enabled
     );
 
@@ -144,26 +133,44 @@ export const RulesContainer = () => {
 
   const discardChanges = useCallback(() => setChangedRules(new Map()), []);
 
-  useEffect(discardChanges, [baseData, discardChanges]);
+  const clearSelection = useCallback(() => {
+    if (!tableRef.current) return;
+    tableRef.current.setSelection([]);
+    setIsAllSelected(false);
+  }, []);
+
+  useEffect(discardChanges, [data, discardChanges]);
+  useEffect(clearSelection, [rulesQuery, clearSelection]);
 
   return (
     <div data-test-subj={TEST_SUBJECTS.CSP_RULES_CONTAINER}>
       <EuiPanel hasBorder hasShadow={false}>
         <RulesTableHeader
           search={(value) => setRulesQuery((currentQuery) => ({ ...currentQuery, search: value }))}
-          refresh={refetch}
+          refresh={() => {
+            clearSelection();
+            refetch();
+          }}
           bulkEnable={() => bulkToggleRules(true)}
           bulkDisable={() => bulkToggleRules(false)}
-          selectedRulesCount={selectedRules.length}
+          selectAll={selectAll}
+          clearSelection={clearSelection}
+          selectedRulesCount={
+            isAllSelected ? rulesPageData.all_rules.length : visibleSelectedRulesIds.length
+          }
           searchValue={rulesQuery.search}
-          totalRulesCount={localRulesResult.status === 'success' ? localRulesResult.total : 0}
-          isSearching={localRulesResult.status === 'loading'}
+          totalRulesCount={rulesPageData.all_rules.length}
+          isSearching={status === 'loading'}
         />
         <RulesTable
-          {...localRulesResult}
+          {...rulesPageData}
           {...rulesQuery}
+          tableRef={tableRef}
           toggleRule={toggleRule}
-          setSelectedRules={setSelectedRules}
+          setSelectedRules={(rules) => {
+            setIsAllSelected(false);
+            setVisibleSelectedRulesIds(rules.map((rule) => rule.id));
+          }}
           setPagination={(paginationQuery) =>
             setRulesQuery((currentQuery) => ({ ...currentQuery, ...paginationQuery }))
           }
@@ -175,5 +182,3 @@ export const RulesContainer = () => {
     </div>
   );
 };
-
-type DistributivePick<T, K extends keyof T> = T extends unknown ? Pick<T, K> : never;

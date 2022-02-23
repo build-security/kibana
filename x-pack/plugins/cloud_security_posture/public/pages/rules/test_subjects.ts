@@ -13,6 +13,8 @@ export const CSP_RULES_TABLE_BULK_MENU_BUTTON = 'csp_rules_table_bulk_menu_butto
 export const CSP_RULES_TABLE_BULK_ENABLE_BUTTON = 'csp_rules_table_bulk_enable_button';
 export const CSP_RULES_TABLE_BULK_DISABLE_BUTTON = 'csp_rules_table_bulk_disable_button';
 export const CSP_RULES_TABLE_REFRESH_BUTTON = 'csp_rules_table_refresh_button';
+export const CSP_RULES_TABLE_SELECT_ALL_BUTTON = 'rules_select_all';
+export const CSP_RULES_TABLE_CLEAR_SELECTION_BUTTON = 'rules_clear_selection';
 
 export const getCspRulesTableItemSwitchTestId = (id: string) =>
   `${CSP_RULES_TABLE_ITEM_SWITCH}_${id}`;

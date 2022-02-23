@@ -19,14 +19,6 @@ export const UNKNOWN_ERROR = i18n.translate('xpack.csp.unknown_erro', {
   defaultMessage: 'Unknown Error',
 });
 
-export const ENABLE = i18n.translate('xpack.csp.enable', {
-  defaultMessage: 'Enable',
-});
-
-export const DISABLE = i18n.translate('xpack.csp.disable', {
-  defaultMessage: 'Disable',
-});
-
 export const REFRESH = i18n.translate('xpack.csp.refresh', {
   defaultMessage: 'Refresh',
 });

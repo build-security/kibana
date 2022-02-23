@@ -10,40 +10,40 @@ import {
   EuiLink,
   EuiSwitch,
   EuiTableFieldDataColumnType,
-  EuiEmptyPrompt,
   EuiBasicTable,
   EuiBasicTableProps,
 } from '@elastic/eui';
 // import moment from 'moment';
-import type { RulesState, RuleSavedObject } from './rules_container';
+import type { RulesState } from './rules_container';
 import * as TEST_SUBJECTS from './test_subjects';
 import * as TEXT from './translations';
+import type { RuleSavedObject } from './use_csp_rules';
 
 type RulesTableProps = RulesState & {
   toggleRule(rule: RuleSavedObject): void;
   setSelectedRules(rules: RuleSavedObject[]): void;
   setPagination(pagination: Pick<RulesState, 'perPage' | 'page'>): void;
+  // ForwardRef makes this ref not available in parent callbacks
+  tableRef: React.RefObject<EuiBasicTable<any>>;
 };
 
 export const RulesTable = ({
   toggleRule,
   setSelectedRules,
   setPagination,
-  perPage,
+  perPage: pageSize,
   page,
+  tableRef,
   ...props
 }: RulesTableProps) => {
   const columns = useMemo(() => getColumns({ toggleRule }), [toggleRule]);
 
-  const items = useMemo(
-    () => (props.status === 'success' ? props.data?.slice() || [] : []),
-    [props.data, props.status]
-  );
+  const items = useMemo(() => props.rules_page || [], [props.rules_page]);
 
   const euiPagination: EuiBasicTableProps<RuleSavedObject>['pagination'] = {
-    pageIndex: Math.max(page - 1, 0),
-    pageSize: perPage,
-    totalItemCount: props.status === 'success' ? props.total : 0,
+    pageIndex: page,
+    pageSize,
+    totalItemCount: props.total,
     pageSizeOptions: [1, 5, 10, 25],
     hidePerPageOptions: false,
   };
@@ -55,19 +55,15 @@ export const RulesTable = ({
 
   const onTableChange = ({ page: _page }: Criteria<RuleSavedObject>) => {
     if (!_page) return;
-    setPagination({ page: _page.index + 1, perPage: _page.size });
+    setPagination({ page: _page.index, perPage: _page.size });
   };
-
-  // Show "zero state"
-  if (props.status === 'success' && !props.data)
-    // TODO: use our own logo
-    return <EuiEmptyPrompt iconType="logoKibana" title={<h2>{TEXT.MISSING_RULES}</h2>} />;
 
   return (
     <EuiBasicTable
+      ref={tableRef}
       data-test-subj={TEST_SUBJECTS.CSP_RULES_TABLE}
-      loading={props.status === 'loading'}
-      error={props.error || undefined}
+      loading={props.loading}
+      error={props.error}
       items={items}
       columns={columns}
       pagination={euiPagination}
