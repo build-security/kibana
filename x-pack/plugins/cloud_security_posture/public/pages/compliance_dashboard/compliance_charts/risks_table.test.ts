@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { getTop5Risks, RisksTableProps } from './risks_table';
+import { getTopRisks, RisksTableProps } from './risks_table';
 
 const podsAgg = {
   name: 'pods',
@@ -58,16 +58,16 @@ const mockData: RisksTableProps['data'] = [
   serverAgg,
 ];
 
-describe('getTop5Risks', () => {
+describe('getTopRisks', () => {
   it('returns sorted by failed findings', () => {
-    expect(getTop5Risks([systemAgg, etcdAgg, apiAgg])).toEqual([apiAgg, etcdAgg, systemAgg]);
+    expect(getTopRisks([systemAgg, etcdAgg, apiAgg], 3)).toEqual([apiAgg, etcdAgg, systemAgg]);
   });
 
   it('return array filtered with failed findings only', () => {
-    expect(getTop5Risks([systemAgg, clusterAgg, apiAgg])).toEqual([apiAgg, systemAgg]);
+    expect(getTopRisks([systemAgg, clusterAgg, apiAgg], 3)).toEqual([apiAgg, systemAgg]);
   });
 
-  it('return sorted and filtered array with no more then 5 elements', () => {
-    expect(getTop5Risks(mockData)).toEqual([apiAgg, etcdAgg, systemAgg, serverAgg, podsAgg]);
+  it('return sorted and filtered array with the correct number of elements', () => {
+    expect(getTopRisks(mockData, 5)).toEqual([apiAgg, etcdAgg, systemAgg, serverAgg, podsAgg]);
   });
 });
