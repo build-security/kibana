@@ -85,7 +85,7 @@ export const defineGetComplianceDashboardRoute = (
         const latestCyclesIds = await getLatestCyclesIds(esClient);
         const query: QueryDslQueryContainer = {
           bool: {
-            should: latestCyclesIds.map((id: string) => ({
+            should: latestCyclesIds.map((id) => ({
               match: { 'cycle_id.keyword': { query: id } },
             })),
           },
