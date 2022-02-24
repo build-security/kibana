@@ -6,17 +6,14 @@
  */
 
 import { ElasticsearchClient } from 'kibana/server';
-import {
+import type {
   AggregationsMultiBucketAggregateBase as Aggregation,
   QueryDslQueryContainer,
   SearchRequest,
 } from '@elastic/elasticsearch/lib/api/types';
 import { CloudPostureStats } from '../../../common/types';
-import {
-  getResourceTypeFromAggs,
-  resourceTypeAggQuery,
-  ResourceTypeQueryResult,
-} from './get_resources_types';
+import { getResourceTypeFromAggs, resourceTypeAggQuery } from './get_resources_types';
+import type { ResourceTypeQueryResult } from './get_resources_types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { findingsEvaluationAggsQuery, getStatsFromFindingsEvaluationsAggs } from './get_stats';
 import { KeyDocCount } from './compliance_dashboard';

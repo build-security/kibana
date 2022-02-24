@@ -7,7 +7,7 @@
 
 import type { ElasticsearchClient, IRouter } from 'src/core/server';
 import { transformError } from '@kbn/securitysolution-es-utils';
-import {
+import type {
   AggregationsMultiBucketAggregateBase as Aggregation,
   AggregationsTopHitsAggregate,
   QueryDslQueryContainer,
@@ -58,12 +58,16 @@ export const getLatestFindingQuery = (): SearchRequest => ({
   },
 });
 
-const getLatestCyclesIds = async (esClient: ElasticsearchClient) => {
+const getLatestCyclesIds = async (esClient: ElasticsearchClient): string[] => {
   const queryResult = await esClient.search<unknown, ClustersQueryResult>(getLatestFindingQuery());
   const clusters = queryResult.body.aggregations?.aggs_by_cluster_id.buckets;
   if (!Array.isArray(clusters)) throw new Error('missing aggs by cluster id');
 
-  return clusters.map((c) => c.ordered_top_hits.hits.hits[0]._source.cycle_id);
+  return clusters.map((c) => {
+    const topHit = c.ordered_top_hits.hits.hits[0];
+    if (!topHit) throw new Error('missing cluster latest hit');
+    return topHit._source.cycle_id;
+  });
 };
 
 export const defineGetComplianceDashboardRoute = (
