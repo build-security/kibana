@@ -58,7 +58,7 @@ export const getLatestFindingQuery = (): SearchRequest => ({
   },
 });
 
-const getLatestCyclesIds = async (esClient: ElasticsearchClient): string[] => {
+const getLatestCyclesIds = async (esClient: ElasticsearchClient): Promise<string[]> => {
   const queryResult = await esClient.search<unknown, ClustersQueryResult>(getLatestFindingQuery());
   const clusters = queryResult.body.aggregations?.aggs_by_cluster_id.buckets;
   if (!Array.isArray(clusters)) throw new Error('missing aggs by cluster id');
