@@ -50,7 +50,7 @@ export const getClustersQuery = (cycleId: string): SearchRequest => ({
       aggs: {
         benchmarks: {
           terms: {
-            field: 'rule.benchmark.keyword',
+            field: 'rule.benchmark.name.keyword',
           },
         },
         ...resourceTypeAggQuery,
