@@ -8,6 +8,7 @@
 import { ElasticsearchClient } from 'kibana/server';
 import {
   AggregationsMultiBucketAggregateBase as Aggregation,
+  QueryDslQueryContainer,
   SearchRequest,
 } from '@elastic/elasticsearch/lib/api/types';
 import { CloudPostureStats } from '../../../common/types';
@@ -43,14 +44,10 @@ export const resourceTypeAggQuery = {
   },
 };
 
-export const getRisksEsQuery = (cycleId: string): SearchRequest => ({
+export const getRisksEsQuery = (query: QueryDslQueryContainer): SearchRequest => ({
   index: CSP_KUBEBEAT_INDEX_PATTERN,
   size: 0,
-  query: {
-    bool: {
-      filter: [{ term: { 'cycle_id.keyword': cycleId } }],
-    },
-  },
+  query,
   aggs: resourceTypeAggQuery,
 });
 
@@ -66,10 +63,10 @@ export const getResourceTypeFromAggs = (
 
 export const getResourcesTypes = async (
   esClient: ElasticsearchClient,
-  cycleId: string
+  query: QueryDslQueryContainer
 ): Promise<CloudPostureStats['resourcesTypes']> => {
   const resourceTypesQueryResult = await esClient.search<unknown, ResourceTypeQueryResult>(
-    getRisksEsQuery(cycleId)
+    getRisksEsQuery(query)
   );
 
   const resourceTypes = resourceTypesQueryResult.body.aggregations?.aggs_by_resource_type.buckets;
