@@ -17,19 +17,16 @@ import {
   useEuiTheme,
 } from '@elastic/eui';
 import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
-import { Query } from '@kbn/es-query';
-import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
 import { EuiThemeComputed } from '@elastic/eui/src/services/theme/types';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
 import { useCloudPostureStatsApi } from '../../../common/api/use_cloud_posture_stats_api';
 import { ChartPanel } from '../../../components/chart_panel';
 import * as TEXT from '../translations';
-import { allNavigationItems } from '../../../common/navigation/constants';
-import { encodeQuery } from '../../../common/navigation/query_utils';
 import { Evaluation } from '../../../../common/types';
 import { RisksTable } from '../compliance_charts/risks_table';
-import { INTERNAL_FEATURE_FLAGS } from '../../../../common/constants';
+import { INTERNAL_FEATURE_FLAGS, RULE_FAILED } from '../../../../common/constants';
+import { useNavigateFindings } from '../../../common/hooks/use_navigate_findings';
 
 type BenchmarksWithIcons = 'CIS Kubernetes';
 
@@ -45,16 +42,13 @@ const getBenchmarkLogo = (benchmarkName: BenchmarksWithIcons | string): EuiIconT
   return 'logoElastic';
 };
 
-const getClusterIdEvaluationQuery = (name: string, evaluation: Evaluation): Query => ({
-  language: 'kuery',
-  query: `cluster_id : "${name}" and result.evaluation : "${evaluation}"`,
-});
-
 const mockClusterId = '2468540';
+
+const cardHeight = 300;
 
 export const BenchmarksSection = () => {
   const { euiTheme } = useEuiTheme();
-  const history = useHistory();
+  const navToFindings = useNavigateFindings();
   const getStats = useCloudPostureStatsApi();
   const clusters = getStats.isSuccess && getStats.data.clusters;
   if (!clusters) return null;
@@ -64,10 +58,19 @@ export const BenchmarksSection = () => {
     const [layerValue] = element;
     const evaluation = layerValue[0].groupByRollup as Evaluation;
 
-    history.push({
-      pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getClusterIdEvaluationQuery(clusterId, evaluation)),
+    navToFindings({ cluster_id: clusterId, 'result.evaluation': evaluation });
+  };
+
+  const handleCellClick = (clusterId: string, resourceTypeName: string) => {
+    navToFindings({
+      cluster_id: clusterId,
+      'resource.type': resourceTypeName,
+      'result.evaluation': RULE_FAILED,
     });
+  };
+
+  const handleViewAllClick = (clusterId: string) => {
+    navToFindings({ cluster_id: clusterId, 'result.evaluation': RULE_FAILED });
   };
 
   return (
@@ -78,7 +81,7 @@ export const BenchmarksSection = () => {
         return (
           <>
             <EuiPanel hasBorder hasShadow={false} paddingSize="none">
-              <EuiFlexGroup gutterSize="none" style={{ height: 300 }}>
+              <EuiFlexGroup gutterSize="none" style={{ height: cardHeight }}>
                 <EuiFlexItem grow={2} style={getIntegrationBoxStyle(euiTheme)}>
                   <EuiFlexGroup direction="column" alignItems="center" justifyContent="spaceAround">
                     <EuiFlexItem grow={false}>
@@ -131,7 +134,14 @@ export const BenchmarksSection = () => {
                     isLoading={getStats.isLoading}
                     isError={getStats.isError}
                   >
-                    <RisksTable data={cluster.resourcesTypes} maxItems={3} />
+                    <RisksTable
+                      data={cluster.resourcesTypes}
+                      maxItems={3}
+                      onCellClick={(resourceTypeName) =>
+                        handleCellClick(cluster.meta.clusterId, resourceTypeName)
+                      }
+                      onViewAllClick={() => handleViewAllClick(cluster.meta.clusterId)}
+                    />
                   </ChartPanel>
                 </EuiFlexItem>
               </EuiFlexGroup>
