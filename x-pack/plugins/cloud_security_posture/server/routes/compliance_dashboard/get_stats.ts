@@ -71,7 +71,3 @@ export const getStats = async (
 
   return getStatsFromFindingsEvaluationsAggs(findingsEvaluations);
 };
-
-// 1c2ca5f1a79547c09667b17ce7395eed
-// 377fadacffe8418095761256296b3518
-// b41fbc58180846499b524633e542851c
