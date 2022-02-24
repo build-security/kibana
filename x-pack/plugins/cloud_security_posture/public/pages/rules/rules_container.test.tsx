@@ -6,10 +6,10 @@
  */
 
 import React from 'react';
-import { RulesContainer, type RuleSavedObject } from './rules_container';
+import { RulesContainer } from './rules_container';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from 'react-query';
-import { useFindCspRules, useBulkUpdateCspRules } from './use_csp_rules';
+import { useFindCspRules, useBulkUpdateCspRules, type RuleSavedObject } from './use_csp_rules';
 import * as TEST_SUBJECTS from './test_subjects';
 import { Chance } from 'chance';
 import { TestProvider } from '../../test/test_provider';

@@ -8,9 +8,6 @@
 import type { SavedObjectsBulkCreateObject } from 'src/core/server';
 import type { CspRuleSchema } from '../../../common/schemas/csp_rule';
 import { cspRuleAssetSavedObjectType } from '../../../common/schemas/csp_rule';
-import Chance from 'chance';
-
-const chance = new Chance();
 
 const benchmark = { name: 'CIS', version: '1.4.1' } as const;
 
@@ -46,19 +43,6 @@ const RULES: CspRuleSchema[] = [
     muted: false,
     benchmark,
   },
-  ...Array.from({ length: 20 }, (x, i) => ({
-    id: chance.word(),
-    name: chance.sentence(),
-    description: chance.sentence(),
-    rationale: chance.sentence(),
-    impact: chance.sentence(),
-    default_value: chance.sentence(),
-    remediation: chance.sentence(),
-    tags: [],
-    enabled: true,
-    muted: false,
-    benchmark,
-  })),
 ];
 
 export const CIS_BENCHMARK_1_4_1_RULES: Array<SavedObjectsBulkCreateObject<CspRuleSchema>> =
