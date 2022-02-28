@@ -7,7 +7,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { KibanaThemeProvider } from 'src/plugins/kibana_react/public';
+import { KibanaThemeProvider } from '../../../../../src/plugins/kibana_react/public';
 import { CspApp } from './app';
 import type { AppMountParameters, CoreStart } from '../../../../../src/core/public';
 import type { CspClientPluginStartDeps } from '../types';
