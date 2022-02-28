@@ -44,7 +44,7 @@ export const getClustersQuery = (query: QueryDslQueryContainer): SearchRequest =
       aggs: {
         benchmarks: {
           terms: {
-            field: 'rule.benchmark.keyword',
+            field: 'rule.benchmark.name.keyword',
           },
         },
         ...resourceTypeAggQuery,
