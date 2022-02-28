@@ -8,6 +8,7 @@ import { transformError } from '@kbn/securitysolution-es-utils';
 import type { ElasticsearchClient, Logger } from '../../../../src/core/server';
 import { LATEST_FINDINGS_INDEX_PATTERN } from '../common/constants';
 
+// TODO: Add integration tests
 export const initializeCspLatestFindingsIndex = async (
   esClient: ElasticsearchClient,
   logger: Logger
