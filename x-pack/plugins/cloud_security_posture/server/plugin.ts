@@ -23,6 +23,7 @@ import { defineRoutes } from './routes';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
 import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
+import { initializeCspLatestFindingsIndex } from './create_latest_index';
 
 export interface CspAppContext {
   logger: Logger;
@@ -67,13 +68,28 @@ export class CspPlugin
     return {};
   }
 
-  public start(core: CoreStart, plugins: CspServerPluginStartDeps): CspServerPluginStart {
+  public async start(
+    core: CoreStart,
+    plugins: CspServerPluginStartDeps
+  ): Promise<CspServerPluginStart> {
     this.logger.debug('csp: Started');
     this.CspAppService.start({
       ...plugins.fleet,
     });
-
     initializeCspRules(core.savedObjects.createInternalRepository());
+    initializeCspLatestFindingsIndex(core.elasticsearch.client.asInternalUser, this.logger);
+
+    const indexExists = await core.elasticsearch.client.asInternalUser.indices.exists({
+      index: 'csp-latest-findings',
+    });
+    if (!indexExists) {
+      core.elasticsearch.client.asInternalUser.index({
+        id: 'csp-latest-findings',
+        index: '.csp-findings-latest',
+        op_type: 'create',
+        body: {},
+      });
+    }
 
     return {};
   }
