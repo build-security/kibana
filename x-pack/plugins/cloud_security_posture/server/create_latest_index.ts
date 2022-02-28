@@ -14,7 +14,7 @@ export const initializeCspLatestFindingsIndex = async (
   logger: Logger
 ) => {
   try {
-    const isExists = await esClient.indices.existsAlias({ name: LATEST_FINDINGS_INDEX_PATTERN });
+    const isExists = await esClient.indices.exists({ index: LATEST_FINDINGS_INDEX_PATTERN });
 
     if (!isExists.body) {
       await esClient.indices.create({
