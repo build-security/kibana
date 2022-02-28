@@ -79,18 +79,6 @@ export class CspPlugin
     initializeCspRules(core.savedObjects.createInternalRepository());
     initializeCspLatestFindingsIndex(core.elasticsearch.client.asInternalUser, this.logger);
 
-    const indexExists = await core.elasticsearch.client.asInternalUser.indices.exists({
-      index: 'csp-latest-findings',
-    });
-    if (!indexExists) {
-      core.elasticsearch.client.asInternalUser.index({
-        id: 'csp-latest-findings',
-        index: '.csp-findings-latest',
-        op_type: 'create',
-        body: {},
-      });
-    }
-
     return {};
   }
   public stop() {}
