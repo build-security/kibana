@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   EuiBasicTable,
   EuiButtonEmpty,
@@ -14,14 +14,10 @@ import {
   EuiLink,
   EuiText,
 } from '@elastic/eui';
-import type { Query } from '@kbn/es-query';
-import { useHistory } from 'react-router-dom';
 import { CloudPostureStats, ResourceType } from '../../../../common/types';
-import { allNavigationItems } from '../../../common/navigation/constants';
-import { encodeQuery } from '../../../common/navigation/query_utils';
 import { getFormattedNum } from '../../../common/utils/get_formatted_num';
 import * as TEXT from '../translations';
-import { INTERNAL_FEATURE_FLAGS, RULE_FAILED } from '../../../../common/constants';
+import { INTERNAL_FEATURE_FLAGS } from '../../../../common/constants';
 
 const mockData = [
   {
@@ -65,6 +61,8 @@ const mockData = [
 export interface RisksTableProps {
   data: CloudPostureStats['resourcesTypes'];
   maxItems: number;
+  onCellClick: (resourceTypeName: string) => void;
+  onViewAllClick: () => void;
 }
 
 export const getTopRisks = (
@@ -77,44 +75,19 @@ export const getTopRisks = (
   return sorted.slice(0, maxItems);
 };
 
-const getFailedFindingsQuery = (): Query => ({
-  language: 'kuery',
-  query: `result.evaluation : "${RULE_FAILED}" `,
-});
-
-const getResourceTypeFailedFindingsQuery = (resourceTypeName: string): Query => ({
-  language: 'kuery',
-  query: `resource.type : "${resourceTypeName}" and result.evaluation : "${RULE_FAILED}" `,
-});
-
-export const RisksTable = ({ data: resourcesTypes, maxItems }: RisksTableProps) => {
-  const { push } = useHistory();
-
-  const handleCellClick = useCallback(
-    (resourceTypeName: ResourceType['name']) =>
-      push({
-        pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getResourceTypeFailedFindingsQuery(resourceTypeName)),
-      }),
-    [push]
-  );
-
-  const handleViewAllClick = useCallback(
-    () =>
-      push({
-        pathname: allNavigationItems.findings.path,
-        search: encodeQuery(getFailedFindingsQuery()),
-      }),
-    [push]
-  );
-
+export const RisksTable = ({
+  data: resourcesTypes,
+  maxItems,
+  onCellClick,
+  onViewAllClick,
+}: RisksTableProps) => {
   const columns = useMemo(
     () => [
       {
         field: 'name',
         name: TEXT.RESOURCE_TYPE,
         render: (resourceTypeName: ResourceType['name']) => (
-          <EuiLink onClick={() => handleCellClick(resourceTypeName)}>{resourceTypeName}</EuiLink>
+          <EuiLink onClick={() => onCellClick(resourceTypeName)}>{resourceTypeName}</EuiLink>
         ),
       },
       {
@@ -128,7 +101,7 @@ export const RisksTable = ({ data: resourcesTypes, maxItems }: RisksTableProps) 
         ),
       },
     ],
-    [handleCellClick]
+    [onCellClick]
   );
 
   const items = useMemo(() => getTopRisks(resourcesTypes, maxItems), [resourcesTypes, maxItems]);
@@ -145,7 +118,7 @@ export const RisksTable = ({ data: resourcesTypes, maxItems }: RisksTableProps) 
       <EuiFlexItem grow={false}>
         <EuiFlexGroup justifyContent="center" gutterSize="none">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty onClick={handleViewAllClick} iconType="search">
+            <EuiButtonEmpty onClick={onViewAllClick} iconType="search">
               {TEXT.VIEW_ALL_FAILED_FINDINGS}
             </EuiButtonEmpty>
           </EuiFlexItem>

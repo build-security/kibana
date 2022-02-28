@@ -7,23 +7,16 @@
 
 import React from 'react';
 import { EuiFlexGrid, EuiFlexItem } from '@elastic/eui';
-import { useHistory } from 'react-router-dom';
 import { PartitionElementEvent } from '@elastic/charts';
-import { Query } from '@kbn/es-query';
 import { ChartPanel } from '../../../components/chart_panel';
 import { useCloudPostureStatsApi } from '../../../common/api';
 import * as TEXT from '../translations';
 import { CloudPostureScoreChart } from '../compliance_charts/cloud_posture_score_chart';
-import { allNavigationItems } from '../../../common/navigation/constants';
-import { encodeQuery } from '../../../common/navigation/query_utils';
 import { Evaluation } from '../../../../common/types';
 import { RisksTable } from '../compliance_charts/risks_table';
 import { CasesTable } from '../compliance_charts/cases_table';
-
-const getEvaluationQuery = (evaluation: Evaluation): Query => ({
-  language: 'kuery',
-  query: `"result.evaluation : "${evaluation}"`,
-});
+import { useNavigateFindings } from '../../../common/hooks/use_navigate_findings';
+import { RULE_FAILED } from '../../../../common/constants';
 
 const defaultHeight = 360;
 
@@ -33,19 +26,24 @@ const summarySectionWrapperStyle = {
 };
 
 export const SummarySection = () => {
-  const history = useHistory();
+  const navToFindings = useNavigateFindings();
   const getStats = useCloudPostureStatsApi();
   if (!getStats.isSuccess) return null;
 
   const handleElementClick = (elements: PartitionElementEvent[]) => {
     const [element] = elements;
     const [layerValue] = element;
-    const rollupValue = layerValue[0].groupByRollup as Evaluation;
+    const evaluation = layerValue[0].groupByRollup as Evaluation;
 
-    history.push({
-      pathname: allNavigationItems.findings.path,
-      search: encodeQuery(getEvaluationQuery(rollupValue)),
-    });
+    navToFindings({ 'result.evaluation': evaluation });
+  };
+
+  const handleCellClick = (resourceTypeName: string) => {
+    navToFindings({ 'resource.type': resourceTypeName, 'result.evaluation': RULE_FAILED });
+  };
+
+  const handleViewAllClick = () => {
+    navToFindings({ 'result.evaluation': RULE_FAILED });
   };
 
   return (
@@ -65,7 +63,12 @@ export const SummarySection = () => {
       </EuiFlexItem>
       <EuiFlexItem>
         <ChartPanel title={TEXT.RISKS} isLoading={getStats.isLoading} isError={getStats.isError}>
-          <RisksTable data={getStats.data.resourcesTypes} maxItems={5} />
+          <RisksTable
+            data={getStats.data.resourcesTypes}
+            maxItems={5}
+            onCellClick={handleCellClick}
+            onViewAllClick={handleViewAllClick}
+          />
         </ChartPanel>
       </EuiFlexItem>
       <EuiFlexItem>

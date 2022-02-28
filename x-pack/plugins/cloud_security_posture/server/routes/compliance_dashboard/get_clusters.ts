@@ -6,16 +6,14 @@
  */
 
 import { ElasticsearchClient } from 'kibana/server';
-import {
+import type {
   AggregationsMultiBucketAggregateBase as Aggregation,
+  QueryDslQueryContainer,
   SearchRequest,
 } from '@elastic/elasticsearch/lib/api/types';
 import { CloudPostureStats } from '../../../common/types';
-import {
-  getResourceTypeFromAggs,
-  resourceTypeAggQuery,
-  type ResourceTypeQueryResult,
-} from './get_resources_types';
+import { getResourceTypeFromAggs, resourceTypeAggQuery } from './get_resources_types';
+import type { ResourceTypeQueryResult } from './get_resources_types';
 import { CSP_KUBEBEAT_INDEX_PATTERN } from '../../../common/constants';
 import { findingsEvaluationAggsQuery, getStatsFromFindingsEvaluationsAggs } from './get_stats';
 import { KeyDocCount } from './compliance_dashboard';
@@ -34,14 +32,10 @@ interface ClustersQueryResult {
   aggs_by_cluster_id: Aggregation<ClusterBucket>;
 }
 
-export const getClustersQuery = (cycleId: string): SearchRequest => ({
+export const getClustersQuery = (query: QueryDslQueryContainer): SearchRequest => ({
   index: CSP_KUBEBEAT_INDEX_PATTERN,
   size: 0,
-  query: {
-    bool: {
-      filter: [{ term: { 'cycle_id.keyword': cycleId } }],
-    },
-  },
+  query,
   aggs: {
     aggs_by_cluster_id: {
       terms: {
@@ -50,7 +44,7 @@ export const getClustersQuery = (cycleId: string): SearchRequest => ({
       aggs: {
         benchmarks: {
           terms: {
-            field: 'rule.benchmark.keyword',
+            field: 'rule.benchmark.name.keyword',
           },
         },
         ...resourceTypeAggQuery,
@@ -91,11 +85,9 @@ export const getClustersFromAggs = (clusters: ClusterBucket[]): CloudPostureStat
 
 export const getClusters = async (
   esClient: ElasticsearchClient,
-  cycleId: string
+  query: QueryDslQueryContainer
 ): Promise<CloudPostureStats['clusters']> => {
-  const queryResult = await esClient.search<unknown, ClustersQueryResult>(
-    getClustersQuery(cycleId)
-  );
+  const queryResult = await esClient.search<unknown, ClustersQueryResult>(getClustersQuery(query));
   const clusters = queryResult.body.aggregations?.aggs_by_cluster_id.buckets;
   if (!Array.isArray(clusters)) throw new Error('missing aggs by cluster id');
 
