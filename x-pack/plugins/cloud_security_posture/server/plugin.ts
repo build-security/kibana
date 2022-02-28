@@ -68,10 +68,7 @@ export class CspPlugin
     return {};
   }
 
-  public async start(
-    core: CoreStart,
-    plugins: CspServerPluginStartDeps
-  ): Promise<CspServerPluginStart> {
+  public start(core: CoreStart, plugins: CspServerPluginStartDeps): CspServerPluginStart {
     this.logger.debug('csp: Started');
     this.CspAppService.start({
       ...plugins.fleet,
