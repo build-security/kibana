@@ -54,7 +54,7 @@ const buildQueryRequest = (latestCycleIds?: string[]): QueryDslQueryContainer =>
   let filterPart: QueryDslQueryContainer = { match_all: {} };
   if (!!latestCycleIds) {
     const filter = latestCycleIds.map((latestCycleId) => ({
-      term: { 'run_id.keyword': latestCycleId },
+      term: { 'cycle_id.keyword': latestCycleId },
     }));
     filterPart = { bool: { filter } };
   }
