@@ -23,8 +23,13 @@ import type {
 import { defineRoutes } from './routes';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
-import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
+// import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
 import { cspRuleTemplateAssetType } from './saved_objects/cis_1_4_1/csp_rule_template';
+import {
+  getPackagePolicyCreateCallback,
+  // getPackagePolicyUpdateCallback
+  getPackagePolicyDeleteCallback,
+} from './fleet_integration/fleet_integration';
 
 export interface CspAppContext {
   logger: Logger;
@@ -70,7 +75,10 @@ export class CspPlugin
     return {};
   }
 
-  public start(core: CoreStart, plugins: CspServerPluginStartDeps): CspServerPluginStart {
+  public async start(
+    core: CoreStart,
+    plugins: CspServerPluginStartDeps
+  ): Promise<CspServerPluginStart> {
     this.logger.debug('csp: Started');
     this.CspAppService.start({
       ...plugins.fleet,
@@ -80,7 +88,24 @@ export class CspPlugin
       this.logger.error
     );
 
-    initializeCspRules(core.savedObjects.createInternalRepository());
+    await plugins.fleet.fleetSetupCompleted;
+
+    plugins.fleet.registerExternalCallback(
+      'packagePolicyCreate',
+      getPackagePolicyCreateCallback(this.logger)
+    );
+
+    // plugins.fleet.registerExternalCallback(
+    //   'packagePolicyUpdate',
+    //   getPackagePolicyUpdateCallback()
+    // );
+
+    plugins.fleet.registerExternalCallback(
+      'postPackagePolicyDelete',
+      getPackagePolicyDeleteCallback(core.savedObjects.createInternalRepository())
+    );
+
+    // initializeCspRules(core.savedObjects.createInternalRepository());
 
     return {};
   }
