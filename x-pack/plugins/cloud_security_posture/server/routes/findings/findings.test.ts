@@ -162,7 +162,7 @@ describe('findings API', () => {
                 {
                   group_docs: {
                     hits: {
-                      hits: [{ fields: { 'run_id.keyword': ['randomId1'] } }],
+                      hits: [{ fields: { 'cycle_id.keyword': ['randomId1'] } }],
                     },
                   },
                 },
@@ -183,7 +183,7 @@ describe('findings API', () => {
       expect(handlerArgs).toMatchObject({
         query: {
           bool: {
-            filter: [{ term: { 'run_id.keyword': 'randomId1' } }],
+            filter: [{ term: { 'cycle_id.keyword': 'randomId1' } }],
           },
         },
       });
