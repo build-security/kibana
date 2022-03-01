@@ -100,7 +100,7 @@ export const updatePackagePolicy = (
 };
 
 export const defineUpdateRulesConfigRoute = (router: IRouter, cspContext: CspAppContext): void =>
-  router.get(
+  router.post(
     {
       path: UPDATE_RULES_CONFIG_ROUTE_PATH,
       validate: { query: configurationUpdateInputSchema },
@@ -112,7 +112,6 @@ export const defineUpdateRulesConfigRoute = (router: IRouter, cspContext: CspApp
         const packagePolicyService = cspContext.service.packagePolicyService;
         const packagePolicyId = request.query.package_policy_id;
 
-        // TODO: This validate can be remove after #2819 will be merged
         if (!packagePolicyService) {
           throw new Error(`Failed to get Fleet services`);
         }

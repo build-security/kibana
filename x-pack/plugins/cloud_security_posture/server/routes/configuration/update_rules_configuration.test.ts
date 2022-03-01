@@ -50,7 +50,7 @@ describe('Update rules configuration API', () => {
     };
     defineUpdateRulesConfigRoute(router, cspContext);
 
-    const [config, _] = router.get.mock.calls[0];
+    const [config, _] = router.post.mock.calls[0];
 
     expect(config.path).toEqual('/api/csp/update_rules_config');
   });

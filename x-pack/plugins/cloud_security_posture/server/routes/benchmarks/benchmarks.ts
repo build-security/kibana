@@ -150,7 +150,6 @@ export const defineGetBenchmarksRoute = (router: IRouter, cspContext: CspAppCont
         const agentPolicyService = cspContext.service.agentPolicyService;
         const packagePolicyService = cspContext.service.packagePolicyService;
 
-        // TODO: This validate can be remove after #2819 will be merged
         if (!agentPolicyService || !agentService || !packagePolicyService) {
           throw new Error(`Failed to get Fleet services`);
         }
