@@ -13,7 +13,6 @@ import type {
   Logger,
 } from '../../../../src/core/server';
 import { CspAppService } from './lib/csp_app_services';
-import { createFindingsIndexTemplate } from './index_template/create_index_template';
 import type {
   CspServerPluginSetup,
   CspServerPluginStart,
@@ -23,12 +22,10 @@ import type {
 import { defineRoutes } from './routes';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
-// import { initializeCspRules } from './saved_objects/cis_1_4_1/initialize_rules';
 import { cspRuleTemplateAssetType } from './saved_objects/cis_1_4_1/csp_rule_template';
 import {
   getPackagePolicyCreateCallback,
-  // getPackagePolicyUpdateCallback
-  getPackagePolicyDeleteCallback,
+  getPackagePolicyDeleteCallback
 } from './fleet_integration/fleet_integration';
 
 export interface CspAppContext {
@@ -84,10 +81,6 @@ export class CspPlugin
       ...plugins.fleet,
     });
 
-    createFindingsIndexTemplate(core.elasticsearch.client.asInternalUser, this.logger).catch(
-      this.logger.error
-    );
-
     await plugins.fleet.fleetSetupCompleted;
 
     plugins.fleet.registerExternalCallback(
@@ -95,17 +88,10 @@ export class CspPlugin
       getPackagePolicyCreateCallback(this.logger)
     );
 
-    // plugins.fleet.registerExternalCallback(
-    //   'packagePolicyUpdate',
-    //   getPackagePolicyUpdateCallback()
-    // );
-
     plugins.fleet.registerExternalCallback(
       'postPackagePolicyDelete',
       getPackagePolicyDeleteCallback(core.savedObjects.createInternalRepository())
     );
-
-    // initializeCspRules(core.savedObjects.createInternalRepository());
 
     return {};
   }
