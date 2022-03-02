@@ -30,11 +30,11 @@ const getAgentLogsEsQuery = (): SearchRequest => ({
       },
     },
   },
-  fields: ['run_id.keyword', 'agent.id.keyword'],
+  fields: ['cycle_id.keyword', 'agent.id.keyword'],
   _source: false,
 });
 
-const getCycleId = (v: any): string => v.group_docs.hits.hits?.[0]?.fields['run_id.keyword'][0];
+const getCycleId = (v: any): string => v.group_docs.hits.hits?.[0]?.fields['cycle_id.keyword'][0];
 
 export const getLatestCycleIds = async (
   esClient: ElasticsearchClient,
@@ -50,9 +50,10 @@ export const getLatestCycleIds = async (
     if (!Array.isArray(buckets)) {
       return;
     }
+
     return buckets.map(getCycleId);
   } catch (err) {
     logger.error('Failed to fetch cycle_ids');
-    return;
+    throw new Error('Failed to fetch cycle_ids');
   }
 };
