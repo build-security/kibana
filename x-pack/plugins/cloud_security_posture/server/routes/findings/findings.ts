@@ -119,6 +119,10 @@ export const defineFindingsIndexRoute = (router: IRouter, cspContext: CspAppCont
             ? await getLatestCycleIds(esClient, cspContext.logger)
             : undefined;
 
+        if (request.query.latest_cycle === true && latestCycleIds === undefined) {
+          return response.ok({ body: [] });
+        }
+
         const query = buildQueryRequest(request.query.kquery, latestCycleIds, cspContext.logger);
         const esQuery = getFindingsEsQuery(query, options);
 
