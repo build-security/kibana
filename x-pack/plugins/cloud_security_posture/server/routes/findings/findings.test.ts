@@ -183,7 +183,7 @@ describe('findings API', () => {
       expect(handlerArgs).toMatchObject({
         query: {
           bool: {
-            filter: [{ term: { 'cycle_id.keyword': 'randomId1' } }],
+            filter: [{ terms: { 'cycle_id.keyword': ['randomId1'] } }],
           },
         },
       });
@@ -446,7 +446,7 @@ describe('findings API', () => {
                   minimum_should_match: 1,
                 },
               },
-              { term: { 'cycle_id.keyword': 'randomId1' } },
+              { terms: { 'cycle_id.keyword': ['randomId1'] } },
             ],
           },
         },
