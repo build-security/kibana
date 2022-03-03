@@ -34,11 +34,11 @@ export const getPackagePolicy = async (
 
   // PackagePolicies always contains one element, even when package does not exist
   if (!packagePolicies || !packagePolicies[0].version) {
-    throw new Error(`package policy Id ${packagePolicyId} is not exist`);
+    throw new Error(`package policy Id '${packagePolicyId}' is not exist`);
   }
   if (packagePolicies[0].package?.name !== CIS_KUBERNETES_PACKAGE_NAME) {
     // TODO: improve this validator to support any future CSP package
-    throw new Error(`Package Policy Id ${packagePolicyId} is not CSP package`);
+    throw new Error(`Package Policy Id '${packagePolicyId}' is not CSP package`);
   }
 
   return packagePolicies![0];
