@@ -5,15 +5,14 @@
  * 2.0.
  */
 
-import { httpServerMock, loggingSystemMock } from 'src/core/server/mocks';
-import { savedObjectsClientMock } from 'src/core/server/saved_objects/service/saved_objects_client.mock';
-import type { SavedObjectsFindResponse} from 'src/core/server';
+import { httpServerMock, loggingSystemMock, savedObjectsClientMock } from 'src/core/server/mocks';
+import type { SavedObjectsFindResponse } from 'src/core/server';
 import { PackagePolicy } from '../../../fleet/common';
 import { CIS_BENCHMARK_1_4_1_RULE_TEMPLATES } from '../assets/csp_rule_templates';
 
 import {
   getPackagePolicyCreateCallback,
-  getPackagePolicyDeleteCallback
+  getPackagePolicyDeleteCallback,
 } from './fleet_integration';
 import { KibanaRequest, RequestHandlerContext } from 'kibana/server';
 import { NewPackagePolicy } from '../../../fleet/common/types/models';
@@ -50,7 +49,7 @@ describe('fleet integration csp tests ', () => {
         saved_objects: CIS_BENCHMARK_1_4_1_RULE_TEMPLATES,
         total: CIS_BENCHMARK_1_4_1_RULE_TEMPLATES.length,
       } as SavedObjectsFindResponse);
-      savedObjectsClient.bulkCreate = jest.fn().mockResolvedValue("");
+      savedObjectsClient.bulkCreate = jest.fn().mockResolvedValue('');
 
       await invokeCallback();
 
@@ -71,16 +70,15 @@ describe('fleet integration csp tests ', () => {
         saved_objects: CIS_BENCHMARK_1_4_1_RULE_TEMPLATES,
         total: numOfTemplates,
       } as SavedObjectsFindResponse);
-      savedObjectsClient.delete = jest.fn().mockResolvedValue("");
+      savedObjectsClient.delete = jest.fn().mockResolvedValue('');
 
       await invokeCallback();
-      
+
       expect(savedObjectsClient.find).toHaveBeenCalledTimes(1);
       expect(savedObjectsClient.delete).toHaveBeenCalledTimes(numOfTemplates);
     });
   });
 });
-
 
 const createNewPackagePolicyMock = (): NewPackagePolicy => {
   return {

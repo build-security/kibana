@@ -23,10 +23,10 @@ import { defineRoutes } from './routes';
 import { initUiSettings } from './ui_settings';
 import { cspRuleAssetType } from './saved_objects/cis_1_4_1/csp_rule_type';
 import { cspRuleTemplateAssetType } from './saved_objects/cis_1_4_1/csp_rule_template';
-import { initializeCspRuleTemplates } from './assets/initialize_rule_templates'
+import { initializeCspRuleTemplates } from './assets/initialize_rule_templates';
 import {
   getPackagePolicyCreateCallback,
-  getPackagePolicyDeleteCallback
+  getPackagePolicyDeleteCallback,
 } from './fleet_integration/fleet_integration';
 
 export interface CspAppContext {
@@ -62,13 +62,11 @@ export class CspPlugin
 
     core.savedObjects.registerType(cspRuleAssetType);
     core.savedObjects.registerType(cspRuleTemplateAssetType);
-    
-    core.getStartServices()
-    .then(([coreStart]) => {
-      initializeCspRuleTemplates(coreStart.savedObjects.createInternalRepository())
-      this.logger.debug("csp rule templates has been installed")
-    })
-    
+
+    core.getStartServices().then(([coreStart]) => {
+      initializeCspRuleTemplates(coreStart.savedObjects.createInternalRepository());
+      this.logger.debug('csp rule templates has been installed');
+    });
 
     const router = core.http.createRouter();
 
